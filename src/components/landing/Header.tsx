@@ -37,8 +37,8 @@ const Header = () => {
     }
     return "U";
   };
-  return <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white border-b border-border ${isScrolled ? "shadow-md" : ""}`}>
-      <div className="container-width px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-[#f1e9e9]">
+  return <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-border" : "bg-transparent border-b border-transparent"}`}>
+      <div className={`container-width px-4 sm:px-6 lg:px-8 py-3 sm:py-4 transition-all duration-500 ${isScrolled ? "bg-transparent" : "bg-transparent"}`}>
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 flex-shrink-0">
