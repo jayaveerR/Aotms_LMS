@@ -193,19 +193,19 @@ export default function Auth() {
           {/* Login Form */}
           {isLogin ? (
             <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
+              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-6">
                 <FormField
                   control={loginForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="login-email" className="text-sm font-medium text-foreground">Email</FormLabel>
+                      <FormLabel htmlFor="login-email" className="text-sm font-medium text-foreground">Email Address</FormLabel>
                       <FormControl>
                         <Input
                           id="login-email"
                           type="email"
-                          placeholder="student@example.com"
-                          className="h-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          placeholder="Enter your email"
+                          className="h-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60"
                           autoComplete="email"
                           {...field}
                         />
@@ -220,14 +220,17 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="login-password" className="text-sm font-medium text-foreground">Password</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel htmlFor="login-password" className="text-sm font-medium text-foreground">Password</FormLabel>
+                        <a href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</a>
+                      </div>
                       <div className="relative">
                         <FormControl>
                           <Input
                             id="login-password"
                             type={showLoginPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            className="h-12 pr-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            placeholder="Enter your password"
+                            className="h-12 pr-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60"
                             autoComplete="current-password"
                             {...field}
                           />
@@ -249,7 +252,7 @@ export default function Auth() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-sm rounded-lg mt-1"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
                 >
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
