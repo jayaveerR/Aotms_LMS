@@ -137,15 +137,53 @@ export default function InstructorRegister() {
         options: {
           data: {
             full_name: data.fullName,
-            role: 'instructor',
-            area_of_expertise: finalExpertise,
-            experience: data.experience,
           },
           emailRedirectTo: `${window.location.origin}/instructor`,
         },
       });
 
       if (signUpError) throw signUpError;
+
+      const userId = authData.user?.id;
+      if (!userId) throw new Error('User registration failed');
+
+      // Upload resume if provided
+      let resumeUrl = null;
+      if (resumeFile) {
+        const fileExt = resumeFile.name.split('.').pop();
+        const filePath = `${userId}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('instructor-resumes')
+          .upload(filePath, resumeFile);
+
+        if (uploadError) {
+          console.error('Resume upload error:', uploadError);
+        } else {
+          resumeUrl = filePath;
+        }
+      }
+
+      // Insert instructor application into database using raw query
+      // Table will exist after running the SQL migration in Cloud View
+      const applicationData = {
+        user_id: userId,
+        full_name: data.fullName,
+        email: data.email,
+        area_of_expertise: finalExpertise || '',
+        custom_expertise: data.areaOfExpertise === 'Other' ? data.customExpertise : null,
+        experience: data.experience,
+        resume_url: resumeUrl,
+      };
+
+      const { error: insertError } = await (supabase as any)
+        .from('instructor_applications')
+        .insert(applicationData);
+
+      if (insertError) {
+        console.error('Application insert error:', insertError);
+        // Don't throw - user is created, application can be resubmitted
+      }
 
       toast({
         title: 'Application Submitted!',
