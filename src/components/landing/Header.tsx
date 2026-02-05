@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Settings, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,6 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
+
+// Pages with light backgrounds that need dark navbar text
+const lightBgPages = ["/learning-paths", "/auth", "/dashboard", "/instructor", "/manager", "/admin"];
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -20,6 +23,10 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if current page has a light background
+  const hasLightBg = lightBgPages.some(page => location.pathname.startsWith(page));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,7 +85,7 @@ const Header = () => {
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
                 className={`px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-medium transition-all duration-200 ${
-                  isScrolled 
+                  isScrolled || hasLightBg
                     ? "text-foreground hover:text-primary" 
                     : "text-white hover:text-primary"
                 }`}
@@ -129,10 +136,10 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <div className="hidden sm:flex items-center gap-2 md:gap-3">
-                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
                   <Link to="/auth">Login</Link>
                 </Button>
-                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 animate-[pulse_3s_ease-in-out_infinite] hover:animate-none hover:scale-105 hover:bg-transparent ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 animate-[pulse_3s_ease-in-out_infinite] hover:animate-none hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
                   <Link to="/auth">Sign Up</Link>
                 </Button>
               </div>
@@ -144,7 +151,7 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`lg:hidden hover:bg-transparent ${isScrolled ? "text-foreground" : "text-white"}`}
+                  className={`lg:hidden hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground" : "text-white"}`}
                 >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>
