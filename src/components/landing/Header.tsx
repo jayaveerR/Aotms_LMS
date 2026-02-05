@@ -79,8 +79,8 @@ const Header = () => {
                 onClick={() => handleNavClick(link.href)}
                 className={`px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-medium transition-all duration-200 ${
                   isScrolled 
-                    ? "text-foreground hover:text-primary hover:bg-primary/10" 
-                    : "text-foreground/90 hover:text-primary hover:bg-white/10"
+                    ? "text-foreground hover:text-primary" 
+                    : "text-white hover:text-primary"
                 }`}
               >
                 {link.name}
