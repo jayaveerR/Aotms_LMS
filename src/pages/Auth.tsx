@@ -17,6 +17,10 @@ import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(1, { message: 'Password is required' }),
+  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const registerSchema = z.object({
@@ -62,13 +66,14 @@ export default function Auth() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showLoginConfirmPassword, setShowLoginConfirmPassword] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: '', password: '', confirmPassword: '' },
   });
 
   const registerForm = useForm<RegisterFormData>({
@@ -242,6 +247,37 @@ export default function Auth() {
                           tabIndex={-1}
                         >
                           {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={loginForm.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="login-confirm-password" className="text-sm font-medium text-foreground">Confirm Password</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            id="login-confirm-password"
+                            type={showLoginConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm your password"
+                            className="h-12 pr-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60 relative z-10"
+                            autoComplete="current-password"
+                            {...field}
+                          />
+                        </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginConfirmPassword(!showLoginConfirmPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-muted-foreground hover:text-foreground transition-colors"
+                          tabIndex={-1}
+                        >
+                          {showLoginConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
                       <FormMessage />
