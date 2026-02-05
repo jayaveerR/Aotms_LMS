@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import TargetCursor from "@/components/ui/TargetCursor";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import LearningPaths from "./pages/LearningPaths";
 import InstructorRegister from "./pages/InstructorRegister";
 import Dashboard from "./pages/Dashboard";
 import InstructorDashboard from "./pages/InstructorDashboard";
@@ -33,7 +34,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/become-instructor" element={<InstructorRegister />} />
-             <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/learning-paths" element={<LearningPaths />} />
+              <Route path="/dashboard" element={<Dashboard />} />
              <Route path="/dashboard/*" element={<Dashboard />} />
              <Route path="/instructor" element={<InstructorDashboard />} />
              <Route path="/instructor/*" element={<InstructorDashboard />} />
