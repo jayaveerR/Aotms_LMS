@@ -23,16 +23,16 @@ const LearningPathCard = ({
   onViewPath,
 }: LearningPathCardProps) => {
   const levelColors = {
-    Beginner: "bg-success/10 text-success border-success/20",
-    Intermediate: "bg-primary/10 text-primary border-primary/20",
-    Advanced: "bg-accent/10 text-accent border-accent/20",
+    Beginner: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    Intermediate: "bg-sky-100 text-sky-700 border-sky-200",
+    Advanced: "bg-amber-100 text-amber-700 border-amber-200",
   };
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3 }}
-      className="group relative bg-card rounded-xl border border-border p-6 shadow-soft hover:shadow-medium hover:border-primary/30 transition-all duration-300"
+      className="group relative bg-card rounded-xl border border-border p-6 shadow-soft hover:shadow-medium hover:border-sky-300 transition-all duration-300"
     >
       {isPopular && (
         <div className="absolute -top-3 right-4">
@@ -49,7 +49,7 @@ const LearningPathCard = ({
         </Badge>
       </div>
 
-      <h3 className="font-heading text-xl text-foreground mb-2 group-hover:text-primary transition-colors">
+      <h3 className="font-heading text-xl text-foreground mb-2 group-hover:text-sky-600 transition-colors">
         {title}
       </h3>
       
@@ -70,7 +70,7 @@ const LearningPathCard = ({
 
       <Button 
         variant="outline" 
-        className="w-full group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all"
+        className="w-full group-hover:bg-sky-500 group-hover:text-white group-hover:border-sky-500 transition-all"
         onClick={onViewPath}
       >
         View Path

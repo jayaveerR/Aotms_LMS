@@ -14,19 +14,19 @@ const PerformanceTracking = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
-              Track Your Progress & Compete
-            </h2>
-            <p className="text-muted-foreground mb-6">
+          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
+            Track Your Progress & Compete
+          </h2>
+          <p className="text-slate-600 mb-6">
               Monitor your learning journey with detailed analytics. See how you compare 
               with peers and stay motivated to reach your goals.
             </p>
             
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
+              <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-sky-600" />
+              </div>
                 <div>
                   <p className="font-medium text-foreground">Real-time Progress</p>
                   <p className="text-sm text-muted-foreground">Track completion across all courses</p>

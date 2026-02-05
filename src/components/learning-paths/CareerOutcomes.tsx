@@ -40,7 +40,7 @@ const CareerOutcomes = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
+          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
             Career Outcomes
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -72,7 +72,7 @@ const CareerOutcomes = () => {
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Briefcase className="w-4 h-4 text-primary" />
+                    <Briefcase className="w-4 h-4 text-sky-600" />
                     <span className="text-sm font-medium text-foreground">Job Roles</span>
                   </div>
                   <div className="flex flex-wrap gap-2">

@@ -177,11 +177,11 @@ const LearningPaths = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-10"
-            >
-              <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
-                Popular Learning Paths
-              </h2>
+          className="text-center mb-10"
+        >
+          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
+            Popular Learning Paths
+          </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Our most chosen career paths by students across Vijayawada and beyond
               </p>
@@ -214,11 +214,11 @@ const LearningPaths = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-10"
-            >
-              <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
-                All Learning Paths
-              </h2>
+          className="text-center mb-10"
+        >
+          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
+            All Learning Paths
+          </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Explore all available career paths and find the one that matches your goals
               </p>

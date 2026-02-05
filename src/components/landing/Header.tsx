@@ -11,7 +11,7 @@ import logo from "@/assets/logo.png";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Courses", href: "/#courses" },
-  { name: "Learning Paths", href: "/#learning-paths" },
+  { name: "Learning Paths", href: "/learning-paths" },
   { name: "Assignments", href: "/#assignments" },
   { name: "About", href: "/#about" },
 ];

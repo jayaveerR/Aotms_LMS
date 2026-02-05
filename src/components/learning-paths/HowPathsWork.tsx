@@ -36,7 +36,7 @@ const steps = [
 
 const HowPathsWork = () => {
   return (
-    <section className="section-padding bg-background">
+    <section className="section-padding bg-gradient-to-b from-sky-50/50 to-background">
       <div className="container-width">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -45,7 +45,7 @@ const HowPathsWork = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">
+          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
             How Learning Paths Work
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -69,10 +69,10 @@ const HowPathsWork = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="relative text-center"
                 >
-                  <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-card border border-border shadow-soft flex items-center justify-center relative z-10">
-                    <step.icon className="w-10 h-10 text-primary" />
+                  <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-card border border-sky-200 shadow-soft flex items-center justify-center relative z-10">
+                    <step.icon className="w-10 h-10 text-sky-500" />
                   </div>
-                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold z-20">
+                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-bold z-20">
                     {index + 1}
                   </div>
                   <h3 className="font-semibold text-foreground mb-1 mt-6">{step.title}</h3>
@@ -99,9 +99,9 @@ const HowPathsWork = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="flex items-start gap-4 relative"
                 >
-                  <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-card border border-border shadow-soft flex items-center justify-center relative z-10">
-                    <step.icon className="w-8 h-8 text-primary" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                  <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-card border border-sky-200 shadow-soft flex items-center justify-center relative z-10">
+                    <step.icon className="w-8 h-8 text-sky-500" />
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-sky-500 text-white flex items-center justify-center text-xs font-bold">
                       {index + 1}
                     </div>
                   </div>
