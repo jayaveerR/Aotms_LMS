@@ -1,23 +1,52 @@
  import { useState } from 'react';
  import { useNavigate } from 'react-router-dom';
+ import { useForm } from 'react-hook-form';
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { z } from 'zod';
  import { useAuth } from '@/hooks/useAuth';
  import { Button } from '@/components/ui/button';
  import { Input } from '@/components/ui/input';
- import { Label } from '@/components/ui/label';
+ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
  import { useToast } from '@/hooks/use-toast';
  import { supabase } from '@/integrations/supabase/client';
  import logo from '@/assets/logo.png';
  import { Mail, Lock, User } from 'lucide-react';
  
+ const loginSchema = z.object({
+   email: z.string().email({ message: 'Please enter a valid email address' }),
+   password: z.string().min(1, { message: 'Password is required' }),
+ });
+ 
+ const registerSchema = z.object({
+   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }).max(50, { message: 'Name must be less than 50 characters' }),
+   email: z.string().email({ message: 'Please enter a valid email address' }),
+   password: z
+     .string()
+     .min(8, { message: 'Password must be at least 8 characters' })
+     .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+     .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
+ });
+ 
+ type LoginFormData = z.infer<typeof loginSchema>;
+ type RegisterFormData = z.infer<typeof registerSchema>;
+ 
  export default function Auth() {
    const [isLogin, setIsLogin] = useState(false);
-   const [email, setEmail] = useState('');
-   const [password, setPassword] = useState('');
-   const [fullName, setFullName] = useState('');
    const [loading, setLoading] = useState(false);
    const { signIn, signUp } = useAuth();
    const { toast } = useToast();
    const navigate = useNavigate();
+ 
+   const loginForm = useForm<LoginFormData>({
+     resolver: zodResolver(loginSchema),
+     defaultValues: { email: '', password: '' },
+   });
+ 
+   const registerForm = useForm<RegisterFormData>({
+     resolver: zodResolver(registerSchema),
+     defaultValues: { fullName: '', email: '', password: '' },
+   });
  
    const handleGoogleSignIn = async () => {
      setLoading(true);
@@ -38,39 +67,44 @@
      }
    };
  
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
+   const handleLogin = async (data: LoginFormData) => {
      setLoading(true);
-     
-     if (isLogin) {
-       const { error } = await signIn(email, password);
-       setLoading(false);
-       if (error) {
-         toast({
-           title: 'Login Failed',
-           description: error.message,
-           variant: 'destructive',
-         });
-       } else {
-         toast({ title: 'Welcome back!' });
-         navigate('/dashboard');
-       }
+     const { error } = await signIn(data.email, data.password);
+     setLoading(false);
+     if (error) {
+       toast({
+         title: 'Login Failed',
+         description: error.message,
+         variant: 'destructive',
+       });
      } else {
-       const { error } = await signUp(email, password, fullName);
-       setLoading(false);
-       if (error) {
-         toast({
-           title: 'Registration Failed',
-           description: error.message,
-           variant: 'destructive',
-         });
-       } else {
-         toast({
-           title: 'Account Created!',
-           description: 'Please check your email to verify your account.',
-         });
-       }
+       toast({ title: 'Welcome back!' });
+       navigate('/dashboard');
      }
+   };
+ 
+   const handleRegister = async (data: RegisterFormData) => {
+     setLoading(true);
+     const { error } = await signUp(data.email, data.password, data.fullName);
+     setLoading(false);
+     if (error) {
+       toast({
+         title: 'Registration Failed',
+         description: error.message,
+         variant: 'destructive',
+       });
+     } else {
+       toast({
+         title: 'Account Created!',
+         description: 'Please check your email to verify your account.',
+       });
+     }
+   };
+ 
+   const toggleMode = () => {
+     setIsLogin(!isLogin);
+     loginForm.reset();
+     registerForm.reset();
    };
  
    return (
@@ -117,70 +151,146 @@
              </p>
            </div>
            
-           {/* Email/Password Form */}
-           <form onSubmit={handleSubmit} className="space-y-4">
-             {/* Full Name - Only for Registration */}
-             {!isLogin && (
-               <div className="space-y-2">
-                 <Label htmlFor="fullName">Full Name</Label>
-                 <div className="relative">
-                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                   <Input
-                     id="fullName"
-                     type="text"
-                     placeholder="John Doe"
-                     value={fullName}
-                     onChange={(e) => setFullName(e.target.value)}
-                     className="pl-10 h-12"
-                     required={!isLogin}
-                   />
-                 </div>
-               </div>
-             )}
-             
-             <div className="space-y-2">
-               <Label htmlFor="email">Your email</Label>
-               <div className="relative">
-                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   id="email"
-                   type="email"
-                   placeholder="student@example.com"
-                   value={email}
-                   onChange={(e) => setEmail(e.target.value)}
-                   className="pl-10 h-12"
-                   required
+           {/* Login Form */}
+           {isLogin ? (
+             <Form {...loginForm}>
+               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                 <FormField
+                   control={loginForm.control}
+                   name="email"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Your email</FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             type="email"
+                             placeholder="student@example.com"
+                             className="pl-10 h-12"
+                             {...field}
+                           />
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
                  />
-               </div>
-             </div>
-             
-             <div className="space-y-2">
-               <Label htmlFor="password">{isLogin ? 'Password' : 'Create password'}</Label>
-               <div className="relative">
-                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   id="password"
-                   type="password"
-                   placeholder="••••••••"
-                   value={password}
-                   onChange={(e) => setPassword(e.target.value)}
-                   className="pl-10 h-12"
-                   minLength={6}
-                   required
+                 
+                 <FormField
+                   control={loginForm.control}
+                   name="password"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Password</FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             type="password"
+                             placeholder="••••••••"
+                             className="pl-10 h-12"
+                             {...field}
+                           />
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
                  />
-               </div>
-             </div>
-             
-             <Button
-               type="submit"
-               disabled={loading}
-               className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-base rounded-lg"
-             >
-               {loading 
-                 ? (isLogin ? 'Signing in...' : 'Creating account...') 
-                 : (isLogin ? 'Sign In' : 'Create account')}
-             </Button>
-           </form>
+                 
+                 <Button
+                   type="submit"
+                   disabled={loading}
+                   className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-base rounded-lg"
+                 >
+                   {loading ? 'Signing in...' : 'Sign In'}
+                 </Button>
+               </form>
+             </Form>
+           ) : (
+             /* Register Form */
+             <Form {...registerForm}>
+               <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                 <FormField
+                   control={registerForm.control}
+                   name="fullName"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Full Name</FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             type="text"
+                             placeholder="John Doe"
+                             className="pl-10 h-12"
+                             {...field}
+                           />
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 
+                 <FormField
+                   control={registerForm.control}
+                   name="email"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Your email</FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             type="email"
+                             placeholder="student@example.com"
+                             className="pl-10 h-12"
+                             {...field}
+                           />
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 
+                 <FormField
+                   control={registerForm.control}
+                   name="password"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Create password</FormLabel>
+                       <FormControl>
+                         <div className="relative">
+                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             type="password"
+                             placeholder="••••••••"
+                             className="pl-10 h-12"
+                             {...field}
+                           />
+                         </div>
+                       </FormControl>
+                       <FormMessage />
+                       <p className="text-xs text-muted-foreground mt-1">
+                         Min 8 characters with uppercase, lowercase, and number
+                       </p>
+                     </FormItem>
+                   )}
+                 />
+                 
+                 <Button
+                   type="submit"
+                   disabled={loading}
+                   className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-base rounded-lg"
+                 >
+                   {loading ? 'Creating account...' : 'Create account'}
+                 </Button>
+               </form>
+             </Form>
+           )}
            
            {/* Divider */}
            <div className="flex items-center gap-4 my-6">
@@ -223,7 +333,7 @@
              {isLogin ? "Don't have an account? " : "Already have an account? "}
              <button
                type="button"
-               onClick={() => setIsLogin(!isLogin)}
+               onClick={toggleMode}
                className="text-accent hover:underline font-medium"
              >
                {isLogin ? 'Register' : 'Login'}
