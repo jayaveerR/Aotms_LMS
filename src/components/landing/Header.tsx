@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User, Settings, LogOut, LayoutDashboard, GraduationCap } from "lucide-react";
+import { Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -26,14 +26,6 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const navLinks = [
-    { name: "Home", href: "#" },
-    { name: "Courses", href: "#courses" },
-    { name: "Features", href: "#features" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
-  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -62,48 +54,26 @@ const Header = () => {
         isScrolled ? "shadow-md" : ""
       }`}
     >
-      <div className="container-width px-8 py-4">
+      <div className="container-width px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 flex-shrink-0">
             <img
               src={logo}
               alt="AOTMS Logo"
-              className="h-16 w-auto"
+              className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto"
             />
           </a>
 
-          {/* Navigation */}
-          <nav className="flex items-center gap-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors duration-200 relative group"
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
-          </nav>
-
-          {/* CTA Buttons or User Avatar */}
-          <div className="flex items-center gap-4">
-            {/* Become an Instructor Button */}
-            <Button variant="outline" size="default" asChild className="gap-2">
-              <Link to="/become-instructor">
-                <GraduationCap className="h-4 w-4" />
-                Become an Instructor
-              </Link>
-            </Button>
-            
+          {/* Auth Buttons or User Avatar */}
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
-                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/20">
                       <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -135,11 +105,11 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="hero-outline" size="default" asChild>
+                <Button variant="hero-outline" size="sm" className="text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6" asChild>
                   <Link to="/auth">Login</Link>
                 </Button>
-                <Button variant="accent" size="default" asChild>
-                  <Link to="/auth">Get Started</Link>
+                <Button variant="accent" size="sm" className="text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6" asChild>
+                  <Link to="/auth">Sign Up</Link>
                 </Button>
               </>
             )}
