@@ -14,16 +14,239 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      courses: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          instructor_id: string | null
+          instructor_name: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_at: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructor_id?: string | null
+          instructor_name?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructor_id?: string | null
+          instructor_name?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value?: Json | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          last_active_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          last_active_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          last_active_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          risk_level: string | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_level?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_level?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          log_type: string
+          module: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          log_type: string
+          module: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          log_type?: string
+          module?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      log_admin_action: {
+        Args: { _action: string; _details?: Json; _module: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "instructor" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +373,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "instructor", "student"],
+    },
   },
 } as const

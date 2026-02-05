@@ -1,10 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
-
-// Type helper for raw queries (tables not yet in generated types)
-const db = supabase as SupabaseClient<any>;
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // Types for admin data
 export interface Profile {
@@ -71,6 +68,11 @@ export interface AdminStats {
   roleCounts: Record<string, number>;
 }
 
+// Helper function to query tables not yet in generated types
+const queryTable = (tableName: string) => {
+  return (supabase as any).from(tableName);
+};
+
 export function useAdminData() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -94,11 +96,11 @@ export function useAdminData() {
     try {
       // Fetch in parallel
       const [profilesRes, rolesRes, coursesRes, eventsRes, logsRes] = await Promise.all([
-        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-        supabase.from('user_roles').select('*'),
-        supabase.from('courses').select('*').order('submitted_at', { ascending: false }),
-        supabase.from('security_events').select('*').order('created_at', { ascending: false }).limit(50),
-        supabase.from('system_logs').select('*').order('created_at', { ascending: false }).limit(100),
+        queryTable('profiles').select('*').order('created_at', { ascending: false }),
+        queryTable('user_roles').select('*'),
+        queryTable('courses').select('*').order('submitted_at', { ascending: false }),
+        queryTable('security_events').select('*').order('created_at', { ascending: false }).limit(50),
+        queryTable('system_logs').select('*').order('created_at', { ascending: false }).limit(100),
       ]);
 
       if (profilesRes.data) setProfiles(profilesRes.data as Profile[]);
@@ -240,7 +242,9 @@ export function useAdminData() {
 
   // Admin actions
   const updateUserStatus = async (userId: string, status: 'active' | 'suspended') => {
-    const { error } = await supabase.from('profiles').update({ status, updated_at: new Date().toISOString() }).eq('id', userId);
+    const { error } = await queryTable('profiles')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', userId);
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to update user status', variant: 'destructive' });
@@ -248,7 +252,7 @@ export function useAdminData() {
     }
 
     // Log the action
-    await supabase.rpc('log_admin_action', {
+    await (supabase as any).rpc('log_admin_action', {
       _module: 'User',
       _action: `User ${status === 'suspended' ? 'suspended' : 'activated'}`,
       _details: { user_id: userId },
@@ -260,9 +264,9 @@ export function useAdminData() {
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'manager' | 'instructor' | 'student') => {
     // First delete existing role, then insert new one
-    await supabase.from('user_roles').delete().eq('user_id', userId);
+    await queryTable('user_roles').delete().eq('user_id', userId);
 
-    const { error } = await supabase.from('user_roles').insert({ user_id: userId, role: newRole });
+    const { error } = await queryTable('user_roles').insert({ user_id: userId, role: newRole });
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to update user role', variant: 'destructive' });
@@ -270,7 +274,7 @@ export function useAdminData() {
     }
 
     // Log the action
-    await supabase.rpc('log_admin_action', {
+    await (supabase as any).rpc('log_admin_action', {
       _module: 'Role',
       _action: `Role changed to ${newRole}`,
       _details: { user_id: userId, new_role: newRole },
@@ -283,8 +287,7 @@ export function useAdminData() {
   const approveCourse = async (courseId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { error } = await supabase
-      .from('courses')
+    const { error } = await queryTable('courses')
       .update({
         status: 'approved',
         reviewed_at: new Date().toISOString(),
@@ -298,7 +301,7 @@ export function useAdminData() {
       return false;
     }
 
-    await supabase.rpc('log_admin_action', {
+    await (supabase as any).rpc('log_admin_action', {
       _module: 'Course',
       _action: 'Course approved',
       _details: { course_id: courseId },
@@ -311,8 +314,7 @@ export function useAdminData() {
   const rejectCourse = async (courseId: string, reason: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { error } = await supabase
-      .from('courses')
+    const { error } = await queryTable('courses')
       .update({
         status: 'rejected',
         rejection_reason: reason,
@@ -327,7 +329,7 @@ export function useAdminData() {
       return false;
     }
 
-    await supabase.rpc('log_admin_action', {
+    await (supabase as any).rpc('log_admin_action', {
       _module: 'Course',
       _action: 'Course rejected',
       _details: { course_id: courseId, reason },
@@ -340,8 +342,7 @@ export function useAdminData() {
   const resolveSecurityEvent = async (eventId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { error } = await supabase
-      .from('security_events')
+    const { error } = await queryTable('security_events')
       .update({
         resolved: true,
         resolved_at: new Date().toISOString(),
