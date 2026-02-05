@@ -47,7 +47,7 @@ const HeroSection = () => {
         }} transition={{
           duration: 0.6,
           delay: 0.1
-        }} className="font-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6 text-center font-semibold text-white drop-shadow-lg">
+        }} className="font-hero text-5xl md:text-6xl lg:text-7xl leading-tight mb-6 text-center font-semibold text-white drop-shadow-lg">
               Smart Learning Management System<br />
               <span className="text-accent">in Vijayawada</span> for Real-World Careers
            </motion.h1>
