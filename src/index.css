@@ -1,5 +1,3 @@
- @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
- 
  @tailwind base;
  @tailwind components;
  @tailwind utilities;
@@ -78,12 +76,12 @@
    
    /* Tilt Prism effect for hero - using gradient text */
    .font-hero {
-     font-family: 'Anton', sans-serif;
-     letter-spacing: 0.02em;
-     background: linear-gradient(135deg, hsl(229 71% 45%) 0%, hsl(24 95% 53%) 50%, hsl(229 71% 55%) 100%);
-     -webkit-background-clip: text;
-     -webkit-text-fill-color: transparent;
-     background-clip: text;
+     font-family: "Tilt Prism", sans-serif;
+     font-optical-sizing: auto;
+     font-weight: 400;
+     font-style: normal;
+     font-variation-settings: "XROT" 3, "YROT" 0;
+     color: hsl(0 0% 14%);
    }
    
    .font-heading {
