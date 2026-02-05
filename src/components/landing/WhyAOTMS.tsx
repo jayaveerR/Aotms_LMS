@@ -61,10 +61,10 @@ const WhyAOTMS = () => {
               <span className="text-sm font-medium">Why Students Love Us</span>
             </div>
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground mb-4">
-              Why Choose <span className="text-accent">AOTMS?</span>
+              Online Courses & Professional Training <span className="text-accent">in Vijayawada</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg px-4">
-              Transform your career with Andhra's most trusted training institute.
+              Transform your career with Vijayawada's most trusted LMS platform for skill-based learning and placement support.
             </p>
           </div>
         }

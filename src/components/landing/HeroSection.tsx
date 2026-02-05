@@ -38,7 +38,7 @@ const HeroSection = () => {
              </span>
            </motion.div>
  
-            <motion.h1 initial={{
+           <motion.h1 initial={{
           opacity: 0,
           y: 30
         }} animate={{
@@ -48,8 +48,8 @@ const HeroSection = () => {
           duration: 0.6,
           delay: 0.1
         }} className="font-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6 text-center font-semibold text-white drop-shadow-lg">
-              Learn Practice<br />
-              Get Job-Ready with AOTMS
+              Smart Learning Management System<br />
+              <span className="text-accent">in Vijayawada</span> for Real-World Careers
            </motion.h1>
  
            <motion.p initial={{
@@ -62,9 +62,9 @@ const HeroSection = () => {
           duration: 0.6,
           delay: 0.2
         }} className="text-sm md:text-base text-white/80 max-w-2xl mx-auto mb-10">
-             Skill-based learning with live classes, exams, and real-time
-             performance tracking. Join thousands of students mastering
-             industry-relevant skills.
+             AOTMS is Vijayawada's premier learning management system offering online courses, 
+             live classes, secure exams, mock tests, and ATS-based skill evaluation. 
+             Join thousands of students building real-world careers.
            </motion.p>
  
            <motion.div initial={{

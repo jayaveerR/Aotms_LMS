@@ -52,10 +52,10 @@
            transition={{ duration: 0.5 }}
            className="text-center mb-12"
          >
-           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground mb-4">
-             KEY FEATURES
-           </h2>
-           <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground mb-4">
+              Live Classes, Exams & Mock Tests on <span className="text-accent">AOTMS LMS</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
              Everything you need to succeed in your learning journey
            </p>
          </motion.div>

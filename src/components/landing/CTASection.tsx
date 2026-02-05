@@ -19,13 +19,13 @@
            transition={{ duration: 0.5 }}
            className="text-center max-w-3xl mx-auto"
          >
-           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-primary-foreground mb-6">
-             START YOUR LEARNING JOURNEY WITH AOTMS TODAY
-           </h2>
-           <p className="text-primary-foreground/80 mb-10 text-lg">
-             Join thousands of students who are mastering industry-relevant
-             skills and building successful careers.
-           </p>
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-primary-foreground mb-6">
+              Career-Focused Learning Platform for Students & Professionals in Vijayawada
+            </h2>
+            <p className="text-primary-foreground/80 mb-10 text-lg">
+              Join thousands of students across Vijayawada and beyond who are mastering 
+              industry-relevant skills and building successful careers with AOTMS LMS.
+            </p>
  
            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
              <Button

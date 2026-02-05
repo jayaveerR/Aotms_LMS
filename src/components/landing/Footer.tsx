@@ -138,9 +138,12 @@ const Footer = () => {
           <div className="col-span-2">
             <h4 className="font-medium text-muted-foreground text-sm mb-4">Address</h4>
             <p className="text-sm text-foreground leading-relaxed">
-              Auram Creative Center 19th<br />
-              Floor, Suite 1802 San<br />
-              Francisco, CA 94105, USA
+              Auram Creative Center, 19th Floor<br />
+              Vijayawada, Andhra Pradesh<br />
+              India - 520001
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Serving students across Vijayawada and beyond
             </p>
           </div>
         </div>
