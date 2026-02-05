@@ -6,13 +6,14 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
-import { Mail, Lock, User, Eye, EyeOff, Upload, Briefcase, GraduationCap, FileText, Check, X, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Upload, Briefcase, GraduationCap, Check, X, ArrowLeft } from 'lucide-react';
 
 const instructorSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }).max(100, { message: 'Name must be less than 100 characters' }),
@@ -25,6 +26,7 @@ const instructorSchema = z.object({
     .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
   confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
   areaOfExpertise: z.string().min(1, { message: 'Please select your area of expertise' }),
+  customExpertise: z.string().optional(),
   experience: z.string().min(1, { message: 'Please select your experience level' }),
   resume: z.any().optional(),
   agreeToTerms: z.boolean().refine((val) => val === true, {
@@ -33,6 +35,14 @@ const instructorSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
+}).refine((data) => {
+  if (data.areaOfExpertise === 'Other') {
+    return data.customExpertise && data.customExpertise.trim().length >= 2;
+  }
+  return true;
+}, {
+  message: "Please specify your area of expertise",
+  path: ["customExpertise"],
 });
 
 type InstructorFormData = z.infer<typeof instructorSchema>;
@@ -75,6 +85,8 @@ export default function InstructorRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -86,12 +98,14 @@ export default function InstructorRegister() {
       password: '',
       confirmPassword: '',
       areaOfExpertise: '',
+      customExpertise: '',
       experience: '',
       agreeToTerms: false,
     },
   });
 
   const watchPassword = form.watch('password');
+  const watchExpertise = form.watch('areaOfExpertise');
   const passwordStrength = getPasswordStrength(watchPassword || '');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +128,8 @@ export default function InstructorRegister() {
     setLoading(true);
     
     try {
+      const finalExpertise = data.areaOfExpertise === 'Other' ? data.customExpertise : data.areaOfExpertise;
+      
       // Sign up the instructor
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
@@ -122,7 +138,7 @@ export default function InstructorRegister() {
           data: {
             full_name: data.fullName,
             role: 'instructor',
-            area_of_expertise: data.areaOfExpertise,
+            area_of_expertise: finalExpertise,
             experience: data.experience,
           },
           emailRedirectTo: `${window.location.origin}/instructor`,
@@ -377,7 +393,7 @@ export default function InstructorRegister() {
                             <SelectValue placeholder="Select expertise" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-background border border-border shadow-lg z-[100]">
                           {expertiseOptions.map((option) => (
                             <SelectItem key={option} value={option}>
                               {option}
@@ -402,7 +418,7 @@ export default function InstructorRegister() {
                             <SelectValue placeholder="Select experience" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-background border border-border shadow-lg z-[100]">
                           {experienceOptions.map((option) => (
                             <SelectItem key={option} value={option}>
                               {option}
@@ -415,6 +431,27 @@ export default function InstructorRegister() {
                   )}
                 />
               </div>
+
+              {/* Custom Expertise Field - Shows when "Other" is selected */}
+              {watchExpertise === 'Other' && (
+                <FormField
+                  control={form.control}
+                  name="customExpertise"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Specify Your Expertise</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Blockchain Development, Game Design..."
+                          className="h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Resume Upload */}
               <FormField
@@ -460,9 +497,21 @@ export default function InstructorRegister() {
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-sm cursor-pointer">
                         I agree to the{' '}
-                        <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
+                        <button
+                          type="button"
+                          onClick={() => setShowTermsDialog(true)}
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Terms of Service
+                        </button>
                         {' '}and{' '}
-                        <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
+                        <button
+                          type="button"
+                          onClick={() => setShowPrivacyDialog(true)}
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Privacy Policy
+                        </button>
                       </FormLabel>
                       <FormMessage />
                     </div>
@@ -490,6 +539,127 @@ export default function InstructorRegister() {
           </Form>
         </div>
       </div>
+
+      {/* Terms of Service Dialog */}
+      <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] bg-background">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Terms of Service</DialogTitle>
+            <DialogDescription>
+              Please read our terms of service carefully before registering as an instructor.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <h3 className="font-semibold text-foreground">1. Instructor Agreement</h3>
+              <p>
+                By registering as an instructor on AOTMS, you agree to provide accurate and truthful information about your qualifications, experience, and expertise. You are responsible for maintaining the accuracy of your profile information.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">2. Content Guidelines</h3>
+              <p>
+                All course content must be original or properly licensed. You retain ownership of your content but grant AOTMS a non-exclusive license to distribute and promote your courses on our platform.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">3. Quality Standards</h3>
+              <p>
+                Instructors must maintain high-quality standards in their courses, including clear audio/video, well-structured content, and responsive student support. Courses may be reviewed and removed if they don't meet our quality guidelines.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">4. Payment Terms</h3>
+              <p>
+                Instructor earnings are calculated based on student enrollments and course completions. Payments are processed monthly, with a minimum threshold of applicable currency. Detailed payment terms will be provided upon approval.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">5. Code of Conduct</h3>
+              <p>
+                Instructors must maintain professional behavior in all interactions with students. Harassment, discrimination, or any form of misconduct will result in immediate account suspension.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">6. Intellectual Property</h3>
+              <p>
+                You must not upload content that infringes on third-party intellectual property rights. AOTMS reserves the right to remove any content that violates copyright or trademark laws.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">7. Account Termination</h3>
+              <p>
+                AOTMS reserves the right to terminate instructor accounts that violate these terms, receive consistent negative feedback, or fail to meet platform standards after appropriate warnings.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">8. Dispute Resolution</h3>
+              <p>
+                Any disputes arising from this agreement shall be resolved through arbitration in accordance with applicable laws. Both parties agree to attempt resolution through good-faith negotiation first.
+              </p>
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={() => setShowTermsDialog(false)}>I Understand</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Privacy Policy Dialog */}
+      <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] bg-background">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Privacy Policy</DialogTitle>
+            <DialogDescription>
+              Learn how we collect, use, and protect your personal information.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-4 text-sm text-muted-foreground">
+              <h3 className="font-semibold text-foreground">1. Information We Collect</h3>
+              <p>
+                We collect information you provide during registration including your name, email address, professional qualifications, and resume. We also collect usage data to improve our services.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">2. How We Use Your Information</h3>
+              <p>
+                Your information is used to verify your identity, process your instructor application, facilitate course creation, process payments, and communicate important updates about our platform.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">3. Information Sharing</h3>
+              <p>
+                We do not sell your personal information. We may share necessary information with payment processors, identity verification services, and as required by law.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">4. Data Security</h3>
+              <p>
+                We implement industry-standard security measures to protect your data, including encryption, secure servers, and regular security audits. However, no system is completely secure.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">5. Your Rights</h3>
+              <p>
+                You have the right to access, correct, or delete your personal information. You can also request a copy of your data or opt out of certain communications. Contact our support team for assistance.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">6. Cookies and Tracking</h3>
+              <p>
+                We use cookies and similar technologies to enhance your experience, analyze usage patterns, and personalize content. You can manage cookie preferences in your browser settings.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">7. Data Retention</h3>
+              <p>
+                We retain your information for as long as your account is active or as needed to provide services. You can request deletion of your account and associated data at any time.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">8. Policy Updates</h3>
+              <p>
+                We may update this privacy policy periodically. We will notify you of significant changes via email or through our platform. Continued use of our services constitutes acceptance of updates.
+              </p>
+              
+              <h3 className="font-semibold text-foreground">9. Contact Us</h3>
+              <p>
+                If you have questions about this privacy policy or our data practices, please contact our Data Protection Officer at privacy@aotms.com.
+              </p>
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={() => setShowPrivacyDialog(false)}>I Understand</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
