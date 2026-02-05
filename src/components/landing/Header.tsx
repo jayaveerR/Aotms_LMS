@@ -1,4 +1,5 @@
  import { useState } from "react";
+ import { Link } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  import { Menu, X } from "lucide-react";
  import logo from "@/assets/logo.png";
@@ -38,12 +39,12 @@
  
            {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="hero-outline" size="lg">
-               Login
-             </Button>
-            <Button variant="accent" size="lg">
-               Get Started
-             </Button>
+            <Button variant="hero-outline" size="lg" asChild>
+              <Link to="/auth">Login</Link>
+            </Button>
+            <Button variant="accent" size="lg" asChild>
+              <Link to="/auth">Get Started</Link>
+            </Button>
            </div>
  
            {/* Mobile Menu Toggle */}
@@ -71,12 +72,12 @@
                  </a>
                ))}
               <div className="flex flex-col gap-3 pt-5 border-t border-border">
-                <Button variant="hero-outline" size="lg" className="w-full">
-                   Login
-                 </Button>
-                <Button variant="accent" size="lg" className="w-full">
-                   Get Started
-                 </Button>
+               <Button variant="hero-outline" size="lg" className="w-full" asChild>
+                 <Link to="/auth" onClick={() => setIsMenuOpen(false)}>Login</Link>
+               </Button>
+               <Button variant="accent" size="lg" className="w-full" asChild>
+                 <Link to="/auth" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
+               </Button>
                </div>
              </nav>
            </div>
