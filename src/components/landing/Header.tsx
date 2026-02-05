@@ -15,21 +15,21 @@
    ];
  
    return (
-     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
-       <div className="container-width section-padding !py-3">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <div className="container-width section-padding !py-4 md:!py-5">
          <div className="flex items-center justify-between">
            {/* Logo */}
            <a href="#" className="flex items-center gap-2">
-             <img src={logo} alt="AOTMS Logo" className="h-10 md:h-12" />
+            <img src={logo} alt="AOTMS Logo" className="h-12 md:h-14 lg:h-16" />
            </a>
  
            {/* Desktop Navigation */}
-           <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-10">
              {navLinks.map((link) => (
                <a
                  key={link.name}
                  href={link.href}
-                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                className="text-base lg:text-lg font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
                >
                  {link.name}
                </a>
@@ -37,44 +37,44 @@
            </nav>
  
            {/* Desktop CTA Buttons */}
-           <div className="hidden md:flex items-center gap-3">
-             <Button variant="hero-outline" size="default">
+          <div className="hidden md:flex items-center gap-4">
+            <Button variant="hero-outline" size="lg">
                Login
              </Button>
-             <Button variant="accent" size="default">
+            <Button variant="accent" size="lg">
                Get Started
              </Button>
            </div>
  
            {/* Mobile Menu Toggle */}
            <button
-             className="md:hidden p-2 text-foreground"
+            className="md:hidden p-3 text-foreground"
              onClick={() => setIsMenuOpen(!isMenuOpen)}
              aria-label="Toggle menu"
            >
-             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
            </button>
          </div>
  
          {/* Mobile Menu */}
          {isMenuOpen && (
            <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border animate-fade-in">
-             <nav className="flex flex-col p-4 gap-4">
+            <nav className="flex flex-col p-6 gap-5">
                {navLinks.map((link) => (
                  <a
                    key={link.name}
                    href={link.href}
-                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  className="text-lg font-medium text-muted-foreground hover:text-foreground transition-colors py-3"
                    onClick={() => setIsMenuOpen(false)}
                  >
                    {link.name}
                  </a>
                ))}
-               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                 <Button variant="hero-outline" size="default" className="w-full">
+              <div className="flex flex-col gap-3 pt-5 border-t border-border">
+                <Button variant="hero-outline" size="lg" className="w-full">
                    Login
                  </Button>
-                 <Button variant="accent" size="default" className="w-full">
+                <Button variant="accent" size="lg" className="w-full">
                    Get Started
                  </Button>
                </div>
