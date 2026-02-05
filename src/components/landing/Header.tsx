@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, User, Settings, LogOut, LayoutDashboard, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -114,6 +114,14 @@ const Header = () => {
 
           {/* Desktop CTA Buttons or User Avatar - Hidden on mobile/tablet */}
           <div className="hidden lg:flex items-center gap-3 xl:gap-4">
+            {/* Become an Instructor Button */}
+            <Button variant="outline" size="default" asChild className="gap-2">
+              <Link to="/become-instructor">
+                <GraduationCap className="h-4 w-4" />
+                Become an Instructor
+              </Link>
+            </Button>
+            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -259,27 +267,40 @@ const Header = () => {
                       </button>
                     </>
                   ) : (
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col gap-3">
                       <Button
-                        variant="hero-outline"
+                        variant="outline"
                         size="lg"
-                        className="w-full sm:flex-1"
+                        className="w-full gap-2"
                         asChild
                       >
-                        <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                          Login
+                        <Link to="/become-instructor" onClick={() => setIsMenuOpen(false)}>
+                          <GraduationCap className="h-4 w-4" />
+                          Become an Instructor
                         </Link>
                       </Button>
-                      <Button
-                        variant="accent"
-                        size="lg"
-                        className="w-full sm:flex-1"
-                        asChild
-                      >
-                        <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                          Get Started
-                        </Link>
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                          variant="hero-outline"
+                          size="lg"
+                          className="w-full sm:flex-1"
+                          asChild
+                        >
+                          <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                            Login
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="accent"
+                          size="lg"
+                          className="w-full sm:flex-1"
+                          asChild
+                        >
+                          <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                            Get Started
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </motion.div>
