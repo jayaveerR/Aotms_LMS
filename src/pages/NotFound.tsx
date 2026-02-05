@@ -2,16 +2,12 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
-
 const NotFound = () => {
   const location = useLocation();
-
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
-
-  return (
-    <div className="flex min-h-screen">
+  return <div className="flex min-h-screen">
       {/* Left side - Primary color */}
       <div className="hidden md:flex md:w-1/2 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
@@ -34,7 +30,7 @@ const NotFound = () => {
       <div className="absolute inset-0 md:hidden bg-gradient-to-br from-primary via-primary/80 to-accent" />
 
       {/* Center content overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center text-primary-foreground rounded-sm border-secondary-foreground border bg-[sidebar-primary-foreground] bg-white">
         <div className="text-center px-6 py-12 rounded-2xl bg-background/95 backdrop-blur-sm shadow-large max-w-md mx-4 border border-border">
           {/* 404 Number */}
           <h1 className="text-8xl md:text-9xl font-bold gradient-text-brand mb-4 font-heading tracking-tight">
@@ -60,8 +56,6 @@ const NotFound = () => {
           </Link>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default NotFound;
