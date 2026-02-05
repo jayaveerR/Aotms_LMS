@@ -1,13 +1,52 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+
+const Snowflake = ({ delay, duration, left, size }: { delay: number; duration: number; left: number; size: number }) => (
+  <motion.div
+    className="absolute rounded-full bg-primary/20"
+    style={{
+      width: size,
+      height: size,
+      left: `${left}%`,
+      top: -20,
+    }}
+    animate={{
+      y: ["0vh", "100vh"],
+      x: [0, Math.random() * 50 - 25],
+      opacity: [0, 1, 1, 0],
+    }}
+    transition={{
+      duration,
+      delay,
+      repeat: Infinity,
+      ease: "linear",
+    }}
+  />
+);
+
 const HeroSection = () => {
+  const snowflakes = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    delay: Math.random() * 10,
+    duration: 8 + Math.random() * 8,
+    left: Math.random() * 100,
+    size: 4 + Math.random() * 8,
+  }));
+
   return <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
        {/* Background decorations */}
        <div className="absolute inset-0 -z-10">
          <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/5 to-accent/5 rounded-full blur-3xl" />
+       </div>
+
+       {/* Snow effect */}
+       <div className="absolute inset-0 -z-5 overflow-hidden pointer-events-none">
+         {snowflakes.map((flake) => (
+           <Snowflake key={flake.id} {...flake} />
+         ))}
        </div>
  
        <div className="container-width section-padding">
