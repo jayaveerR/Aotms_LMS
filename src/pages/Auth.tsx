@@ -16,6 +16,8 @@ import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
+  phone: z.string().optional(),
+  countryCode: z.string().default('+91'),
   password: z.string().min(1, { message: 'Password is required' }),
 });
 
@@ -69,7 +71,7 @@ export default function Auth() {
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: '', phone: '', countryCode: '+91', password: '' },
   });
 
   const registerForm = useForm<RegisterFormData>({
@@ -209,6 +211,27 @@ export default function Auth() {
                           className="h-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60"
                           autoComplete="email"
                           {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Phone Number */}
+                <FormField
+                  control={loginForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-foreground">Phone Number <span className="text-muted-foreground text-xs">(Optional)</span></FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          countryCode={loginForm.watch('countryCode')}
+                          onCountryChange={(code) => loginForm.setValue('countryCode', code)}
+                          placeholder="9876543210"
                         />
                       </FormControl>
                       <FormMessage />
