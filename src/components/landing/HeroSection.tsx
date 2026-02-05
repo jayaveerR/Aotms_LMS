@@ -4,7 +4,7 @@ import { ArrowRight, Play } from "lucide-react";
 import GridScan from "./GridScan";
 
 const HeroSection = () => {
-  return <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+  return <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-black">
        {/* GridScan Background */}
        <div className="absolute inset-0 -z-10">
          <GridScan
