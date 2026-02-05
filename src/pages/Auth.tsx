@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,8 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }).max(50, { message: 'Name must be less than 50 characters' }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
+  phone: z.string().optional(),
+  countryCode: z.string().default('+91'),
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters' })
@@ -70,7 +73,7 @@ export default function Auth() {
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '', agreeToTerms: false },
+    defaultValues: { fullName: '', email: '', phone: '', countryCode: '+91', password: '', confirmPassword: '', agreeToTerms: false },
   });
 
   const watchPassword = registerForm.watch('password');
@@ -113,6 +116,7 @@ export default function Auth() {
 
   const handleRegister = async (data: RegisterFormData) => {
     setLoading(true);
+    const fullPhone = data.phone ? `${data.countryCode}${data.phone}` : undefined;
     const { error } = await signUp(data.email, data.password, data.fullName);
     setLoading(false);
     if (error) {
@@ -136,7 +140,7 @@ export default function Auth() {
   };
 
   const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
-    <div className={`flex items-center gap-2 text-xs ${met ? 'text-green-600' : 'text-muted-foreground'}`}>
+    <div className={`flex items-center gap-1.5 text-xs ${met ? 'text-green-600' : 'text-muted-foreground'}`}>
       {met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
       <span>{text}</span>
     </div>
@@ -145,16 +149,16 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Gradient Background */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-accent/30 via-primary/20 to-accent/40 p-8 lg:p-12 flex flex-col relative overflow-hidden pointer-events-none">
+      <div className="lg:w-1/2 bg-gradient-to-br from-accent/30 via-primary/20 to-accent/40 p-6 lg:p-10 flex flex-col relative overflow-hidden pointer-events-none">
         {/* Logo */}
         <a href="/" className="flex items-center gap-3 z-10 pointer-events-auto">
-          <img src={logo} alt="AOTMS Logo" className="h-10 lg:h-12" />
+          <img src={logo} alt="AOTMS Logo" className="h-8 lg:h-10" />
         </a>
         
         {/* Motivational Text */}
-        <div className="flex-1 flex flex-col justify-center mt-8 lg:mt-0 z-10">
+        <div className="flex-1 flex flex-col justify-center mt-6 lg:mt-0 z-10">
           <p className="text-muted-foreground text-sm mb-2">You can easily</p>
-          <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight">
+          <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground leading-tight">
             Get access to your personal hub for learning and growth.
           </h1>
         </div>
@@ -165,37 +169,37 @@ export default function Auth() {
       </div>
       
       {/* Right Panel - Auth Form */}
-      <div className="lg:w-1/2 bg-background p-8 lg:p-12 flex items-center justify-center relative z-50">
-        <div className="w-full max-w-md relative z-50 pointer-events-auto">
+      <div className="lg:w-1/2 bg-background p-6 lg:p-8 flex items-center justify-center relative z-50 overflow-y-auto">
+        <div className="w-full max-w-md relative z-50 pointer-events-auto py-4">
           {/* Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="w-10 h-10 flex items-center justify-center">
-              <span className="text-accent text-3xl">✦</span>
+          <div className="flex justify-center mb-4">
+            <div className="w-8 h-8 flex items-center justify-center">
+              <span className="text-accent text-2xl">✦</span>
             </div>
           </div>
           
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+          <div className="text-center mb-6">
+            <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-1">
               {isLogin ? 'Welcome back' : 'Create an account'}
             </h2>
             <p className="text-muted-foreground text-sm">
               {isLogin 
                 ? 'Sign in to continue your learning journey.'
-                : 'Access your courses, track progress, and keep everything flowing in one place.'}
+                : 'Access your courses, track progress, and grow.'}
             </p>
           </div>
           
           {/* Login Form */}
           {isLogin ? (
             <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-3">
                 <FormField
                   control={loginForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="login-email">Your email</FormLabel>
+                      <FormLabel htmlFor="login-email" className="text-sm">Email</FormLabel>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                         <FormControl>
@@ -203,7 +207,7 @@ export default function Auth() {
                             id="login-email"
                             type="email"
                             placeholder="student@example.com"
-                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                            className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="email"
                             {...field}
                           />
@@ -219,7 +223,7 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="login-password">Password</FormLabel>
+                      <FormLabel htmlFor="login-password" className="text-sm">Password</FormLabel>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                         <FormControl>
@@ -227,7 +231,7 @@ export default function Auth() {
                             id="login-password"
                             type={showLoginPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                            className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="current-password"
                             {...field}
                           />
@@ -249,7 +253,7 @@ export default function Auth() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-base rounded-lg"
+                  className="w-full h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-sm rounded-lg"
                 >
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
@@ -258,133 +262,162 @@ export default function Auth() {
           ) : (
             /* Register Form */
             <Form {...registerForm}>
-              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                <FormField
-                  control={registerForm.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel htmlFor="register-name">Full Name</FormLabel>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
-                          <Input
-                            id="register-name"
-                            type="text"
-                            placeholder="John Doe"
-                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                            autoComplete="name"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={registerForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel htmlFor="register-email">Email Address</FormLabel>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
-                          <Input
-                            id="register-email"
-                            type="email"
-                            placeholder="student@example.com"
-                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                            autoComplete="email"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={registerForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel htmlFor="register-password">Password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
-                          <Input
-                            id="register-password"
-                            type={showRegisterPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                            autoComplete="new-password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
-                          tabIndex={-1}
-                        >
-                          {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                      {/* Password Strength Indicator */}
-                      {watchPassword && watchPassword.length > 0 && (
-                        <div className="mt-2 p-3 bg-muted/50 rounded-lg space-y-1">
-                          <PasswordRequirement met={passwordStrength.checks.length} text="At least 8 characters" />
-                          <PasswordRequirement met={passwordStrength.checks.uppercase} text="One uppercase letter" />
-                          <PasswordRequirement met={passwordStrength.checks.lowercase} text="One lowercase letter" />
-                          <PasswordRequirement met={passwordStrength.checks.number} text="One number" />
+              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-3">
+                {/* Row 1: Full Name & Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={registerForm.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="register-name" className="text-sm">Full Name</FormLabel>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-name"
+                              type="text"
+                              placeholder="John Doe"
+                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="name"
+                              {...field}
+                            />
+                          </FormControl>
                         </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="register-email" className="text-sm">Email</FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-email"
+                              type="email"
+                              placeholder="student@example.com"
+                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="email"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
+                {/* Phone Number with Country Code */}
                 <FormField
                   control={registerForm.control}
-                  name="confirmPassword"
+                  name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="register-confirm-password">Confirm Password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
-                          <Input
-                            id="register-confirm-password"
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                            autoComplete="new-password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
-                          tabIndex={-1}
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
+                      <FormLabel className="text-sm">Phone Number <span className="text-muted-foreground text-xs">(Optional)</span></FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          countryCode={registerForm.watch('countryCode')}
+                          onCountryChange={(code) => registerForm.setValue('countryCode', code)}
+                          placeholder="9876543210"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {/* Row 2: Password & Confirm Password */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={registerForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="register-password" className="text-sm">Password</FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-password"
+                              type={showRegisterPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="new-password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                            tabIndex={-1}
+                          >
+                            {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registerForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="register-confirm-password" className="text-sm">Confirm Password</FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-confirm-password"
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="new-password"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                            tabIndex={-1}
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Password Strength Indicator */}
+                {watchPassword && watchPassword.length > 0 && (
+                  <div className="p-2.5 bg-muted/50 rounded-lg grid grid-cols-2 gap-1">
+                    <PasswordRequirement met={passwordStrength.checks.length} text="8+ characters" />
+                    <PasswordRequirement met={passwordStrength.checks.uppercase} text="Uppercase" />
+                    <PasswordRequirement met={passwordStrength.checks.lowercase} text="Lowercase" />
+                    <PasswordRequirement met={passwordStrength.checks.number} text="Number" />
+                  </div>
+                )}
+
+                {/* Terms Checkbox */}
                 <FormField
                   control={registerForm.control}
                   name="agreeToTerms"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-1">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -393,10 +426,10 @@ export default function Auth() {
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal text-muted-foreground cursor-pointer">
+                        <FormLabel className="text-xs font-normal text-muted-foreground cursor-pointer">
                           I agree to the{' '}
-                          <a href="/terms" className="text-accent hover:underline">Terms of Service</a>
-                          {' '}and{' '}
+                          <a href="/terms" className="text-accent hover:underline">Terms</a>
+                          {' '}&{' '}
                           <a href="/privacy" className="text-accent hover:underline">Privacy Policy</a>
                         </FormLabel>
                         <FormMessage />
@@ -408,7 +441,7 @@ export default function Auth() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-medium text-base rounded-lg"
+                  className="w-full h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-sm rounded-lg"
                 >
                   {loading ? 'Creating account...' : 'Create account'}
                 </Button>
@@ -417,9 +450,9 @@ export default function Auth() {
           )}
           
           {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
+          <div className="flex items-center gap-3 my-4">
             <div className="flex-1 h-px bg-border" />
-            <span className="text-muted-foreground text-sm">or continue with</span>
+            <span className="text-muted-foreground text-xs">or</span>
             <div className="flex-1 h-px bg-border" />
           </div>
           
@@ -429,9 +462,9 @@ export default function Auth() {
             onClick={handleGoogleSignIn}
             disabled={loading}
             variant="outline"
-            className="w-full h-12 font-medium text-base rounded-lg flex items-center justify-center gap-3 border-2 hover:bg-muted/50"
+            className="w-full h-11 font-medium text-sm rounded-lg flex items-center justify-center gap-2 border hover:bg-muted/50"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -449,11 +482,11 @@ export default function Auth() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Continue with Google
+            Google
           </Button>
           
           {/* Toggle Login/Register */}
-          <p className="text-center text-sm text-muted-foreground mt-6">
+          <p className="text-center text-xs text-muted-foreground mt-4">
             {isLogin ? "Don't have an account? " : "Already have an account? "}
             <button
               type="button"
