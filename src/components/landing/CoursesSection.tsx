@@ -54,50 +54,77 @@
            </p>
          </motion.div>
  
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-           {courses.map((course, index) => (
-             <motion.div
-               key={course.title}
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               transition={{ duration: 0.5, delay: index * 0.1 }}
-               className="group bg-card rounded-xl overflow-hidden shadow-soft hover-lift border border-border hover:border-accent"
-             >
-               <div className="relative h-40 overflow-hidden">
-                 <img
-                   src={course.image}
-                   alt={course.title}
-                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                 />
-                 <span
-                   className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium ${levelColors[course.level]}`}
-                 >
-                   {course.level}
-                 </span>
-               </div>
-               <div className="p-5">
-                 <h3 className="font-semibold text-foreground mb-3 line-clamp-2">
-                   {course.title}
-                 </h3>
-                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                   <span className="flex items-center gap-1">
-                     <Clock className="w-4 h-4" />
-                     {course.duration}
-                   </span>
-                   <span className="flex items-center gap-1">
-                     <BarChart3 className="w-4 h-4" />
-                     {course.level}
-                   </span>
-                 </div>
-                 <Button variant="hero-outline" size="sm" className="w-full gap-1 group/btn">
-                   Explore Course
-                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                 </Button>
-               </div>
-             </motion.div>
-           ))}
-         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {courses.map((course, index) => (
+            <motion.div
+              key={course.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ 
+                y: -12,
+                rotateX: 2,
+                rotateY: -2,
+              }}
+              className="group relative bg-card rounded-2xl overflow-hidden border border-border cursor-pointer"
+              style={{ 
+                transformStyle: 'preserve-3d',
+                perspective: '1000px',
+              }}
+            >
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+              
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
+              
+              {/* Shine effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20 pointer-events-none overflow-hidden">
+                <div className="absolute -inset-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 group-hover:animate-[shimmer_1.5s_ease-in-out]" />
+              </div>
+
+              <div className="relative h-44 overflow-hidden">
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+                {/* Dark gradient overlay on image */}
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+                <span
+                  className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-semibold ${levelColors[course.level]} shadow-lg backdrop-blur-sm`}
+                >
+                  {course.level}
+                </span>
+              </div>
+              
+              <div className="relative p-5 bg-card z-10">
+                <h3 className="font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                  {course.title}
+                </h3>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                  <span className="flex items-center gap-1.5 group-hover:text-foreground transition-colors duration-300">
+                    <Clock className="w-4 h-4" />
+                    {course.duration}
+                  </span>
+                  <span className="flex items-center gap-1.5 group-hover:text-foreground transition-colors duration-300">
+                    <BarChart3 className="w-4 h-4" />
+                    {course.level}
+                  </span>
+                </div>
+                <Button 
+                  variant="hero-outline" 
+                  size="sm" 
+                  className="w-full gap-1.5 group/btn group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all duration-300"
+                >
+                  Explore Course
+                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
  
          <motion.div
            initial={{ opacity: 0 }}

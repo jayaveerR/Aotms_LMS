@@ -88,14 +88,18 @@
            from: { height: "var(--radix-accordion-content-height)" },
            to: { height: "0" },
          },
-         "float": {
-           "0%, 100%": { transform: "translateY(0)" },
-           "50%": { transform: "translateY(-10px)" },
-         },
-         "pulse-soft": {
-           "0%, 100%": { opacity: "1" },
-           "50%": { opacity: "0.8" },
-         },
+          "float": {
+            "0%, 100%": { transform: "translateY(0)" },
+            "50%": { transform: "translateY(-10px)" },
+          },
+          "pulse-soft": {
+            "0%, 100%": { opacity: "1" },
+            "50%": { opacity: "0.8" },
+          },
+          "shimmer": {
+            "0%": { transform: "translateX(-100%) skewX(-12deg)" },
+            "100%": { transform: "translateX(200%) skewX(-12deg)" },
+          },
        },
        animation: {
          "accordion-down": "accordion-down 0.2s ease-out",
