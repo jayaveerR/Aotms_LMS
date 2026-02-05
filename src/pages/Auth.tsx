@@ -31,13 +31,6 @@ const registerSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-// Input wrapper component to handle icons
-const InputWithIcon = ({ icon: Icon, ...props }: { icon: typeof Mail } & React.ComponentProps<typeof Input>) => (
-  <div className="relative">
-    <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-    <Input {...props} className={`pl-10 h-12 ${props.className || ''}`} />
-  </div>
-);
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(false);
@@ -169,19 +162,23 @@ export default function Auth() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="login-email">Your email</FormLabel>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             id="login-email"
                             type="email"
                             placeholder="student@example.com"
-                            className="pl-10 h-12 relative z-0"
+                            className="pl-10 h-12 bg-background text-foreground border-input focus:border-ring focus:ring-2 focus:ring-ring/20"
                             autoComplete="email"
-                            {...field}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            disabled={field.disabled}
                           />
-                        </FormControl>
-                      </div>
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -193,19 +190,23 @@ export default function Auth() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="login-password">Password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             id="login-password"
                             type="password"
                             placeholder="••••••••"
-                            className="pl-10 h-12 relative z-0"
+                            className="pl-10 h-12 bg-background text-foreground border-input focus:border-ring focus:ring-2 focus:ring-ring/20"
                             autoComplete="current-password"
-                            {...field}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            disabled={field.disabled}
                           />
-                        </FormControl>
-                      </div>
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -230,19 +231,23 @@ export default function Auth() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="register-name">Full Name</FormLabel>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             id="register-name"
                             type="text"
                             placeholder="John Doe"
-                            className="pl-10 h-12 relative z-0"
+                            className="pl-10 h-12 bg-background text-foreground border-input focus:border-ring focus:ring-2 focus:ring-ring/20"
                             autoComplete="name"
-                            {...field}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            disabled={field.disabled}
                           />
-                        </FormControl>
-                      </div>
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -254,19 +259,23 @@ export default function Auth() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="register-email">Your email</FormLabel>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             id="register-email"
                             type="email"
                             placeholder="student@example.com"
-                            className="pl-10 h-12 relative z-0"
+                            className="pl-10 h-12 bg-background text-foreground border-input focus:border-ring focus:ring-2 focus:ring-ring/20"
                             autoComplete="email"
-                            {...field}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            disabled={field.disabled}
                           />
-                        </FormControl>
-                      </div>
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -278,19 +287,23 @@ export default function Auth() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="register-password">Create password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             id="register-password"
                             type="password"
                             placeholder="••••••••"
-                            className="pl-10 h-12 relative z-0"
+                            className="pl-10 h-12 bg-background text-foreground border-input focus:border-ring focus:ring-2 focus:ring-ring/20"
                             autoComplete="new-password"
-                            {...field}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            disabled={field.disabled}
                           />
-                        </FormControl>
-                      </div>
+                        </div>
+                      </FormControl>
                       <FormMessage />
                       <p className="text-xs text-muted-foreground mt-1">
                         Min 8 characters with uppercase, lowercase, and number
