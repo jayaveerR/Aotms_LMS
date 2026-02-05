@@ -10,10 +10,10 @@ const HeroSection = () => {
          <GridScan
            sensitivity={0.55}
            lineThickness={1}
-           linesColor="#392e4e"
+           linesColor="#f97316"
            gridScale={0.1}
-           scanColor="#FF9FFC"
-           scanOpacity={0.4}
+           scanColor="#f97316"
+           scanOpacity={0.5}
            enablePost
            bloomIntensity={0.6}
            chromaticAberration={0.002}
