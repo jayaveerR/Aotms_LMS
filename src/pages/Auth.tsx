@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -35,6 +35,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -191,13 +193,21 @@ export default function Auth() {
                         <FormControl>
                           <Input
                             id="login-password"
-                            type="password"
+                            type={showLoginPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="current-password"
                             {...field}
                           />
                         </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginPassword(!showLoginPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                          tabIndex={-1}
+                        >
+                          {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -276,13 +286,21 @@ export default function Auth() {
                         <FormControl>
                           <Input
                             id="register-password"
-                            type="password"
+                            type={showRegisterPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="new-password"
                             {...field}
                           />
                         </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                          tabIndex={-1}
+                        >
+                          {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
                       </div>
                       <FormMessage />
                       <p className="text-xs text-muted-foreground mt-1">
