@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,11 +6,12 @@ import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -26,17 +27,38 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
+  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: 'You must agree to the Terms & Privacy Policy',
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
+// Password strength checker
+const getPasswordStrength = (password: string) => {
+  const checks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+  };
+  
+  const score = Object.values(checks).filter(Boolean).length;
+  
+  return { checks, score };
+};
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -48,8 +70,11 @@ export default function Auth() {
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', email: '', password: '' },
+    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '', agreeToTerms: false },
   });
+
+  const watchPassword = registerForm.watch('password');
+  const passwordStrength = useMemo(() => getPasswordStrength(watchPassword || ''), [watchPassword]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -110,6 +135,13 @@ export default function Auth() {
     registerForm.reset();
   };
 
+  const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
+    <div className={`flex items-center gap-2 text-xs ${met ? 'text-green-600' : 'text-muted-foreground'}`}>
+      {met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+      <span>{text}</span>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Gradient Background */}
@@ -127,12 +159,12 @@ export default function Auth() {
           </h1>
         </div>
         
-        {/* Decorative gradient orbs - behind content */}
+        {/* Decorative gradient orbs */}
         <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-accent/40 rounded-full blur-3xl pointer-events-none -z-10" />
         <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary/30 rounded-full blur-3xl pointer-events-none -z-10" />
       </div>
       
-      {/* Right Panel - Auth Form - MUST BE ON TOP */}
+      {/* Right Panel - Auth Form */}
       <div className="lg:w-1/2 bg-background p-8 lg:p-12 flex items-center justify-center relative z-50">
         <div className="w-full max-w-md relative z-50 pointer-events-auto">
           {/* Icon */}
@@ -256,7 +288,7 @@ export default function Auth() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="register-email">Your email</FormLabel>
+                      <FormLabel htmlFor="register-email">Email Address</FormLabel>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                         <FormControl>
@@ -280,7 +312,7 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="register-password">Create password</FormLabel>
+                      <FormLabel htmlFor="register-password">Password</FormLabel>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                         <FormControl>
@@ -302,10 +334,73 @@ export default function Auth() {
                           {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
+                      {/* Password Strength Indicator */}
+                      {watchPassword && watchPassword.length > 0 && (
+                        <div className="mt-2 p-3 bg-muted/50 rounded-lg space-y-1">
+                          <PasswordRequirement met={passwordStrength.checks.length} text="At least 8 characters" />
+                          <PasswordRequirement met={passwordStrength.checks.uppercase} text="One uppercase letter" />
+                          <PasswordRequirement met={passwordStrength.checks.lowercase} text="One lowercase letter" />
+                          <PasswordRequirement met={passwordStrength.checks.number} text="One number" />
+                        </div>
+                      )}
                       <FormMessage />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Min 8 characters with uppercase, lowercase, and number
-                      </p>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={registerForm.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="register-confirm-password">Confirm Password</FormLabel>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                        <FormControl>
+                          <Input
+                            id="register-confirm-password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pl-10 pr-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                            autoComplete="new-password"
+                            {...field}
+                          />
+                        </FormControl>
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={registerForm.control}
+                  name="agreeToTerms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="mt-0.5"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal text-muted-foreground cursor-pointer">
+                          I agree to the{' '}
+                          <a href="/terms" className="text-accent hover:underline">Terms of Service</a>
+                          {' '}and{' '}
+                          <a href="/privacy" className="text-accent hover:underline">Privacy Policy</a>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
                     </FormItem>
                   )}
                 />
@@ -328,7 +423,7 @@ export default function Auth() {
             <div className="flex-1 h-px bg-border" />
           </div>
           
-          {/* Google Sign In Button - Colorful */}
+          {/* Google Sign In Button */}
           <Button
             type="button"
             onClick={handleGoogleSignIn}
