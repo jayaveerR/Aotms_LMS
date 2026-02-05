@@ -129,10 +129,10 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <div className="hidden sm:flex items-center gap-2 md:gap-3">
-                <Button variant="hero-outline" size="sm" className="text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6" asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 ${isScrolled ? "text-foreground hover:text-primary" : "text-white hover:text-white/80"}`} asChild>
                   <Link to="/auth">Login</Link>
                 </Button>
-                <Button variant="accent" size="sm" className="text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6" asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 ${isScrolled ? "text-foreground hover:text-primary" : "text-white hover:text-white/80"}`} asChild>
                   <Link to="/auth">Sign Up</Link>
                 </Button>
               </div>
