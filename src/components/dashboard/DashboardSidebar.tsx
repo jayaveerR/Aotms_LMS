@@ -11,35 +11,37 @@
    SidebarMenuItem,
    SidebarFooter,
  } from '@/components/ui/sidebar';
- import {
-   LayoutDashboard,
-   User,
-   BookOpen,
-   Video,
-   Calendar,
-   FileText,
-   ClipboardCheck,
-   History,
-   Trophy,
-   Bell,
-   LogOut,
- } from 'lucide-react';
+import {
+  LayoutDashboard,
+  User,
+  BookOpen,
+  Video,
+  Calendar,
+  FileText,
+  ClipboardCheck,
+  History,
+  Trophy,
+  Bell,
+  Settings,
+  LogOut,
+} from 'lucide-react';
  import { useAuth } from '@/hooks/useAuth';
  import { Button } from '@/components/ui/button';
  import logo from '@/assets/logo.png';
  
- const menuItems = [
-   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-   { title: 'My Profile', url: '/dashboard/profile', icon: User },
-   { title: 'My Courses', url: '/dashboard/courses', icon: BookOpen },
-   { title: 'Recorded Videos', url: '/dashboard/videos', icon: Video },
-   { title: 'Live Classes', url: '/dashboard/live-classes', icon: Calendar },
-   { title: 'Mock Papers', url: '/dashboard/mock-papers', icon: FileText },
-   { title: 'Live Exams', url: '/dashboard/exams', icon: ClipboardCheck },
-   { title: 'Exam History', url: '/dashboard/history', icon: History },
-   { title: 'Leaderboard', url: '/dashboard/leaderboard', icon: Trophy },
-   { title: 'Notifications', url: '/dashboard/notifications', icon: Bell },
- ];
+const menuItems = [
+  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'My Profile', url: '/dashboard/profile', icon: User },
+  { title: 'My Courses', url: '/dashboard/courses', icon: BookOpen },
+  { title: 'Recorded Videos', url: '/dashboard/videos', icon: Video },
+  { title: 'Live Classes', url: '/dashboard/live-classes', icon: Calendar },
+  { title: 'Mock Papers', url: '/dashboard/mock-papers', icon: FileText },
+  { title: 'Live Exams', url: '/dashboard/exams', icon: ClipboardCheck },
+  { title: 'Exam History', url: '/dashboard/history', icon: History },
+  { title: 'Leaderboard', url: '/dashboard/leaderboard', icon: Trophy },
+  { title: 'Notifications', url: '/dashboard/notifications', icon: Bell },
+  { title: 'Settings', url: '/dashboard/settings', icon: Settings },
+];
  
  export function DashboardSidebar() {
    const location = useLocation();
