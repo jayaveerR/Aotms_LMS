@@ -1,14 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
-
-const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
-};
-
-export default Index;
+ import Header from "@/components/landing/Header";
+ import HeroSection from "@/components/landing/HeroSection";
+ import WhyAOTMS from "@/components/landing/WhyAOTMS";
+ import CoursesSection from "@/components/landing/CoursesSection";
+ import HowItWorks from "@/components/landing/HowItWorks";
+ import KeyFeatures from "@/components/landing/KeyFeatures";
+ import Leaderboard from "@/components/landing/Leaderboard";
+ import Instructors from "@/components/landing/Instructors";
+ import Testimonials from "@/components/landing/Testimonials";
+ import CTASection from "@/components/landing/CTASection";
+ import Footer from "@/components/landing/Footer";
+ 
+ const Index = () => {
+   return (
+     <div className="min-h-screen bg-background">
+       <Header />
+       <main>
+         <HeroSection />
+         <WhyAOTMS />
+         <CoursesSection />
+         <HowItWorks />
+         <KeyFeatures />
+         <Leaderboard />
+         <Instructors />
+         <Testimonials />
+         <CTASection />
+       </main>
+       <Footer />
+     </div>
+   );
+ };
+ 
+ export default Index;
