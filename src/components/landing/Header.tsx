@@ -129,10 +129,10 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <div className="hidden sm:flex items-center gap-2 md:gap-3">
-                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
                   <Link to="/auth">Login</Link>
                 </Button>
-                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 animate-[pulse_3s_ease-in-out_infinite] hover:animate-none hover:scale-105 ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
+                <Button variant="ghost" size="sm" className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 animate-[pulse_3s_ease-in-out_infinite] hover:animate-none hover:scale-105 hover:bg-transparent ${isScrolled ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`} asChild>
                   <Link to="/auth">Sign Up</Link>
                 </Button>
               </div>
