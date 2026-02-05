@@ -258,47 +258,28 @@ export default function Auth() {
           ) : (
             /* Register Form */
             <Form {...registerForm}>
-              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                {/* Full Name - Full Width */}
-                <FormField
-                  control={registerForm.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel htmlFor="register-name" className="text-sm font-medium text-foreground">Full Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="register-name"
-                          type="text"
-                          placeholder="John Doe"
-                          className="h-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                          autoComplete="name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Row 1: Email & Phone Number */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-3">
+                {/* Row 1: Full Name & Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField
                     control={registerForm.control}
-                    name="email"
+                    name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="register-email" className="text-sm font-medium text-foreground">Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="register-email"
-                            type="email"
-                            placeholder="student@example.com"
-                            className="h-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                            autoComplete="email"
-                            {...field}
-                          />
-                        </FormControl>
+                        <FormLabel htmlFor="register-name" className="text-sm">Full Name</FormLabel>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-name"
+                              type="text"
+                              placeholder="John Doe"
+                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="name"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -306,40 +287,66 @@ export default function Auth() {
                   
                   <FormField
                     control={registerForm.control}
-                    name="phone"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-foreground">Phone <span className="text-muted-foreground text-xs">(Optional)</span></FormLabel>
-                        <FormControl>
-                          <PhoneInput
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            countryCode={registerForm.watch('countryCode')}
-                            onCountryChange={(code) => registerForm.setValue('countryCode', code)}
-                            placeholder="9876543210"
-                          />
-                        </FormControl>
+                        <FormLabel htmlFor="register-email" className="text-sm">Email</FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                          <FormControl>
+                            <Input
+                              id="register-email"
+                              type="email"
+                              placeholder="student@example.com"
+                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              autoComplete="email"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
+                {/* Phone Number with Country Code */}
+                <FormField
+                  control={registerForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm">Phone Number <span className="text-muted-foreground text-xs">(Optional)</span></FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          countryCode={registerForm.watch('countryCode')}
+                          onCountryChange={(code) => registerForm.setValue('countryCode', code)}
+                          placeholder="9876543210"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Row 2: Password & Confirm Password */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField
                     control={registerForm.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="register-password" className="text-sm font-medium text-foreground">Password</FormLabel>
+                        <FormLabel htmlFor="register-password" className="text-sm">Password</FormLabel>
                         <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                           <FormControl>
                             <Input
                               id="register-password"
                               type={showRegisterPassword ? "text" : "password"}
                               placeholder="••••••••"
-                              className="h-12 pr-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                               autoComplete="new-password"
                               {...field}
                             />
@@ -347,10 +354,10 @@ export default function Auth() {
                           <button
                             type="button"
                             onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
                             tabIndex={-1}
                           >
-                            {showRegisterPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
                         </div>
                         <FormMessage />
@@ -363,14 +370,15 @@ export default function Auth() {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="register-confirm-password" className="text-sm font-medium text-foreground">Confirm Password</FormLabel>
+                        <FormLabel htmlFor="register-confirm-password" className="text-sm">Confirm Password</FormLabel>
                         <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
                           <FormControl>
                             <Input
                               id="register-confirm-password"
                               type={showConfirmPassword ? "text" : "password"}
                               placeholder="••••••••"
-                              className="h-12 pr-12 bg-background text-foreground border-input rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                               autoComplete="new-password"
                               {...field}
                             />
@@ -378,10 +386,10 @@ export default function Auth() {
                           <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
                             tabIndex={-1}
                           >
-                            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
                         </div>
                         <FormMessage />
