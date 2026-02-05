@@ -225,10 +225,7 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel htmlFor="login-password" className="text-sm font-medium text-foreground">Password</FormLabel>
-                        <a href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</a>
-                      </div>
+                      <FormLabel htmlFor="login-password" className="text-sm font-medium text-foreground">Password</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input
