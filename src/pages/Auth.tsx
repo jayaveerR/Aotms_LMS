@@ -161,17 +161,21 @@
                    render={({ field }) => (
                      <FormItem>
                        <FormLabel>Your email</FormLabel>
-                       <FormControl>
-                         <div className="relative">
-                           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             type="email"
-                             placeholder="student@example.com"
-                             className="pl-10 h-12"
-                             {...field}
-                           />
-                         </div>
-                       </FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              type="email"
+                              placeholder="student@example.com"
+                              className="pl-10 h-12"
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              disabled={field.disabled}
+                            />
+                          </div>
+                        </FormControl>
                        <FormMessage />
                      </FormItem>
                    )}
@@ -183,17 +187,21 @@
                    render={({ field }) => (
                      <FormItem>
                        <FormLabel>Password</FormLabel>
-                       <FormControl>
-                         <div className="relative">
-                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             type="password"
-                             placeholder="••••••••"
-                             className="pl-10 h-12"
-                             {...field}
-                           />
-                         </div>
-                       </FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 h-12"
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              disabled={field.disabled}
+                            />
+                          </div>
+                        </FormControl>
                        <FormMessage />
                      </FormItem>
                    )}
@@ -218,17 +226,21 @@
                    render={({ field }) => (
                      <FormItem>
                        <FormLabel>Full Name</FormLabel>
-                       <FormControl>
-                         <div className="relative">
-                           <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             type="text"
-                             placeholder="John Doe"
-                             className="pl-10 h-12"
-                             {...field}
-                           />
-                         </div>
-                       </FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              type="text"
+                              placeholder="John Doe"
+                              className="pl-10 h-12"
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              disabled={field.disabled}
+                            />
+                          </div>
+                        </FormControl>
                        <FormMessage />
                      </FormItem>
                    )}
@@ -240,17 +252,21 @@
                    render={({ field }) => (
                      <FormItem>
                        <FormLabel>Your email</FormLabel>
-                       <FormControl>
-                         <div className="relative">
-                           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             type="email"
-                             placeholder="student@example.com"
-                             className="pl-10 h-12"
-                             {...field}
-                           />
-                         </div>
-                       </FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              type="email"
+                              placeholder="student@example.com"
+                              className="pl-10 h-12"
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              disabled={field.disabled}
+                            />
+                          </div>
+                        </FormControl>
                        <FormMessage />
                      </FormItem>
                    )}
@@ -262,17 +278,21 @@
                    render={({ field }) => (
                      <FormItem>
                        <FormLabel>Create password</FormLabel>
-                       <FormControl>
-                         <div className="relative">
-                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             type="password"
-                             placeholder="••••••••"
-                             className="pl-10 h-12"
-                             {...field}
-                           />
-                         </div>
-                       </FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 h-12"
+                              value={field.value}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              disabled={field.disabled}
+                            />
+                          </div>
+                        </FormControl>
                        <FormMessage />
                        <p className="text-xs text-muted-foreground mt-1">
                          Min 8 characters with uppercase, lowercase, and number
