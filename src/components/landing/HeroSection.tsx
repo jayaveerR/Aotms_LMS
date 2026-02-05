@@ -61,7 +61,7 @@ const HeroSection = () => {
         }} transition={{
           duration: 0.6,
           delay: 0.2
-        }} className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+        }} className="text-sm md:text-base text-white/80 max-w-2xl mx-auto mb-10">
              Skill-based learning with live classes, exams, and real-time
              performance tracking. Join thousands of students mastering
              industry-relevant skills.
