@@ -111,9 +111,9 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Gradient Background */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-accent/30 via-primary/20 to-accent/40 p-8 lg:p-12 flex flex-col relative overflow-hidden">
+      <div className="lg:w-1/2 bg-gradient-to-br from-accent/30 via-primary/20 to-accent/40 p-8 lg:p-12 flex flex-col relative overflow-hidden pointer-events-none">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3 z-10">
+        <a href="/" className="flex items-center gap-3 z-10 pointer-events-auto">
           <img src={logo} alt="AOTMS Logo" className="h-10 lg:h-12" />
         </a>
         
@@ -126,13 +126,13 @@ export default function Auth() {
         </div>
         
         {/* Decorative gradient orbs - behind content */}
-        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-accent/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-accent/40 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary/30 rounded-full blur-3xl pointer-events-none -z-10" />
       </div>
       
-      {/* Right Panel - Auth Form */}
-      <div className="lg:w-1/2 bg-background p-8 lg:p-12 flex items-center justify-center">
-        <div className="w-full max-w-md">
+      {/* Right Panel - Auth Form - MUST BE ON TOP */}
+      <div className="lg:w-1/2 bg-background p-8 lg:p-12 flex items-center justify-center relative z-50">
+        <div className="w-full max-w-md relative z-50 pointer-events-auto">
           {/* Icon */}
           <div className="flex justify-center mb-6">
             <div className="w-10 h-10 flex items-center justify-center">
@@ -169,7 +169,7 @@ export default function Auth() {
                             id="login-email"
                             type="email"
                             placeholder="student@example.com"
-                            className="pl-10 h-12 bg-background text-foreground border-input"
+                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="email"
                             {...field}
                           />
@@ -193,7 +193,7 @@ export default function Auth() {
                             id="login-password"
                             type="password"
                             placeholder="••••••••"
-                            className="pl-10 h-12 bg-background text-foreground border-input"
+                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="current-password"
                             {...field}
                           />
@@ -230,7 +230,7 @@ export default function Auth() {
                             id="register-name"
                             type="text"
                             placeholder="John Doe"
-                            className="pl-10 h-12 bg-background text-foreground border-input"
+                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="name"
                             {...field}
                           />
@@ -254,7 +254,7 @@ export default function Auth() {
                             id="register-email"
                             type="email"
                             placeholder="student@example.com"
-                            className="pl-10 h-12 bg-background text-foreground border-input"
+                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="email"
                             {...field}
                           />
@@ -278,7 +278,7 @@ export default function Auth() {
                             id="register-password"
                             type="password"
                             placeholder="••••••••"
-                            className="pl-10 h-12 bg-background text-foreground border-input"
+                            className="pl-10 h-12 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
                             autoComplete="new-password"
                             {...field}
                           />
