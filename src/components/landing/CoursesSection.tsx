@@ -108,7 +108,7 @@ const CoursesSection = () => {
       >
         <CarouselContent className="-ml-3">
           {courses.map((course, index) => (
-            <CarouselItem key={course.title} className="pl-3 basis-[280px] sm:basis-[300px] md:basis-[320px]">
+            <CarouselItem key={course.title} className="pl-3 basis-[260px] sm:basis-[280px]">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -116,9 +116,10 @@ const CoursesSection = () => {
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 className="group cursor-pointer h-full"
               >
-                <div className="h-full flex flex-col">
+                {/* Card Container with border */}
+                <div className="h-full flex flex-col bg-card rounded-2xl border border-border shadow-sm overflow-hidden p-3">
                   {/* Image Header */}
-                  <div className={`relative h-36 sm:h-40 bg-gradient-to-br ${course.gradient} rounded-xl overflow-hidden`}>
+                  <div className={`relative h-44 sm:h-48 bg-gradient-to-br ${course.gradient} rounded-xl overflow-hidden`}>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <course.icon className="w-12 h-12 text-white/20" />
                     </div>
@@ -130,16 +131,16 @@ const CoursesSection = () => {
                   </div>
 
                   {/* Overlapping Icon */}
-                  <div className="relative px-3">
-                    <div className="absolute -top-5 left-3">
-                      <div className={`w-10 h-10 rounded-full ${course.iconBg} flex items-center justify-center shadow-md border-3 border-background`}>
+                  <div className="relative px-1">
+                    <div className="absolute -top-5 left-1">
+                      <div className={`w-10 h-10 rounded-full ${course.iconBg} flex items-center justify-center shadow-md border-[3px] border-card`}>
                         <course.icon className="w-4 h-4 text-primary-foreground" />
                       </div>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="pt-7 pb-2 flex-1 flex flex-col">
+                  <div className="pt-7 pb-1 px-1 flex-1 flex flex-col">
                     <h3 className="font-semibold text-foreground text-base mb-1.5 group-hover:text-primary transition-colors">
                       {course.title}
                     </h3>
