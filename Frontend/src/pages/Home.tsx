@@ -13,23 +13,25 @@ import Footer from "@/components/landing/Footer";
 
 const Home = () => {
     return (
-        <div className="min-h-screen bg-background">
-            <Header />
-            <main>
-                <div id="main-content">
-                    <HeroSection />
-                </div>
-                <WhyAOTMS />
-                <CoursesSection />
-                <HowItWorks />
-                <KeyFeatures />
-                <Leaderboard />
-                <Instructors />
-                <Testimonials />
-                <FAQSection />
-                <CTASection />
-            </main>
-            <Footer />
+        <div className="min-h-screen bg-black">
+            <div id="home-content" className="bg-background relative z-10">
+                <Header />
+                <main>
+                    <div id="main-content">
+                        <HeroSection />
+                    </div>
+                    <WhyAOTMS />
+                    <CoursesSection />
+                    <HowItWorks />
+                    <KeyFeatures />
+                    <Leaderboard />
+                    <Instructors />
+                    <Testimonials />
+                    <FAQSection />
+                    <CTASection />
+                </main>
+                <Footer />
+            </div>
         </div>
     );
 };

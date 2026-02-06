@@ -72,9 +72,9 @@ const ScrollFrameAnimation = () => {
             const img = images[Math.round(index)];
             if (!img) return;
 
-            // Set canvas dimensions to match window, maintaining aspect ratio
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Set canvas dimensions to match its display size (responsive to container)
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
 
             // Calculate separate scales for covering smoothly
             const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
@@ -96,13 +96,16 @@ const ScrollFrameAnimation = () => {
         return () => unsubscribe();
     }, [isLoaded, frameIndex, images]);
 
-    const handleNavigateToHome = () => {
-        navigate("/home");
+    const handleScrollToContent = () => {
+        const contentElement = document.getElementById("home-content");
+        if (contentElement) {
+            contentElement.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
     return (
-        <div ref={containerRef} className="relative h-[800vh] bg-black">
-            <div className="sticky top-0 h-screen overflow-hidden bg-black">
+        <div ref={containerRef} className="relative bg-black">
+            <div className="sticky top-0 h-screen md:top-10 md:h-auto md:w-[60vh] lg:w-[70vh] md:aspect-[19/16] md:mx-auto md:rounded-3xl overflow-hidden bg-black md:border md:border-white/20 md:shadow-2xl transition-all duration-500">
                 <canvas ref={canvasRef} className="w-full h-full block object-cover" />
 
                 {/* Loading Indicator */}
@@ -118,7 +121,7 @@ const ScrollFrameAnimation = () => {
                     className="absolute bottom-10 left-0 right-0 flex justify-center z-50"
                 >
                     <button
-                        onClick={handleNavigateToHome}
+                        onClick={handleScrollToContent}
                         className="px-8 py-4 bg-primary text-primary-foreground text-xl font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
                     >
                         Go to Home Page

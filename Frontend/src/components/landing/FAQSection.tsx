@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Accordion,
   AccordionContent,
@@ -93,8 +94,82 @@ const faqCategories = [
 ];
 
 const FAQSection = () => {
+  const containerRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Map scroll progress to frame index (playing only first 60 frames for slower effect)
+  const TOTAL_FRAMES = 224;
+  const frameIndex = useTransform(scrollYProgress, [0, 1], [0, 60]);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      const imageUrls = import.meta.glob('@/Home_images/*.jpg', { eager: true, query: '?url', import: 'default' });
+      const sortedUrls = Object.keys(imageUrls)
+        .sort((a, b) => {
+          const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
+          const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
+          return aNum - bNum;
+        })
+        .map(key => imageUrls[key] as string);
+
+      const loadedImages: HTMLImageElement[] = [];
+      for (const url of sortedUrls) {
+        const img = new Image();
+        img.src = url;
+        await new Promise((resolve) => {
+          img.onload = () => resolve(null);
+          img.onerror = () => resolve(null);
+        });
+        loadedImages.push(img);
+      }
+      setImages(loadedImages);
+      setIsLoaded(true);
+    };
+    loadImages();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded || images.length === 0) return;
+
+    const renderFrame = (index: number) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!canvas || !ctx) return;
+
+      const img = images[Math.round(index)];
+      if (!img) return;
+
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+      const x = (canvas.width / 2) - (img.width / 2) * scale;
+      const y = (canvas.height / 2) - (img.height / 2) * scale;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+    };
+
+    const handleResize = () => renderFrame(frameIndex.get());
+    window.addEventListener("resize", handleResize);
+    renderFrame(0);
+
+    const unsubscribe = frameIndex.on("change", (latest) => renderFrame(latest));
+    return () => {
+      unsubscribe();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isLoaded, frameIndex, images]);
+
   return (
-    <section id="faq" className="section-padding bg-muted/30">
+    <section ref={containerRef} id="faq" className="section-padding bg-muted/30">
       <div className="container-width">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -111,43 +186,58 @@ const FAQSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {faqCategories.map((category, categoryIndex) => (
-            <motion.div
-              key={category.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: categoryIndex * 0.1 }}
-              className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-sm"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <category.icon className="w-5 h-5 text-white" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Left Side - Sticky Visual (1080x1920 aspect ratio) */}
+          <div className="hidden lg:block lg:col-span-5 relative">
+            <div className="sticky top-24 w-full lg:aspect-[10/14] rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl bg-black z-10">
+              <canvas ref={canvasRef} className="w-full h-full block object-cover" />
+              {!isLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center text-white/50 font-mono tracking-widest text-sm">
+                  INITIALIZING...
                 </div>
-                <h3 className="font-heading text-lg sm:text-xl text-foreground">
-                  {category.title}
-                </h3>
-              </div>
+              )}
+            </div>
+          </div>
 
-              <Accordion type="single" collapsible className="space-y-2">
-                {category.questions.map((item, index) => (
-                  <AccordionItem
-                    key={index}
-                    value={`${categoryIndex}-${index}`}
-                    className="border border-border/50 rounded-xl px-4 data-[state=open]:bg-muted/50"
-                  >
-                    <AccordionTrigger className="text-left text-sm sm:text-base font-medium hover:no-underline py-3">
-                      {item.q}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground text-sm pb-4">
-                      {item.a}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </motion.div>
-          ))}
+          {/* Right Side - FAQ Content */}
+          <div className="lg:col-span-7 space-y-12 lg:space-y-32 relative z-0 pb-24">
+            {faqCategories.map((category, categoryIndex) => (
+              <motion.div
+                key={category.title}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: categoryIndex * 0.1 }}
+                className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <category.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-heading text-lg sm:text-xl text-foreground">
+                    {category.title}
+                  </h3>
+                </div>
+
+                <Accordion type="single" collapsible className="space-y-2">
+                  {category.questions.map((item, index) => (
+                    <AccordionItem
+                      key={index}
+                      value={`${categoryIndex}-${index}`}
+                      className="border border-border/50 rounded-xl px-4 data-[state=open]:bg-muted/50"
+                    >
+                      <AccordionTrigger className="text-left text-sm sm:text-base font-medium hover:no-underline py-3">
+                        {item.q}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground text-sm pb-4">
+                        {item.a}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
