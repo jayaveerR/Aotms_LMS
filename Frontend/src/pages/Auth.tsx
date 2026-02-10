@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
 import { Mail, Lock, User, Eye, EyeOff, Check, X } from 'lucide-react';
 
@@ -83,29 +82,12 @@ export default function Auth() {
   const passwordStrength = useMemo(() => getPasswordStrength(watchPassword || ''), [watchPassword]);
 
   const handleGoogleSignIn = async () => {
-    setLoading(true);
-    // For Google Auth, we can't easily intercept the redirect here since it redirects the browser.
-    // The redirect URL is set to window.location.origin/dashboard.
-    // We'll rely on a Dashboard component effect to redirect if the role doesn't match, 
-    // or we can change the redirect URL to a special auth-callback page that handles routing.
-    // For now, let's keep it as is, but we might want to update the redirectTo if we have a robust way.
-    // actually, let's update the redirectTo to just origin, and let the root route or App handle it?
-    // or just leave it for now as the user primarily asked for login form.
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
+    toast({
+      title: 'Google Sign In',
+      description: 'Google authentication is currently disabled in backend-mode.',
+      variant: 'default',
     });
-
-    if (error) {
-      toast({
-        title: 'Login Failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-      setLoading(false);
-    }
+    // Implementation would require backend OAuth flow
   };
 
   const handleLogin = async (data: LoginFormData) => {
@@ -120,40 +102,10 @@ export default function Auth() {
         variant: 'destructive',
       });
     } else {
-      // Fetch user role for redirection
-      const { data: { user } } = await supabase.auth.getUser();
-
-      let targetPath = '/dashboard';
-
-      if (user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-
-        const role = roleData?.role;
-
-        switch (role) {
-          case 'admin':
-            targetPath = '/admin';
-            break;
-          case 'manager':
-            targetPath = '/manager';
-            break;
-          case 'instructor':
-            targetPath = '/instructor';
-            break;
-          case 'student':
-          default:
-            targetPath = '/dashboard';
-            break;
-        }
-      }
-
       toast({ title: 'Welcome back!' });
       setLoading(false);
-      navigate(targetPath);
+      // specific redirection is handled by Dashboard component or could be returned by signIn
+      navigate('/dashboard');
     }
   };
 

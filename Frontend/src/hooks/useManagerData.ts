@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Exam {
@@ -28,7 +27,7 @@ export interface Question {
   question_text: string;
   question_type: string;
   difficulty: string;
-  options: any;
+  options: Record<string, string> | string[];
   correct_answer: string;
   explanation: string | null;
   marks: number | null;
@@ -43,7 +42,7 @@ export interface LeaderboardEntry {
   exams_completed: number | null;
   average_percentage: number | null;
   rank: number | null;
-  badges: any;
+  badges: string[] | null;
   is_verified: boolean | null;
 }
 
@@ -69,23 +68,35 @@ export interface MockTestConfig {
   topics: string[];
   question_count: number;
   duration_minutes: number;
-  difficulty_mix: any;
+  difficulty_mix: Record<string, number>;
   is_active: boolean | null;
   created_by: string;
 }
+
+const API_URL = 'http://localhost:5000/api';
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('access_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    ...options.headers,
+  };
+  const res = await fetch(`${API_URL}${url}`, { ...options, headers });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'API Request Failed');
+  }
+  return res.json();
+};
 
 // Exams
 export function useExams() {
   return useQuery({
     queryKey: ['exams'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('exams')
-        .select('*')
-        .order('scheduled_date', { ascending: true });
-
-      if (error) throw error;
-      return data as Exam[];
+      // order by scheduled_date ascending
+      return fetchWithAuth('/data/exams?sort=scheduled_date&order=asc');
     },
   });
 }
@@ -96,14 +107,10 @@ export function useCreateExam() {
 
   return useMutation({
     mutationFn: async (exam: Omit<Exam, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('exams')
-        .insert(exam)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth('/data/exams', {
+        method: 'POST',
+        body: JSON.stringify(exam)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
@@ -121,15 +128,10 @@ export function useUpdateExam() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Exam> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('exams')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/data/exams/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
@@ -147,8 +149,7 @@ export function useDeleteExam() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('exams').delete().eq('id', id);
-      if (error) throw error;
+      await fetchWithAuth(`/data/exams/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exams'] });
@@ -165,33 +166,34 @@ export function useQuestions() {
   return useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('question_bank')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Question[];
+      return fetchWithAuth('/data/question_bank?sort=created_at&order=desc');
     },
   });
 }
 
 export function useQuestionsByTopic() {
   const { data: questions = [] } = useQuestions();
-  
-  const grouped = questions.reduce((acc, q) => {
+
+  const grouped = questions.reduce((acc: Record<string, { easy: number; medium: number; hard: number; total: number }>, q: Question) => {
     if (!acc[q.topic]) {
       acc[q.topic] = { easy: 0, medium: 0, hard: 0, total: 0 };
     }
-    acc[q.topic][q.difficulty as 'easy' | 'medium' | 'hard']++;
+    const difficulty = q.difficulty as 'easy' | 'medium' | 'hard';
+    if (acc[q.topic][difficulty] !== undefined) {
+      acc[q.topic][difficulty]++;
+    }
     acc[q.topic].total++;
     return acc;
   }, {} as Record<string, { easy: number; medium: number; hard: number; total: number }>);
 
-  return Object.entries(grouped).map(([topic, stats]) => ({
-    topic,
-    ...stats,
-  }));
+  return Object.entries(grouped).map(([topic, stats]) => {
+    // Explicitly cast to ensure TS knows it's an object
+    const typedStats = stats as { easy: number; medium: number; hard: number; total: number };
+    return {
+      topic,
+      ...typedStats,
+    };
+  });
 }
 
 export function useCreateQuestion() {
@@ -200,14 +202,10 @@ export function useCreateQuestion() {
 
   return useMutation({
     mutationFn: async (question: Omit<Question, 'id'>) => {
-      const { data, error } = await supabase
-        .from('question_bank')
-        .insert(question)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth('/data/question_bank', {
+        method: 'POST',
+        body: JSON.stringify(question)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['questions'] });
@@ -225,8 +223,7 @@ export function useDeleteQuestion() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('question_bank').delete().eq('id', id);
-      if (error) throw error;
+      await fetchWithAuth(`/data/question_bank/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['questions'] });
@@ -243,13 +240,7 @@ export function useLeaderboard() {
   return useQuery({
     queryKey: ['leaderboard'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leaderboard')
-        .select('*')
-        .order('total_score', { ascending: false });
-
-      if (error) throw error;
-      return data as LeaderboardEntry[];
+      return fetchWithAuth('/data/leaderboard?sort=total_score&order=desc');
     },
   });
 }
@@ -260,15 +251,10 @@ export function useVerifyLeaderboardEntry() {
 
   return useMutation({
     mutationFn: async ({ id, verified_by }: { id: string; verified_by: string }) => {
-      const { data, error } = await supabase
-        .from('leaderboard')
-        .update({ is_verified: true, verified_by, verified_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/data/leaderboard/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_verified: true, verified_by, verified_at: new Date().toISOString() })
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
@@ -285,13 +271,7 @@ export function useGuestCredentials() {
   return useQuery({
     queryKey: ['guest-credentials'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('guest_credentials')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as GuestCredential[];
+      return fetchWithAuth('/data/guest_credentials?sort=created_at&order=desc');
     },
   });
 }
@@ -302,14 +282,10 @@ export function useCreateGuestCredential() {
 
   return useMutation({
     mutationFn: async (credential: Omit<GuestCredential, 'id' | 'last_login_at'>) => {
-      const { data, error } = await supabase
-        .from('guest_credentials')
-        .insert(credential)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth('/data/guest_credentials', {
+        method: 'POST',
+        body: JSON.stringify(credential)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['guest-credentials'] });
@@ -327,8 +303,7 @@ export function useDeleteGuestCredential() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('guest_credentials').delete().eq('id', id);
-      if (error) throw error;
+      await fetchWithAuth(`/data/guest_credentials/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['guest-credentials'] });
@@ -345,13 +320,7 @@ export function useMockTestConfigs() {
   return useQuery({
     queryKey: ['mock-test-configs'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mock_test_configs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as MockTestConfig[];
+      return fetchWithAuth('/data/mock_test_configs?sort=created_at&order=desc');
     },
   });
 }
@@ -362,14 +331,10 @@ export function useCreateMockTestConfig() {
 
   return useMutation({
     mutationFn: async (config: Omit<MockTestConfig, 'id'>) => {
-      const { data, error } = await supabase
-        .from('mock_test_configs')
-        .insert(config)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth('/data/mock_test_configs', {
+        method: 'POST',
+        body: JSON.stringify(config)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mock-test-configs'] });
@@ -387,8 +352,7 @@ export function useDeleteMockTestConfig() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('mock_test_configs').delete().eq('id', id);
-      if (error) throw error;
+      await fetchWithAuth(`/data/mock_test_configs/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mock-test-configs'] });
@@ -401,17 +365,21 @@ export function useDeleteMockTestConfig() {
 }
 
 // Student Exam Results (for monitoring)
+// Use plain fetch call as originally implemented
 export function useExamResults(examId?: string) {
   return useQuery({
     queryKey: ['exam-results', examId],
     queryFn: async () => {
-      let query = supabase.from('student_exam_results').select('*');
+      // Filter logic is slightly specialized, but we can do simple filter via query params if we supported it
+      // Or filtering on client side if data set is small
+      // My generic endpoint only supports sort and limit.
+      // For specific filtering, we may need to fetch all or add filter support to server.js
+      // For now, let's fetch all Exam Results and filter on client if examId is provided
+      // This is not efficient for production but sufficient for migration
+      const data = await fetchWithAuth('/data/student_exam_results?sort=completed_at&order=desc');
       if (examId) {
-        query = query.eq('exam_id', examId);
+        return data.filter((d: { exam_id: string }) => d.exam_id === examId);
       }
-      const { data, error } = await query.order('completed_at', { ascending: false });
-
-      if (error) throw error;
       return data;
     },
   });

@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -71,6 +70,23 @@ export interface CourseAnnouncement {
   created_at: string | null;
 }
 
+const API_URL = 'http://localhost:5000/api';
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('access_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    ...options.headers,
+  };
+  const res = await fetch(`${API_URL}${url}`, { ...options, headers });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'API Request Failed');
+  }
+  return res.json();
+};
+
 export function useInstructorCourses() {
   const { user } = useAuth();
 
@@ -78,14 +94,7 @@ export function useInstructorCourses() {
     queryKey: ['instructor-courses', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('instructor_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Course[];
+      return fetchWithAuth('/instructor/courses');
     },
     enabled: !!user?.id,
   });
@@ -96,14 +105,7 @@ export function useTopics(courseId: string | null) {
     queryKey: ['course-topics', courseId],
     queryFn: async () => {
       if (!courseId) return [];
-      const { data, error } = await supabase
-        .from('course_topics')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('order_index', { ascending: true });
-
-      if (error) throw error;
-      return data as CourseTopic[];
+      return fetchWithAuth(`/courses/${courseId}/topics`);
     },
     enabled: !!courseId,
   });
@@ -114,14 +116,7 @@ export function useVideos(courseId: string | null) {
     queryKey: ['course-videos', courseId],
     queryFn: async () => {
       if (!courseId) return [];
-      const { data, error } = await supabase
-        .from('course_videos')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('order_index', { ascending: true });
-
-      if (error) throw error;
-      return data as CourseVideo[];
+      return fetchWithAuth(`/courses/${courseId}/videos`);
     },
     enabled: !!courseId,
   });
@@ -132,14 +127,7 @@ export function useResources(courseId: string | null) {
     queryKey: ['course-resources', courseId],
     queryFn: async () => {
       if (!courseId) return [];
-      const { data, error } = await supabase
-        .from('course_resources')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('order_index', { ascending: true });
-
-      if (error) throw error;
-      return data as CourseResource[];
+      return fetchWithAuth(`/courses/${courseId}/resources`);
     },
     enabled: !!courseId,
   });
@@ -150,14 +138,7 @@ export function useTimeline(courseId: string | null) {
     queryKey: ['course-timeline', courseId],
     queryFn: async () => {
       if (!courseId) return [];
-      const { data, error } = await supabase
-        .from('course_timeline')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('scheduled_date', { ascending: true });
-
-      if (error) throw error;
-      return data as CourseTimeline[];
+      return fetchWithAuth(`/courses/${courseId}/timeline`);
     },
     enabled: !!courseId,
   });
@@ -168,14 +149,7 @@ export function useAnnouncements(courseId: string | null) {
     queryKey: ['course-announcements', courseId],
     queryFn: async () => {
       if (!courseId) return [];
-      const { data, error } = await supabase
-        .from('course_announcements')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as CourseAnnouncement[];
+      return fetchWithAuth(`/courses/${courseId}/announcements`);
     },
     enabled: !!courseId,
   });
@@ -188,14 +162,10 @@ export function useCreateTopic() {
 
   return useMutation({
     mutationFn: async (topic: Omit<CourseTopic, 'id' | 'is_completed' | 'completed_at'>) => {
-      const { data, error } = await supabase
-        .from('course_topics')
-        .insert(topic)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/courses/${topic.course_id}/topics`, {
+        method: 'POST',
+        body: JSON.stringify(topic)
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['course-topics', variables.course_id] });
@@ -213,15 +183,10 @@ export function useUpdateTopic() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<CourseTopic> & { id: string; course_id: string }) => {
-      const { data, error } = await supabase
-        .from('course_topics')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/topics/${id}`, { // Assuming direct resource access or use nested route if preferred
+        method: 'PUT',
+        body: JSON.stringify(updates)
+      });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['course-topics', data.course_id] });
@@ -239,12 +204,7 @@ export function useDeleteTopic() {
 
   return useMutation({
     mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
-      const { error } = await supabase
-        .from('course_topics')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await fetchWithAuth(`/topics/${id}`, { method: 'DELETE' });
       return courseId;
     },
     onSuccess: (courseId) => {
@@ -263,14 +223,10 @@ export function useCreateVideo() {
 
   return useMutation({
     mutationFn: async (video: Omit<CourseVideo, 'id'>) => {
-      const { data, error } = await supabase
-        .from('course_videos')
-        .insert(video)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/courses/${video.course_id}/videos`, {
+        method: 'POST',
+        body: JSON.stringify(video)
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['course-videos', variables.course_id] });
@@ -288,12 +244,7 @@ export function useDeleteVideo() {
 
   return useMutation({
     mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
-      const { error } = await supabase
-        .from('course_videos')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await fetchWithAuth(`/videos/${id}`, { method: 'DELETE' });
       return courseId;
     },
     onSuccess: (courseId) => {
@@ -312,14 +263,10 @@ export function useCreateResource() {
 
   return useMutation({
     mutationFn: async (resource: Omit<CourseResource, 'id'>) => {
-      const { data, error } = await supabase
-        .from('course_resources')
-        .insert(resource)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/courses/${resource.course_id}/resources`, {
+        method: 'POST',
+        body: JSON.stringify(resource)
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['course-resources', variables.course_id] });
@@ -337,12 +284,7 @@ export function useDeleteResource() {
 
   return useMutation({
     mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
-      const { error } = await supabase
-        .from('course_resources')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await fetchWithAuth(`/resources/${id}`, { method: 'DELETE' });
       return courseId;
     },
     onSuccess: (courseId) => {
@@ -361,14 +303,10 @@ export function useCreateTimeline() {
 
   return useMutation({
     mutationFn: async (timeline: Omit<CourseTimeline, 'id' | 'is_completed' | 'completed_at'>) => {
-      const { data, error } = await supabase
-        .from('course_timeline')
-        .insert(timeline)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/courses/${timeline.course_id}/timeline`, {
+        method: 'POST',
+        body: JSON.stringify(timeline)
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['course-timeline', variables.course_id] });
@@ -386,12 +324,7 @@ export function useDeleteTimeline() {
 
   return useMutation({
     mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
-      const { error } = await supabase
-        .from('course_timeline')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await fetchWithAuth(`/timeline/${id}`, { method: 'DELETE' });
       return courseId;
     },
     onSuccess: (courseId) => {
@@ -410,14 +343,10 @@ export function useCreateAnnouncement() {
 
   return useMutation({
     mutationFn: async (announcement: Omit<CourseAnnouncement, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('course_announcements')
-        .insert(announcement)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return fetchWithAuth(`/courses/${announcement.course_id}/announcements`, {
+        method: 'POST',
+        body: JSON.stringify(announcement)
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['course-announcements', variables.course_id] });
@@ -435,12 +364,7 @@ export function useDeleteAnnouncement() {
 
   return useMutation({
     mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
-      const { error } = await supabase
-        .from('course_announcements')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await fetchWithAuth(`/announcements/${id}`, { method: 'DELETE' });
       return courseId;
     },
     onSuccess: (courseId) => {
@@ -455,35 +379,45 @@ export function useDeleteAnnouncement() {
 
 // File upload helpers
 export async function uploadVideo(file: File, courseId: string): Promise<string> {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${courseId}/${Date.now()}.${fileExt}`;
+  const formData = new FormData();
+  formData.append('file', file);
 
-  const { error } = await supabase.storage
-    .from('course-videos')
-    .upload(fileName, file);
+  const token = localStorage.getItem('access_token');
+  const res = await fetch(`${API_URL}/upload/course-videos`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
+  });
 
-  if (error) throw error;
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Upload failed');
+  }
 
-  const { data } = supabase.storage
-    .from('course-videos')
-    .getPublicUrl(fileName);
-
-  return data.publicUrl;
+  const data = await res.json();
+  return data.url;
 }
 
 export async function uploadResource(file: File, courseId: string): Promise<string> {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${courseId}/${Date.now()}.${fileExt}`;
+  const formData = new FormData();
+  formData.append('file', file);
 
-  const { error } = await supabase.storage
-    .from('course-resources')
-    .upload(fileName, file);
+  const token = localStorage.getItem('access_token');
+  const res = await fetch(`${API_URL}/upload/course-resources`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
+  });
 
-  if (error) throw error;
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Upload failed');
+  }
 
-  const { data } = supabase.storage
-    .from('course-resources')
-    .getPublicUrl(fileName);
-
-  return data.publicUrl;
+  const data = await res.json();
+  return data.url;
 }

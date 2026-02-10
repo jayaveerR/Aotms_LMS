@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // Types for admin data
 export interface Profile {
@@ -68,9 +66,23 @@ export interface AdminStats {
   roleCounts: Record<string, number>;
 }
 
-// Helper function to query tables not yet in generated types
-const queryTable = (tableName: string) => {
-  return (supabase as any).from(tableName);
+const API_URL = 'http://localhost:5000/api';
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No access token found');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    ...options.headers,
+  };
+  const res = await fetch(`${API_URL}${url}`, { ...options, headers });
+  if (!res.ok) {
+    // If 401, maybe redirect to login? For now let hook handle error
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'API Request Failed');
+  }
+  return res.json();
 };
 
 export function useAdminData() {
@@ -95,45 +107,45 @@ export function useAdminData() {
     setLoading(true);
     try {
       // Fetch in parallel
-      const [profilesRes, rolesRes, coursesRes, eventsRes, logsRes] = await Promise.all([
-        queryTable('profiles').select('*').order('created_at', { ascending: false }),
-        queryTable('user_roles').select('*'),
-        queryTable('courses').select('*').order('submitted_at', { ascending: false }),
-        queryTable('security_events').select('*').order('created_at', { ascending: false }).limit(50),
-        queryTable('system_logs').select('*').order('created_at', { ascending: false }).limit(100),
+      const [profilesData, rolesData, coursesData, eventsData, logsData] = await Promise.all([
+        fetchWithAuth('/data/profiles?sort=created_at&order=desc'),
+        fetchWithAuth('/data/user_roles'),
+        fetchWithAuth('/data/courses?sort=submitted_at&order=desc'),
+        fetchWithAuth('/data/security_events?sort=created_at&order=desc&limit=50'),
+        fetchWithAuth('/data/system_logs?sort=created_at&order=desc&limit=100'),
       ]);
 
-      if (profilesRes.data) setProfiles(profilesRes.data as Profile[]);
-      if (rolesRes.data) {
-        setUserRoles(rolesRes.data as UserRole[]);
+      if (profilesData) setProfiles(profilesData as Profile[]);
+      if (rolesData) {
+        setUserRoles(rolesData as UserRole[]);
         // Calculate role counts
         const counts: Record<string, number> = {};
-        (rolesRes.data as UserRole[]).forEach((r) => {
+        (rolesData as UserRole[]).forEach((r) => {
           counts[r.role] = (counts[r.role] || 0) + 1;
         });
         setStats((prev) => ({ ...prev, roleCounts: counts }));
       }
-      if (coursesRes.data) {
-        setCourses(coursesRes.data as Course[]);
-        const pending = (coursesRes.data as Course[]).filter((c) => c.status === 'pending').length;
-        const approved = (coursesRes.data as Course[]).filter((c) => c.status === 'approved').length;
+      if (coursesData) {
+        setCourses(coursesData as Course[]);
+        const pending = (coursesData as Course[]).filter((c) => c.status === 'pending').length;
+        const approved = (coursesData as Course[]).filter((c) => c.status === 'approved').length;
         setStats((prev) => ({ ...prev, pendingCourses: pending, activeCourses: approved }));
       }
-      if (eventsRes.data) {
-        setSecurityEvents(eventsRes.data as SecurityEvent[]);
-        const highPriority = (eventsRes.data as SecurityEvent[]).filter(
+      if (eventsData) {
+        setSecurityEvents(eventsData as SecurityEvent[]);
+        const highPriority = (eventsData as SecurityEvent[]).filter(
           (e) => e.risk_level === 'high' || e.risk_level === 'critical'
         ).length;
         setStats((prev) => ({
           ...prev,
-          securityEvents: eventsRes.data?.length || 0,
+          securityEvents: eventsData?.length || 0,
           highPriorityEvents: highPriority,
         }));
       }
-      if (logsRes.data) setSystemLogs(logsRes.data as SystemLog[]);
+      if (logsData) setSystemLogs(logsData as SystemLog[]);
 
       // Update total users count
-      setStats((prev) => ({ ...prev, totalUsers: profilesRes.data?.length || 0 }));
+      setStats((prev) => ({ ...prev, totalUsers: profilesData?.length || 0 }));
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast({
@@ -146,217 +158,164 @@ export function useAdminData() {
     }
   }, [toast]);
 
-  // Set up realtime subscriptions
+  // Set up polling instead of realtime
   useEffect(() => {
     fetchAllData();
-
-    // Subscribe to realtime changes
-    const channels: RealtimeChannel[] = [];
-
-    const profilesChannel = supabase
-      .channel('profiles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setProfiles((prev) => [payload.new as Profile, ...prev]);
-          setStats((prev) => ({ ...prev, totalUsers: prev.totalUsers + 1 }));
-        } else if (payload.eventType === 'UPDATE') {
-          setProfiles((prev) => prev.map((p) => (p.id === payload.new.id ? (payload.new as Profile) : p)));
-        } else if (payload.eventType === 'DELETE') {
-          setProfiles((prev) => prev.filter((p) => p.id !== payload.old.id));
-          setStats((prev) => ({ ...prev, totalUsers: prev.totalUsers - 1 }));
-        }
-      })
-      .subscribe();
-    channels.push(profilesChannel);
-
-    const rolesChannel = supabase
-      .channel('roles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_roles' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setUserRoles((prev) => [...prev, payload.new as UserRole]);
-        } else if (payload.eventType === 'UPDATE') {
-          setUserRoles((prev) => prev.map((r) => (r.id === payload.new.id ? (payload.new as UserRole) : r)));
-        } else if (payload.eventType === 'DELETE') {
-          setUserRoles((prev) => prev.filter((r) => r.id !== payload.old.id));
-        }
-        // Recalculate role counts
-        fetchAllData();
-      })
-      .subscribe();
-    channels.push(rolesChannel);
-
-    const coursesChannel = supabase
-      .channel('courses-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setCourses((prev) => [payload.new as Course, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setCourses((prev) => prev.map((c) => (c.id === payload.new.id ? (payload.new as Course) : c)));
-        } else if (payload.eventType === 'DELETE') {
-          setCourses((prev) => prev.filter((c) => c.id !== payload.old.id));
-        }
-        // Update stats
-        fetchAllData();
-      })
-      .subscribe();
-    channels.push(coursesChannel);
-
-    const eventsChannel = supabase
-      .channel('security-events-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'security_events' }, (payload) => {
-        setSecurityEvents((prev) => [payload.new as SecurityEvent, ...prev.slice(0, 49)]);
-        setStats((prev) => ({
-          ...prev,
-          securityEvents: prev.securityEvents + 1,
-          highPriorityEvents:
-            (payload.new as SecurityEvent).risk_level === 'high' ||
-            (payload.new as SecurityEvent).risk_level === 'critical'
-              ? prev.highPriorityEvents + 1
-              : prev.highPriorityEvents,
-        }));
-        // Show toast for high priority events
-        const event = payload.new as SecurityEvent;
-        if (event.risk_level === 'high' || event.risk_level === 'critical') {
-          toast({
-            title: '⚠️ Security Alert',
-            description: `${event.event_type}: ${event.user_email || 'Unknown user'}`,
-            variant: 'destructive',
-          });
-        }
-      })
-      .subscribe();
-    channels.push(eventsChannel);
-
-    const logsChannel = supabase
-      .channel('system-logs-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'system_logs' }, (payload) => {
-        setSystemLogs((prev) => [payload.new as SystemLog, ...prev.slice(0, 99)]);
-      })
-      .subscribe();
-    channels.push(logsChannel);
-
-    return () => {
-      channels.forEach((channel) => supabase.removeChannel(channel));
-    };
-  }, [fetchAllData, toast]);
+    // Poll every 30 seconds
+    const interval = setInterval(fetchAllData, 30000);
+    return () => clearInterval(interval);
+  }, [fetchAllData]);
 
   // Admin actions
   const updateUserStatus = async (userId: string, status: 'active' | 'suspended') => {
-    const { error } = await queryTable('profiles')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', userId);
+    try {
+      await fetchWithAuth(`/data/profiles/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status, updated_at: new Date().toISOString() })
+      });
 
-    if (error) {
+      // Log action
+      await fetchWithAuth('/rpc/log_admin_action', {
+        method: 'POST',
+        body: JSON.stringify({
+          _module: 'User',
+          _action: `User ${status === 'suspended' ? 'suspended' : 'activated'}`,
+          _details: { user_id: userId },
+        })
+      });
+
+      toast({ title: 'Success', description: `User ${status === 'suspended' ? 'suspended' : 'activated'}` });
+      fetchAllData(); // Refresh data
+      return true;
+    } catch (error) {
       toast({ title: 'Error', description: 'Failed to update user status', variant: 'destructive' });
       return false;
     }
-
-    // Log the action
-    await (supabase as any).rpc('log_admin_action', {
-      _module: 'User',
-      _action: `User ${status === 'suspended' ? 'suspended' : 'activated'}`,
-      _details: { user_id: userId },
-    });
-
-    toast({ title: 'Success', description: `User ${status === 'suspended' ? 'suspended' : 'activated'}` });
-    return true;
   };
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'manager' | 'instructor' | 'student') => {
-    // First delete existing role, then insert new one
-    await queryTable('user_roles').delete().eq('user_id', userId);
+    try {
+      // Find if user has a role record first. My generic API is simple CRUD.
+      // Assuming we can just create/update.
+      // The original code was: DELETE then INSERT.
+      // For generic API, we can try to find existing role ID (on client side since we have userRoles loaded)
+      // or just add a DELETE endpoint logic here.
 
-    const { error } = await queryTable('user_roles').insert({ user_id: userId, role: newRole });
+      // Find existing role ID
+      const currentRole = userRoles.find(ur => ur.user_id === userId);
+      if (currentRole) {
+        await fetchWithAuth(`/data/user_roles/${currentRole.id}`, { method: 'DELETE' });
+      }
 
-    if (error) {
+      await fetchWithAuth('/data/user_roles', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, role: newRole })
+      });
+
+      // Log action
+      await fetchWithAuth('/rpc/log_admin_action', {
+        method: 'POST',
+        body: JSON.stringify({
+          _module: 'Role',
+          _action: `Role changed to ${newRole}`,
+          _details: { user_id: userId, new_role: newRole },
+        })
+      });
+
+      toast({ title: 'Success', description: `User role updated to ${newRole}` });
+      fetchAllData();
+      return true;
+    } catch (error) {
       toast({ title: 'Error', description: 'Failed to update user role', variant: 'destructive' });
       return false;
     }
-
-    // Log the action
-    await (supabase as any).rpc('log_admin_action', {
-      _module: 'Role',
-      _action: `Role changed to ${newRole}`,
-      _details: { user_id: userId, new_role: newRole },
-    });
-
-    toast({ title: 'Success', description: `User role updated to ${newRole}` });
-    return true;
   };
 
   const approveCourse = async (courseId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const { error } = await queryTable('courses')
-      .update({
-        status: 'approved',
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user?.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', courseId);
+    try {
+      const { user } = await fetchWithAuth('/user/profile');
 
-    if (error) {
+      await fetchWithAuth(`/data/courses/${courseId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: 'approved',
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user?.user?.id || user?.id, // Depends on profile structure
+          updated_at: new Date().toISOString(),
+        })
+      });
+
+      await fetchWithAuth('/rpc/log_admin_action', {
+        method: 'POST',
+        body: JSON.stringify({
+          _module: 'Course',
+          _action: 'Course approved',
+          _details: { course_id: courseId },
+        })
+      });
+
+      toast({ title: 'Success', description: 'Course approved successfully' });
+      fetchAllData();
+      return true;
+    } catch (error) {
       toast({ title: 'Error', description: 'Failed to approve course', variant: 'destructive' });
       return false;
     }
-
-    await (supabase as any).rpc('log_admin_action', {
-      _module: 'Course',
-      _action: 'Course approved',
-      _details: { course_id: courseId },
-    });
-
-    toast({ title: 'Success', description: 'Course approved successfully' });
-    return true;
   };
 
   const rejectCourse = async (courseId: string, reason: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const { error } = await queryTable('courses')
-      .update({
-        status: 'rejected',
-        rejection_reason: reason,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user?.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', courseId);
+    try {
+      const { user } = await fetchWithAuth('/user/profile');
 
-    if (error) {
+      await fetchWithAuth(`/data/courses/${courseId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: 'rejected',
+          rejection_reason: reason,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user?.user?.id || user.id,
+          updated_at: new Date().toISOString(),
+        })
+      });
+
+      await fetchWithAuth('/rpc/log_admin_action', {
+        method: 'POST',
+        body: JSON.stringify({
+          _module: 'Course',
+          _action: 'Course rejected',
+          _details: { course_id: courseId, reason },
+        })
+      });
+
+      toast({ title: 'Success', description: 'Course rejected' });
+      fetchAllData();
+      return true;
+    } catch (error) {
       toast({ title: 'Error', description: 'Failed to reject course', variant: 'destructive' });
       return false;
     }
-
-    await (supabase as any).rpc('log_admin_action', {
-      _module: 'Course',
-      _action: 'Course rejected',
-      _details: { course_id: courseId, reason },
-    });
-
-    toast({ title: 'Success', description: 'Course rejected' });
-    return true;
   };
 
   const resolveSecurityEvent = async (eventId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    const { error } = await queryTable('security_events')
-      .update({
-        resolved: true,
-        resolved_at: new Date().toISOString(),
-        resolved_by: user?.id,
-      })
-      .eq('id', eventId);
+    try {
+      const { user } = await fetchWithAuth('/user/profile');
 
-    if (error) {
+      await fetchWithAuth(`/data/security_events/${eventId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          resolved: true,
+          resolved_at: new Date().toISOString(),
+          resolved_by: user?.user?.id || user.id,
+        })
+      });
+
+      toast({ title: 'Success', description: 'Security event marked as resolved' });
+      fetchAllData();
+      return true;
+    } catch (error) {
       toast({ title: 'Error', description: 'Failed to resolve security event', variant: 'destructive' });
       return false;
     }
-
-    toast({ title: 'Success', description: 'Security event marked as resolved' });
-    return true;
   };
 
   // Get user with their role

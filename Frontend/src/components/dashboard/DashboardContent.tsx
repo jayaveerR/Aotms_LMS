@@ -19,6 +19,7 @@ import {
   Bell,
   Settings,
 } from 'lucide-react';
+import { UserProfile } from './UserProfile';
 
 const statsCards = [
   { title: 'Enrolled Courses', value: '4', icon: BookOpen, color: 'text-primary' }, // Blue
@@ -248,6 +249,10 @@ export function DashboardContent() {
 
   // Get the config for the current route
   const config = routeConfig[currentPath];
+
+  if (currentPath === '/dashboard/profile') {
+    return <UserProfile />;
+  }
 
   if (config) {
     return <ModulePage title={config.title} description={config.description} icon={config.icon} />;

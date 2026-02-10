@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
 import { Mail, Lock, User, Eye, EyeOff, Upload, Briefcase, GraduationCap, Check, X, ArrowLeft } from 'lucide-react';
 
@@ -126,75 +125,40 @@ export default function InstructorRegister() {
 
   const handleSubmit = async (data: InstructorFormData) => {
     setLoading(true);
-    
+
     try {
-      const finalExpertise = data.areaOfExpertise === 'Other' ? data.customExpertise : data.areaOfExpertise;
-      
-      // Sign up the instructor
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            full_name: data.fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/instructor`,
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      const userId = authData.user?.id;
-      if (!userId) throw new Error('User registration failed');
-
-      // Upload resume if provided
-      let resumeUrl = null;
+      const formData = new FormData();
+      formData.append('fullName', data.fullName);
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('areaOfExpertise', data.areaOfExpertise);
+      if (data.customExpertise) formData.append('customExpertise', data.customExpertise);
+      formData.append('experience', data.experience);
       if (resumeFile) {
-        const fileExt = resumeFile.name.split('.').pop();
-        const filePath = `${userId}/${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('instructor-resumes')
-          .upload(filePath, resumeFile);
-
-        if (uploadError) {
-          console.error('Resume upload error:', uploadError);
-        } else {
-          resumeUrl = filePath;
-        }
+        formData.append('resume', resumeFile);
       }
 
-      // Insert instructor application into database using raw query
-      // Table will exist after running the SQL migration in Cloud View
-      const applicationData = {
-        user_id: userId,
-        full_name: data.fullName,
-        email: data.email,
-        area_of_expertise: finalExpertise || '',
-        custom_expertise: data.areaOfExpertise === 'Other' ? data.customExpertise : null,
-        experience: data.experience,
-        resume_url: resumeUrl,
-      };
+      const res = await fetch('http://localhost:5000/api/instructor/register', {
+        method: 'POST',
+        body: formData
+      });
 
-      const { error: insertError } = await (supabase as any)
-        .from('instructor_applications')
-        .insert(applicationData);
+      const result = await res.json();
 
-      if (insertError) {
-        console.error('Application insert error:', insertError);
-        // Don't throw - user is created, application can be resubmitted
+      if (!res.ok) {
+        throw new Error(result.error || 'Registration failed');
       }
 
       toast({
         title: 'Application Submitted!',
         description: 'Please check your email to verify your account. Your instructor application is under review.',
       });
-      
+
       navigate('/auth');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Registration Failed',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -223,7 +187,7 @@ export default function InstructorRegister() {
             <img src={logo} alt="AOTMS Logo" className="h-8 lg:h-10" />
           </a>
         </div>
-        
+
         {/* Motivational Content */}
         <div className="flex-1 flex flex-col justify-center mt-8 lg:mt-0 z-10">
           <div className="max-w-md">
@@ -231,15 +195,15 @@ export default function InstructorRegister() {
               <GraduationCap className="h-8 w-8 text-primary" />
               <span className="text-sm font-medium text-primary uppercase tracking-wider">Instructor Program</span>
             </div>
-            
+
             <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight mb-4">
               Share Your Knowledge, <span className="text-primary">Inspire Minds</span>
             </h1>
-            
+
             <p className="text-lg text-muted-foreground mb-8">
               Join our community of expert instructors and help shape the future of learning. Create courses, conduct live sessions, and make a real impact.
             </p>
-            
+
             {/* Benefits */}
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -251,7 +215,7 @@ export default function InstructorRegister() {
                   <p className="text-sm text-muted-foreground">Teach on your own terms, anytime, anywhere</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check className="h-4 w-4 text-primary" />
@@ -261,7 +225,7 @@ export default function InstructorRegister() {
                   <p className="text-sm text-muted-foreground">Connect with students from around the world</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check className="h-4 w-4 text-primary" />
@@ -274,12 +238,12 @@ export default function InstructorRegister() {
             </div>
           </div>
         </div>
-        
+
         {/* Decorative gradient orbs */}
         <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-primary/30 rounded-full blur-3xl pointer-events-none -z-10" />
         <div className="absolute bottom-1/3 left-1/4 w-56 h-56 bg-accent/40 rounded-full blur-3xl pointer-events-none -z-10" />
       </div>
-      
+
       {/* Right Panel - Registration Form */}
       <div className="lg:w-1/2 bg-background p-6 lg:p-8 flex items-center justify-center relative z-50 overflow-y-auto">
         <div className="w-full max-w-lg relative z-50 py-4">
@@ -295,7 +259,7 @@ export default function InstructorRegister() {
               Fill in your details to apply as an instructor
             </p>
           </div>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               {/* Row 1: Full Name & Email */}
@@ -320,7 +284,7 @@ export default function InstructorRegister() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -505,6 +469,8 @@ export default function InstructorRegister() {
                           accept=".pdf,.doc,.docx"
                           onChange={handleFileChange}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          aria-label="Upload Resume"
+                          title="Upload Resume"
                         />
                         <div className="flex items-center gap-3 h-11 px-4 bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 transition-colors">
                           <Upload className="h-4 w-4 text-muted-foreground" />
@@ -593,37 +559,37 @@ export default function InstructorRegister() {
               <p>
                 By registering as an instructor on AOTMS, you agree to provide accurate and truthful information about your qualifications, experience, and expertise. You are responsible for maintaining the accuracy of your profile information.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">2. Content Guidelines</h3>
               <p>
                 All course content must be original or properly licensed. You retain ownership of your content but grant AOTMS a non-exclusive license to distribute and promote your courses on our platform.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">3. Quality Standards</h3>
               <p>
                 Instructors must maintain high-quality standards in their courses, including clear audio/video, well-structured content, and responsive student support. Courses may be reviewed and removed if they don't meet our quality guidelines.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">4. Payment Terms</h3>
               <p>
                 Instructor earnings are calculated based on student enrollments and course completions. Payments are processed monthly, with a minimum threshold of applicable currency. Detailed payment terms will be provided upon approval.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">5. Code of Conduct</h3>
               <p>
                 Instructors must maintain professional behavior in all interactions with students. Harassment, discrimination, or any form of misconduct will result in immediate account suspension.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">6. Intellectual Property</h3>
               <p>
                 You must not upload content that infringes on third-party intellectual property rights. AOTMS reserves the right to remove any content that violates copyright or trademark laws.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">7. Account Termination</h3>
               <p>
                 AOTMS reserves the right to terminate instructor accounts that violate these terms, receive consistent negative feedback, or fail to meet platform standards after appropriate warnings.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">8. Dispute Resolution</h3>
               <p>
                 Any disputes arising from this agreement shall be resolved through arbitration in accordance with applicable laws. Both parties agree to attempt resolution through good-faith negotiation first.
@@ -651,42 +617,42 @@ export default function InstructorRegister() {
               <p>
                 We collect information you provide during registration including your name, email address, professional qualifications, and resume. We also collect usage data to improve our services.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">2. How We Use Your Information</h3>
               <p>
                 Your information is used to verify your identity, process your instructor application, facilitate course creation, process payments, and communicate important updates about our platform.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">3. Information Sharing</h3>
               <p>
                 We do not sell your personal information. We may share necessary information with payment processors, identity verification services, and as required by law.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">4. Data Security</h3>
               <p>
                 We implement industry-standard security measures to protect your data, including encryption, secure servers, and regular security audits. However, no system is completely secure.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">5. Your Rights</h3>
               <p>
                 You have the right to access, correct, or delete your personal information. You can also request a copy of your data or opt out of certain communications. Contact our support team for assistance.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">6. Cookies and Tracking</h3>
               <p>
                 We use cookies and similar technologies to enhance your experience, analyze usage patterns, and personalize content. You can manage cookie preferences in your browser settings.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">7. Data Retention</h3>
               <p>
                 We retain your information for as long as your account is active or as needed to provide services. You can request deletion of your account and associated data at any time.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">8. Policy Updates</h3>
               <p>
                 We may update this privacy policy periodically. We will notify you of significant changes via email or through our platform. Continued use of our services constitutes acceptance of updates.
               </p>
-              
+
               <h3 className="font-semibold text-foreground">9. Contact Us</h3>
               <p>
                 If you have questions about this privacy policy or our data practices, please contact our Data Protection Officer at privacy@aotms.com.
