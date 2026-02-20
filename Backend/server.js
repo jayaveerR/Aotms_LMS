@@ -9,7 +9,8 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -39,6 +40,7 @@ app.post('/api/auth/signup', async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (err) {
+        console.error('Signup error:', err);
         res.status(400).json({ error: err.message });
     }
 });
@@ -53,6 +55,7 @@ app.post('/api/auth/login', async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (err) {
+        console.error('Login error:', err);
         res.status(401).json({ error: err.message });
     }
 });
@@ -87,6 +90,7 @@ app.get('/api/user/role', async (req, res) => {
 
         res.json({ role: data?.role || 'student' });
     } catch (err) {
+        console.error('Get role error:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -110,6 +114,7 @@ app.get('/api/user/profile', async (req, res) => {
         if (error) throw error;
         res.json({ profile: data, user });
     } catch (err) {
+        console.error('Get profile error:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -144,6 +149,7 @@ app.put('/api/user/profile', async (req, res) => {
 
         res.json({ message: 'Profile updated' });
     } catch (err) {
+        console.error('Update profile error:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -379,9 +385,10 @@ app.get('/api/chat/rooms/:userId', async (req, res) => {
 // Generic CRUD Routes for legitimate tables
 const ALLOWED_TABLES = [
     'exams', 'question_bank', 'leaderboard', 'guest_credentials', 'mock_test_configs', 'student_exam_results',
-    'profiles', 'user_roles', 'courses', 'security_events', 'system_logs', 'instructor_applications'
+    'profiles', 'user_roles', 'courses', 'security_events', 'system_logs', 'instructor_applications',
+    'exam_schedules', 'exam_rules', 'instructor_progress', 'course_topics', 'mock_test_assignments',
+    'leaderboard_audit', 'course_enrollments', 'live_exams', 'live_exam_attempts', 'announcements'
 ];
-
 app.get('/api/data/:table', async (req, res) => {
     const { table } = req.params;
     if (!ALLOWED_TABLES.includes(table)) return res.status(403).json({ error: 'Access denied to table' });
@@ -393,7 +400,6 @@ app.get('/api/data/:table', async (req, res) => {
         const authClient = getAuthClient(token);
         let query = authClient.from(table).select('*');
 
-        // Simple sorting params support ?sort=column&order=asc
         const { sort, order, limit } = req.query;
         if (sort) {
             query = query.order(sort, { ascending: order === 'asc' });
@@ -403,11 +409,27 @@ app.get('/api/data/:table', async (req, res) => {
         }
 
         const { data, error } = await query;
-        if (error) throw error;
+        if (error) {
+            if (error.code === 'PGRST205') {
+                console.warn(`[Supabase] Table not found: ${table}. Return empty array.`);
+                return res.json([]);
+            }
+            throw error;
+        }
         res.json(data);
     } catch (err) {
+        console.error(`GET data/${table} error:`, err);
         res.status(500).json({ error: err.message });
     }
+});
+
+// Global Error Handler for PayloadTooLarge and other middleware errors
+app.use((err, req, res, next) => {
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({ error: 'Request entity too large. Please reduce the size of your data or upload images via the dedicated endpoint.' });
+    }
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 app.post('/api/data/:table', async (req, res) => {
@@ -419,15 +441,21 @@ app.post('/api/data/:table', async (req, res) => {
 
     try {
         const authClient = getAuthClient(token);
-        const { data, error } = await authClient
-            .from(table)
-            .insert(req.body)
-            .select()
-            .single();
+        const isArray = Array.isArray(req.body);
+
+        let query = authClient.from(table).insert(req.body).select();
+
+        // Only use .single() if we are inserting a single object
+        if (!isArray) {
+            query = query.single();
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
         res.json(data);
     } catch (err) {
+        console.error(`POST data/${table} error:`, err);
         res.status(500).json({ error: err.message });
     }
 });

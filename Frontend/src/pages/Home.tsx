@@ -1,7 +1,6 @@
 import Header from "@/components/landing/Header";
 import HeroSection from "@/components/landing/HeroSection";
 import WhyAOTMS from "@/components/landing/WhyAOTMS";
-import CoursesSection from "@/components/landing/CoursesSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import KeyFeatures from "@/components/landing/KeyFeatures";
 import Leaderboard from "@/components/landing/Leaderboard";
@@ -21,7 +20,6 @@ const Home = () => {
                         <HeroSection />
                     </div>
                     <WhyAOTMS />
-                    <CoursesSection />
                     <HowItWorks />
                     <KeyFeatures />
                     <Leaderboard />
