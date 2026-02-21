@@ -1,7 +1,6 @@
 import Header from "@/components/landing/Header";
 import HeroSection from "@/components/landing/HeroSection";
 import WhyAOTMS from "@/components/landing/WhyAOTMS";
-import CoursesSection from "@/components/landing/CoursesSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import KeyFeatures from "@/components/landing/KeyFeatures";
 import Leaderboard from "@/components/landing/Leaderboard";
@@ -16,7 +15,6 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-black">
       <div id="home-content" className="bg-background relative z-10">
-        {/* Ambient gradient mesh + dot texture */}
         <AmbientBackground />
 
         <Header />
@@ -25,7 +23,6 @@ const Home = () => {
             <HeroSection />
           </div>
           <WhyAOTMS />
-          <CoursesSection />
           <HowItWorks />
           <KeyFeatures />
           <Leaderboard />

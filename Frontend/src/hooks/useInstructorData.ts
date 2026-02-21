@@ -81,7 +81,14 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   };
   const res = await fetch(`${API_URL}${url}`, { ...options, headers });
   if (!res.ok) {
-    const err = await res.json();
+    if (res.status === 401) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('user_role');
+      window.location.reload();
+      throw new Error('Session expired. Please login again.');
+    }
+    const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'API Request Failed');
   }
   return res.json();

@@ -9,6 +9,7 @@ export default function AmbientBackground() {
     <>
       {/* Layer 1: Animated floating gradient orbs */}
       <div
+        className="hidden md:block"
         aria-hidden="true"
         style={{
           position: "fixed",
