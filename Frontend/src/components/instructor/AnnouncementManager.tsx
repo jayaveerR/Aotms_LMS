@@ -1,16 +1,34 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useAnnouncements, useCreateAnnouncement, useDeleteAnnouncement } from '@/hooks/useInstructorData';
-import { useAuth } from '@/hooks/useAuth';
-import { Plus, Bell, Trash2, Pin, Megaphone } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { formatDistanceToNow } from 'date-fns';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  useAnnouncements,
+  useCreateAnnouncement,
+  useDeleteAnnouncement,
+} from "@/hooks/useInstructorData";
+import { useAuth } from "@/hooks/useAuth";
+import { Plus, Bell, Trash2, Pin, Megaphone } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { formatDistanceToNow } from "date-fns";
 
 interface AnnouncementManagerProps {
   courseId: string;
@@ -24,13 +42,18 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newAnnouncement, setNewAnnouncement] = useState({
-    title: '',
-    content: '',
+    title: "",
+    content: "",
     is_pinned: false,
   });
 
   const handleCreate = async () => {
-    if (!newAnnouncement.title.trim() || !newAnnouncement.content.trim() || !user?.id) return;
+    if (
+      !newAnnouncement.title.trim() ||
+      !newAnnouncement.content.trim() ||
+      !user?.id
+    )
+      return;
     await createAnnouncement.mutateAsync({
       course_id: courseId,
       instructor_id: user.id,
@@ -38,7 +61,7 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
       content: newAnnouncement.content,
       is_pinned: newAnnouncement.is_pinned,
     });
-    setNewAnnouncement({ title: '', content: '', is_pinned: false });
+    setNewAnnouncement({ title: "", content: "", is_pinned: false });
     setIsAddOpen(false);
   };
 
@@ -50,11 +73,18 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
   const sortedAnnouncements = [...announcements].sort((a, b) => {
     if (a.is_pinned && !b.is_pinned) return -1;
     if (!a.is_pinned && b.is_pinned) return 1;
-    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    return (
+      new Date(b.created_at || 0).getTime() -
+      new Date(a.created_at || 0).getTime()
+    );
   });
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-8">Loading announcements...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        Loading announcements...
+      </div>
+    );
   }
 
   return (
@@ -78,7 +108,9 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Post Announcement</DialogTitle>
-                <DialogDescription>Share updates with your students</DialogDescription>
+                <DialogDescription>
+                  Share updates with your students
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -87,7 +119,12 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
                     id="announcement-title"
                     placeholder="Announcement title"
                     value={newAnnouncement.title}
-                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewAnnouncement({
+                        ...newAnnouncement,
+                        title: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -98,7 +135,12 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
                     placeholder="Write your announcement..."
                     rows={5}
                     value={newAnnouncement.content}
-                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, content: e.target.value })}
+                    onChange={(e) =>
+                      setNewAnnouncement({
+                        ...newAnnouncement,
+                        content: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -110,14 +152,26 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
                   <Switch
                     id="pinned"
                     checked={newAnnouncement.is_pinned}
-                    onCheckedChange={(checked) => setNewAnnouncement({ ...newAnnouncement, is_pinned: checked })}
+                    onCheckedChange={(checked) =>
+                      setNewAnnouncement({
+                        ...newAnnouncement,
+                        is_pinned: checked,
+                      })
+                    }
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreate} disabled={createAnnouncement.isPending}>
-                  {createAnnouncement.isPending ? 'Posting...' : 'Post Announcement'}
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreate}
+                  disabled={createAnnouncement.isPending}
+                >
+                  {createAnnouncement.isPending
+                    ? "Posting..."
+                    : "Post Announcement"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -129,7 +183,9 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
           <div className="text-center py-8 text-muted-foreground">
             <Megaphone className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No announcements yet.</p>
-            <p className="text-sm">Post updates to keep your students informed.</p>
+            <p className="text-sm">
+              Post updates to keep your students informed.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -137,7 +193,9 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
               <div
                 key={announcement.id}
                 className={`p-4 rounded-lg border ${
-                  announcement.is_pinned ? 'border-accent bg-accent/5' : 'bg-muted/50'
+                  announcement.is_pinned
+                    ? "border-accent bg-accent/5"
+                    : "bg-muted/50"
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -148,7 +206,10 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
                       )}
                       <h4 className="font-medium">{announcement.title}</h4>
                       {announcement.is_pinned && (
-                        <Badge variant="outline" className="text-accent border-accent">
+                        <Badge
+                          variant="outline"
+                          className="text-accent border-accent"
+                        >
                           Pinned
                         </Badge>
                       )}
@@ -157,7 +218,11 @@ export function AnnouncementManager({ courseId }: AnnouncementManagerProps) {
                       {announcement.content}
                     </p>
                     <p className="text-xs text-muted-foreground mt-3">
-                      Posted {announcement.created_at && formatDistanceToNow(new Date(announcement.created_at), { addSuffix: true })}
+                      Posted{" "}
+                      {announcement.created_at &&
+                        formatDistanceToNow(new Date(announcement.created_at), {
+                          addSuffix: true,
+                        })}
                     </p>
                   </div>
                   <Button

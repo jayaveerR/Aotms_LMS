@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { DashboardContent } from '@/components/dashboard/DashboardContent';
-import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { useAuth } from "@/hooks/useAuth";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 
 export default function Dashboard() {
   const { user, userRole, loading } = useAuth();
@@ -13,9 +14,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        navigate('/auth');
-      } else if (userRole && userRole !== 'student') {
-        const targetPath = userRole === 'admin' ? '/admin' : `/${userRole}`;
+        navigate("/auth");
+      } else if (userRole && userRole !== "student") {
+        const targetPath = userRole === "admin" ? "/admin" : `/${userRole}`;
         navigate(targetPath);
       }
     }
@@ -33,6 +34,7 @@ export default function Dashboard() {
     <SidebarProvider>
       <DashboardSidebar />
       <SidebarInset>
+        <AmbientBackground />
         <DashboardHeader />
 
         <main className="flex-1 p-6">

@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { InstructorSidebar } from '@/components/instructor/InstructorSidebar';
-import { InstructorHeader } from '@/components/instructor/InstructorHeader';
-import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CourseSelector } from '@/components/instructor/CourseSelector';
-import { TopicManager } from '@/components/instructor/TopicManager';
-import { VideoUploader } from '@/components/instructor/VideoUploader';
-import { ResourceUploader } from '@/components/instructor/ResourceUploader';
-import { TimelineManager } from '@/components/instructor/TimelineManager';
-import { AnnouncementManager } from '@/components/instructor/AnnouncementManager';
-import { useInstructorCourses, Course } from '@/hooks/useInstructorData';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { InstructorSidebar } from "@/components/instructor/InstructorSidebar";
+import { InstructorHeader } from "@/components/instructor/InstructorHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CourseSelector } from "@/components/instructor/CourseSelector";
+import { TopicManager } from "@/components/instructor/TopicManager";
+import { VideoUploader } from "@/components/instructor/VideoUploader";
+import { ResourceUploader } from "@/components/instructor/ResourceUploader";
+import { TimelineManager } from "@/components/instructor/TimelineManager";
+import { AnnouncementManager } from "@/components/instructor/AnnouncementManager";
+import { useInstructorCourses, Course } from "@/hooks/useInstructorData";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import {
   BookOpen,
   Users,
@@ -24,14 +24,11 @@ import {
   Calendar,
   TrendingUp,
   Plus,
-  Upload,
-  BarChart3,
-  GraduationCap,
-  CheckCircle2,
   Bell,
-  Clock,
-  Award,
-} from 'lucide-react';
+  CheckCircle2,
+  GraduationCap,
+  ArrowUpRight,
+} from "lucide-react";
 
 export default function InstructorDashboard() {
   const { user, loading } = useAuth();
@@ -41,7 +38,7 @@ export default function InstructorDashboard() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, loading, navigate]);
 
@@ -53,15 +50,61 @@ export default function InstructorDashboard() {
   }, [courses, selectedCourse]);
 
   const statsCards = [
-    { title: 'Total Courses', value: courses.length.toString(), icon: BookOpen, color: 'text-primary', change: `${courses.filter(c => c.status === 'approved').length} approved` },
-    { title: 'Total Students', value: '0', icon: Users, color: 'text-accent', change: 'Enrollment data' },
-    { title: 'Videos Uploaded', value: '0', icon: Video, color: 'text-green-500', change: 'Across all courses' },
-    { title: 'Avg. Completion', value: '0%', icon: TrendingUp, color: 'text-purple-500', change: 'Topic progress' },
+    {
+      title: "Total Courses",
+      value: courses.length.toString(),
+      icon: BookOpen,
+      color: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
+      change: `${courses.filter((c) => c.status === "approved").length} approved`,
+      trend: "+2.5%",
+    },
+    {
+      title: "Total Students",
+      value: "0",
+      icon: Users,
+      color:
+        "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400",
+      change: "Active enrollments",
+      trend: "+0%",
+    },
+    {
+      title: "Content Items",
+      value: "0",
+      icon: Video,
+      color:
+        "bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400",
+      change: "Videos & Resources",
+      trend: "+12%",
+    },
+    {
+      title: "Avg. Completion",
+      value: "0%",
+      icon: TrendingUp,
+      color:
+        "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
+      change: "Student engagement",
+      trend: "+5%",
+    },
   ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -70,132 +113,204 @@ export default function InstructorDashboard() {
   return (
     <SidebarProvider>
       <InstructorSidebar />
-      <SidebarInset>
+      <SidebarInset className="bg-muted/10">
+        <AmbientBackground />
         <InstructorHeader />
-        
-        <main className="flex-1 p-6 space-y-6">
-          {/* Welcome Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+        <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-8">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Welcome, {user?.user_metadata?.full_name || 'Instructor'}! 👨‍🏫
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Dashboard
               </h1>
-              <p className="text-muted-foreground mt-1">
-                Manage your courses and track student progress
+              <p className="text-muted-foreground mt-1 text-sm md:text-base">
+                Welcome back, {user?.user_metadata?.full_name || "Instructor"}.
+                Here's an overview of your teaching activity.
               </p>
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="gap-2">
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2 hidden sm:flex">
                 <Bell className="h-4 w-4" />
-                Announcements
+                Updates
               </Button>
-              <Button className="gap-2">
+              <Button className="gap-2 shadow-sm font-medium">
                 <Plus className="h-4 w-4" />
-                New Course
+                Create New Course
               </Button>
             </div>
           </div>
-          
-          {/* Stats Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {statsCards.map((stat) => (
-              <Card key={stat.title} className="hover-lift">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
 
-          {/* Course Selector */}
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <CardTitle>Course Management</CardTitle>
-                  <CardDescription>Select a course to manage its content</CardDescription>
+          {/* Stats Grid */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+          >
+            {statsCards.map((stat) => (
+              <motion.div key={stat.title} variants={itemVariants}>
+                <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {stat.title}
+                        </span>
+                        <span className="text-2xl font-bold tracking-tight">
+                          {stat.value}
+                        </span>
+                      </div>
+                      <div className={`p-3 rounded-xl ${stat.color}`}>
+                        <stat.icon className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center text-xs">
+                      <span className="text-green-500 font-medium flex items-center gap-1 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded-md">
+                        <ArrowUpRight className="h-3 w-3" />
+                        {stat.trend}
+                      </span>
+                      <span className="text-muted-foreground ml-2">
+                        {stat.change}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <div className="grid lg:grid-cols-1 gap-8">
+            {/* Main Content Area */}
+            <div className="space-y-6">
+              {/* Course Management Section Header */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold text-foreground">
+                    Course Content
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
+                    {courses.length} Active
+                  </span>
                 </div>
-                <CourseSelector
-                  selectedCourse={selectedCourse}
-                  onSelectCourse={setSelectedCourse}
-                />
+                <div className="w-full sm:w-auto min-w-[280px]">
+                  <CourseSelector
+                    selectedCourse={selectedCourse}
+                    onSelectCourse={setSelectedCourse}
+                  />
+                </div>
               </div>
-            </CardHeader>
-          </Card>
-          
-          {/* Course Content Tabs */}
-          {selectedCourse ? (
-            <Tabs defaultValue="topics" className="space-y-6">
-              <TabsList className="grid w-full max-w-2xl grid-cols-5">
-                <TabsTrigger value="topics" className="gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Topics</span>
-                </TabsTrigger>
-                <TabsTrigger value="videos" className="gap-2">
-                  <Video className="h-4 w-4" />
-                  <span className="hidden sm:inline">Videos</span>
-                </TabsTrigger>
-                <TabsTrigger value="resources" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Resources</span>
-                </TabsTrigger>
-                <TabsTrigger value="timeline" className="gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span className="hidden sm:inline">Timeline</span>
-                </TabsTrigger>
-                <TabsTrigger value="announcements" className="gap-2">
-                  <Bell className="h-4 w-4" />
-                  <span className="hidden sm:inline">Announce</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              {/* Topics Tab */}
-              <TabsContent value="topics">
-                <TopicManager courseId={selectedCourse.id} />
-              </TabsContent>
-              
-              {/* Videos Tab */}
-              <TabsContent value="videos">
-                <VideoUploader courseId={selectedCourse.id} />
-              </TabsContent>
-              
-              {/* Resources Tab */}
-              <TabsContent value="resources">
-                <ResourceUploader courseId={selectedCourse.id} />
-              </TabsContent>
-              
-              {/* Timeline Tab */}
-              <TabsContent value="timeline">
-                <TimelineManager courseId={selectedCourse.id} />
-              </TabsContent>
-              
-              {/* Announcements Tab */}
-              <TabsContent value="announcements">
-                <AnnouncementManager courseId={selectedCourse.id} />
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <Card>
-              <CardContent className="py-16 text-center">
-                <GraduationCap className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No Courses Yet</h3>
-                <p className="text-muted-foreground mb-6">
-                  Create your first course to start adding content.
-                </p>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Your First Course
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+
+              {selectedCourse ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Card className="border-border/50 shadow-sm overflow-hidden bg-card/50 backdrop-blur-[2px]">
+                    <Tabs defaultValue="topics" className="w-full">
+                      <div className="border-b bg-muted/30 px-6 pt-4">
+                        <TabsList className="w-full justify-start h-auto p-0 bg-transparent space-x-8">
+                          {[
+                            {
+                              id: "topics",
+                              label: "Curriculum",
+                              icon: CheckCircle2,
+                            },
+                            {
+                              id: "videos",
+                              label: "Video Library",
+                              icon: Video,
+                            },
+                            {
+                              id: "resources",
+                              label: "Materials",
+                              icon: FileText,
+                            },
+                            {
+                              id: "timeline",
+                              label: "Schedule",
+                              icon: Calendar,
+                            },
+                            {
+                              id: "announcements",
+                              label: "Announcements",
+                              icon: Bell,
+                            },
+                          ].map((tab) => (
+                            <TabsTrigger
+                              key={tab.id}
+                              value={tab.id}
+                              className="relative h-12 rounded-none border-b-2 border-transparent px-1 pb-4 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-primary hover:text-foreground focus-visible:ring-0"
+                            >
+                              <div className="flex items-center gap-2">
+                                <tab.icon className="h-4 w-4" />
+                                <span>{tab.label}</span>
+                              </div>
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </div>
+
+                      <div className="p-6 bg-card min-h-[400px]">
+                        <TabsContent
+                          value="topics"
+                          className="m-0 focus-visible:ring-0 animate-in fade-in-50 duration-300"
+                        >
+                          <TopicManager courseId={selectedCourse.id} />
+                        </TabsContent>
+                        <TabsContent
+                          value="videos"
+                          className="m-0 focus-visible:ring-0 animate-in fade-in-50 duration-300"
+                        >
+                          <VideoUploader courseId={selectedCourse.id} />
+                        </TabsContent>
+                        <TabsContent
+                          value="resources"
+                          className="m-0 focus-visible:ring-0 animate-in fade-in-50 duration-300"
+                        >
+                          <ResourceUploader courseId={selectedCourse.id} />
+                        </TabsContent>
+                        <TabsContent
+                          value="timeline"
+                          className="m-0 focus-visible:ring-0 animate-in fade-in-50 duration-300"
+                        >
+                          <TimelineManager courseId={selectedCourse.id} />
+                        </TabsContent>
+                        <TabsContent
+                          value="announcements"
+                          className="m-0 focus-visible:ring-0 animate-in fade-in-50 duration-300"
+                        >
+                          <AnnouncementManager courseId={selectedCourse.id} />
+                        </TabsContent>
+                      </div>
+                    </Tabs>
+                  </Card>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center py-24 bg-muted/30 border border-dashed border-muted-foreground/25 rounded-xl text-center"
+                >
+                  <div className="bg-background p-4 rounded-full shadow-sm mb-4">
+                    <GraduationCap className="h-12 w-12 text-primary/80" />
+                  </div>
+                  <h3 className="text-xl font-medium text-foreground mb-2">
+                    No Course Selected
+                  </h3>
+                  <p className="text-muted-foreground mb-8 max-w-sm">
+                    Select a course from the dropdown above or create your first
+                    course to start managing content.
+                  </p>
+                  <Button className="gap-2 shadow-sm h-11 px-8">
+                    <Plus className="h-4 w-4" />
+                    Create First Course
+                  </Button>
+                </motion.div>
+              )}
+            </div>
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

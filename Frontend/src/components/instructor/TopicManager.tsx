@@ -1,13 +1,40 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useTopics, useCreateTopic, useUpdateTopic, useDeleteTopic } from '@/hooks/useInstructorData';
-import { Plus, CheckCircle2, Circle, Trash2, Edit, GripVertical, Clock } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  useTopics,
+  useCreateTopic,
+  useUpdateTopic,
+  useDeleteTopic,
+} from "@/hooks/useInstructorData";
+import {
+  Plus,
+  CheckCircle2,
+  Circle,
+  Trash2,
+  Edit,
+  GripVertical,
+  Clock,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface TopicManagerProps {
   courseId: string;
@@ -20,7 +47,11 @@ export function TopicManager({ courseId }: TopicManagerProps) {
   const deleteTopic = useDeleteTopic();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [newTopic, setNewTopic] = useState({ title: '', description: '', duration_minutes: 30 });
+  const [newTopic, setNewTopic] = useState({
+    title: "",
+    description: "",
+    duration_minutes: 30,
+  });
 
   const handleCreate = async () => {
     if (!newTopic.title.trim()) return;
@@ -31,11 +62,11 @@ export function TopicManager({ courseId }: TopicManagerProps) {
       order_index: topics.length,
       duration_minutes: newTopic.duration_minutes,
     });
-    setNewTopic({ title: '', description: '', duration_minutes: 30 });
+    setNewTopic({ title: "", description: "", duration_minutes: 30 });
     setIsAddOpen(false);
   };
 
-  const toggleComplete = async (topic: typeof topics[0]) => {
+  const toggleComplete = async (topic: (typeof topics)[0]) => {
     await updateTopic.mutateAsync({
       id: topic.id,
       course_id: courseId,
@@ -49,7 +80,11 @@ export function TopicManager({ courseId }: TopicManagerProps) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-8">Loading topics...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        Loading topics...
+      </div>
+    );
   }
 
   return (
@@ -73,7 +108,9 @@ export function TopicManager({ courseId }: TopicManagerProps) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Topic</DialogTitle>
-                <DialogDescription>Create a new topic for your course</DialogDescription>
+                <DialogDescription>
+                  Create a new topic for your course
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -82,7 +119,9 @@ export function TopicManager({ courseId }: TopicManagerProps) {
                     id="title"
                     placeholder="Topic title"
                     value={newTopic.title}
-                    onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewTopic({ ...newTopic, title: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -91,7 +130,9 @@ export function TopicManager({ courseId }: TopicManagerProps) {
                     id="description"
                     placeholder="Topic description (optional)"
                     value={newTopic.description}
-                    onChange={(e) => setNewTopic({ ...newTopic, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewTopic({ ...newTopic, description: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -101,14 +142,21 @@ export function TopicManager({ courseId }: TopicManagerProps) {
                     type="number"
                     min={1}
                     value={newTopic.duration_minutes}
-                    onChange={(e) => setNewTopic({ ...newTopic, duration_minutes: parseInt(e.target.value) || 30 })}
+                    onChange={(e) =>
+                      setNewTopic({
+                        ...newTopic,
+                        duration_minutes: parseInt(e.target.value) || 30,
+                      })
+                    }
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Cancel
+                </Button>
                 <Button onClick={handleCreate} disabled={createTopic.isPending}>
-                  {createTopic.isPending ? 'Creating...' : 'Create Topic'}
+                  {createTopic.isPending ? "Creating..." : "Create Topic"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -126,11 +174,15 @@ export function TopicManager({ courseId }: TopicManagerProps) {
               <div
                 key={topic.id}
                 className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
-                  topic.is_completed ? 'bg-green-50 border-green-200 dark:bg-green-950/20' : 'bg-muted/50'
+                  topic.is_completed
+                    ? "bg-green-50 border-green-200 dark:bg-green-950/20"
+                    : "bg-muted/50"
                 }`}
               >
                 <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                <span className="text-sm font-medium text-muted-foreground w-6">{idx + 1}</span>
+                <span className="text-sm font-medium text-muted-foreground w-6">
+                  {idx + 1}
+                </span>
                 <button
                   onClick={() => toggleComplete(topic)}
                   className="flex-shrink-0"
@@ -143,11 +195,15 @@ export function TopicManager({ courseId }: TopicManagerProps) {
                   )}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <h4 className={`font-medium ${topic.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+                  <h4
+                    className={`font-medium ${topic.is_completed ? "line-through text-muted-foreground" : ""}`}
+                  >
                     {topic.title}
                   </h4>
                   {topic.description && (
-                    <p className="text-sm text-muted-foreground truncate">{topic.description}</p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {topic.description}
+                    </p>
                   )}
                 </div>
                 <Badge variant="outline" className="gap-1">
@@ -171,13 +227,16 @@ export function TopicManager({ courseId }: TopicManagerProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Progress</span>
               <span className="text-sm text-muted-foreground">
-                {topics.filter(t => t.is_completed).length} / {topics.length} completed
+                {topics.filter((t) => t.is_completed).length} / {topics.length}{" "}
+                completed
               </span>
             </div>
             <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-green-500 transition-all"
-                style={{ width: `${(topics.filter(t => t.is_completed).length / topics.length) * 100}%` }}
+                style={{
+                  width: `${(topics.filter((t) => t.is_completed).length / topics.length) * 100}%`,
+                }}
               />
             </div>
           </div>

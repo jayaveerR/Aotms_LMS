@@ -1,26 +1,62 @@
-import { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useResources, useTopics, useCreateResource, useDeleteResource, uploadResource } from '@/hooks/useInstructorData';
-import { Plus, FileText, Trash2, Upload, Eye, Download, File, FileImage, FileSpreadsheet } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
+import { useState, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useResources,
+  useTopics,
+  useCreateResource,
+  useDeleteResource,
+  uploadResource,
+} from "@/hooks/useInstructorData";
+import {
+  Plus,
+  FileText,
+  Trash2,
+  Upload,
+  Eye,
+  Download,
+  File,
+  FileImage,
+  FileSpreadsheet,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 
 interface ResourceUploaderProps {
   courseId: string;
 }
 
 const resourceTypes = [
-  { value: 'note', label: 'Notes', icon: FileText },
-  { value: 'ppt', label: 'Presentation', icon: FileImage },
-  { value: 'pdf', label: 'PDF Document', icon: File },
-  { value: 'assignment', label: 'Assignment', icon: FileSpreadsheet },
-  { value: 'other', label: 'Other', icon: File },
+  { value: "note", label: "Notes", icon: FileText },
+  { value: "ppt", label: "Presentation", icon: FileImage },
+  { value: "pdf", label: "PDF Document", icon: File },
+  { value: "assignment", label: "Assignment", icon: FileSpreadsheet },
+  { value: "other", label: "Other", icon: File },
 ];
 
 export function ResourceUploader({ courseId }: ResourceUploaderProps) {
@@ -35,10 +71,10 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [newResource, setNewResource] = useState({
-    title: '',
-    description: '',
-    topic_id: '',
-    resource_type: 'note',
+    title: "",
+    description: "",
+    topic_id: "",
+    resource_type: "note",
   });
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,14 +82,17 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
     if (file) {
       setSelectedFile(file);
       if (!newResource.title) {
-        setNewResource({ ...newResource, title: file.name.replace(/\.[^/.]+$/, '') });
+        setNewResource({
+          ...newResource,
+          title: file.name.replace(/\.[^/.]+$/, ""),
+        });
       }
       // Auto-detect type from extension
-      const ext = file.name.split('.').pop()?.toLowerCase();
-      if (ext === 'pdf') {
-        setNewResource(prev => ({ ...prev, resource_type: 'pdf' }));
-      } else if (['ppt', 'pptx'].includes(ext || '')) {
-        setNewResource(prev => ({ ...prev, resource_type: 'ppt' }));
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (ext === "pdf") {
+        setNewResource((prev) => ({ ...prev, resource_type: "pdf" }));
+      } else if (["ppt", "pptx"].includes(ext || "")) {
+        setNewResource((prev) => ({ ...prev, resource_type: "ppt" }));
       }
     }
   };
@@ -66,11 +105,11 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
 
     try {
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 15, 90));
+        setUploadProgress((prev) => Math.min(prev + 15, 90));
       }, 150);
 
       const fileUrl = await uploadResource(selectedFile, courseId);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
 
@@ -85,11 +124,16 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
         order_index: resources.length,
       });
 
-      setNewResource({ title: '', description: '', topic_id: '', resource_type: 'note' });
+      setNewResource({
+        title: "",
+        description: "",
+        topic_id: "",
+        resource_type: "note",
+      });
       setSelectedFile(null);
       setIsAddOpen(false);
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -107,12 +151,16 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
   };
 
   const getResourceIcon = (type: string) => {
-    const found = resourceTypes.find(r => r.value === type);
+    const found = resourceTypes.find((r) => r.value === type);
     return found ? found.icon : File;
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-8">Loading resources...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        Loading resources...
+      </div>
+    );
   }
 
   return (
@@ -124,7 +172,9 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
               <FileText className="h-5 w-5 text-accent" />
               Course Resources
             </CardTitle>
-            <CardDescription>Upload notes, PPTs, and assignments</CardDescription>
+            <CardDescription>
+              Upload notes, PPTs, and assignments
+            </CardDescription>
           </div>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
@@ -136,7 +186,9 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>Upload Resource</DialogTitle>
-                <DialogDescription>Add notes, presentations, or assignments</DialogDescription>
+                <DialogDescription>
+                  Add notes, presentations, or assignments
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div
@@ -163,8 +215,12 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                   ) : (
                     <>
                       <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm font-medium">Click to select file</p>
-                      <p className="text-xs text-muted-foreground">PDF, PPT, DOC up to 50MB</p>
+                      <p className="text-sm font-medium">
+                        Click to select file
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        PDF, PPT, DOC up to 50MB
+                      </p>
                     </>
                   )}
                 </div>
@@ -184,7 +240,9 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                     id="resource-title"
                     placeholder="Resource title"
                     value={newResource.title}
-                    onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewResource({ ...newResource, title: e.target.value })
+                    }
                   />
                 </div>
 
@@ -192,7 +250,9 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                   <Label>Resource Type</Label>
                   <Select
                     value={newResource.resource_type}
-                    onValueChange={(value) => setNewResource({ ...newResource, resource_type: value })}
+                    onValueChange={(value) =>
+                      setNewResource({ ...newResource, resource_type: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -216,7 +276,12 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                     id="resource-description"
                     placeholder="Brief description (optional)"
                     value={newResource.description}
-                    onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewResource({
+                        ...newResource,
+                        description: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -224,7 +289,9 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                   <Label>Link to Topic (optional)</Label>
                   <Select
                     value={newResource.topic_id}
-                    onValueChange={(value) => setNewResource({ ...newResource, topic_id: value })}
+                    onValueChange={(value) =>
+                      setNewResource({ ...newResource, topic_id: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a topic" />
@@ -241,9 +308,16 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-                <Button onClick={handleUpload} disabled={uploading || !selectedFile || createResource.isPending}>
-                  {uploading ? 'Uploading...' : 'Upload Resource'}
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={
+                    uploading || !selectedFile || createResource.isPending
+                  }
+                >
+                  {uploading ? "Uploading..." : "Upload Resource"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -270,17 +344,28 @@ export function ResourceUploader({ courseId }: ResourceUploaderProps) {
                     <Icon className="h-5 w-5 text-accent" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">{resource.title}</h4>
+                    <h4 className="font-medium text-sm truncate">
+                      {resource.title}
+                    </h4>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Badge variant="outline" className="text-xs">
-                        {resourceTypes.find(r => r.value === resource.resource_type)?.label}
+                        {
+                          resourceTypes.find(
+                            (r) => r.value === resource.resource_type,
+                          )?.label
+                        }
                       </Badge>
                       <span>{formatFileSize(resource.file_size_bytes)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" asChild>
-                      <a href={resource.file_url} target="_blank" rel="noopener noreferrer" download>
+                      <a
+                        href={resource.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
                         <Download className="h-4 w-4" />
                       </a>
                     </Button>

@@ -1,18 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { ManagerSidebar } from '@/components/manager/ManagerSidebar';
-import { ManagerHeader } from '@/components/manager/ManagerHeader';
-import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ExamScheduler } from '@/components/manager/ExamScheduler';
-import { QuestionBankManager } from '@/components/manager/QuestionBankManager';
-import { LeaderboardManager } from '@/components/manager/LeaderboardManager';
-import { GuestCredentialsManager } from '@/components/manager/GuestCredentialsManager';
-import { ExamMonitoring } from '@/components/manager/ExamMonitoring';
-import { MockTestManager } from '@/components/manager/MockTestManager';
-import { useExams, useQuestions, useLeaderboard, useGuestCredentials } from '@/hooks/useManagerData';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { ManagerSidebar } from "@/components/manager/ManagerSidebar";
+import { ManagerHeader } from "@/components/manager/ManagerHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ExamScheduler } from "@/components/manager/ExamScheduler";
+import { QuestionBankManager } from "@/components/manager/QuestionBankManager";
+import { LeaderboardManager } from "@/components/manager/LeaderboardManager";
+import { GuestCredentialsManager } from "@/components/manager/GuestCredentialsManager";
+import { ExamMonitoring } from "@/components/manager/ExamMonitoring";
+import { MockTestManager } from "@/components/manager/MockTestManager";
+import {
+  useExams,
+  useQuestions,
+  useLeaderboard,
+  useGuestCredentials,
+} from "@/hooks/useManagerData";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import {
   Calendar,
   FileQuestion,
@@ -20,7 +26,7 @@ import {
   UserPlus,
   Eye,
   Shuffle,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function ManagerDashboard() {
   const { user, loading } = useAuth();
@@ -32,15 +38,39 @@ export default function ManagerDashboard() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, loading, navigate]);
 
   const statsCards = [
-    { title: 'Scheduled Exams', value: exams.filter(e => e.status === 'scheduled').length.toString(), icon: Calendar, color: 'text-primary', change: `${exams.filter(e => e.status === 'active').length} active` },
-    { title: 'Question Bank', value: questions.length.toString(), icon: FileQuestion, color: 'text-accent', change: 'total questions' },
-    { title: 'Leaderboard', value: leaderboard.length.toString(), icon: Trophy, color: 'text-yellow-500', change: `${leaderboard.filter(l => l.is_verified).length} verified` },
-    { title: 'Guest Accounts', value: guests.length.toString(), icon: UserPlus, color: 'text-primary', change: `${guests.filter(g => g.is_active).length} active` },
+    {
+      title: "Scheduled Exams",
+      value: exams.filter((e) => e.status === "scheduled").length.toString(),
+      icon: Calendar,
+      color: "text-primary",
+      change: `${exams.filter((e) => e.status === "active").length} active`,
+    },
+    {
+      title: "Question Bank",
+      value: questions.length.toString(),
+      icon: FileQuestion,
+      color: "text-accent",
+      change: "total questions",
+    },
+    {
+      title: "Leaderboard",
+      value: leaderboard.length.toString(),
+      icon: Trophy,
+      color: "text-yellow-500",
+      change: `${leaderboard.filter((l) => l.is_verified).length} verified`,
+    },
+    {
+      title: "Guest Accounts",
+      value: guests.length.toString(),
+      icon: UserPlus,
+      color: "text-primary",
+      change: `${guests.filter((g) => g.is_active).length} active`,
+    },
   ];
 
   if (loading) {
@@ -55,8 +85,9 @@ export default function ManagerDashboard() {
     <SidebarProvider>
       <ManagerSidebar />
       <SidebarInset>
+        <AmbientBackground />
         <ManagerHeader />
-        
+
         <main className="flex-1 p-6 space-y-6">
           {/* Welcome Section */}
           <div>
@@ -67,7 +98,7 @@ export default function ManagerDashboard() {
               Manage exams, question banks, and monitor system performance
             </p>
           </div>
-          
+
           {/* Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {statsCards.map((stat) => (
@@ -80,12 +111,14 @@ export default function ManagerDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {stat.change}
+                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
-          
+
           {/* Main Tabs */}
           <Tabs defaultValue="exams" className="space-y-6">
             <TabsList className="grid w-full max-w-3xl grid-cols-6">
@@ -114,27 +147,27 @@ export default function ManagerDashboard() {
                 <span className="hidden sm:inline">Monitoring</span>
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="exams">
               <ExamScheduler />
             </TabsContent>
-            
+
             <TabsContent value="questions">
               <QuestionBankManager />
             </TabsContent>
-            
+
             <TabsContent value="mock">
               <MockTestManager />
             </TabsContent>
-            
+
             <TabsContent value="leaderboard">
               <LeaderboardManager />
             </TabsContent>
-            
+
             <TabsContent value="guests">
               <GuestCredentialsManager />
             </TabsContent>
-            
+
             <TabsContent value="monitoring">
               <ExamMonitoring />
             </TabsContent>

@@ -1,27 +1,80 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTimeline, useCreateTimeline, useDeleteTimeline } from '@/hooks/useInstructorData';
-import { Plus, Calendar, Trash2, Flag, BookOpen, ClipboardCheck, Video, GraduationCap } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useTimeline,
+  useCreateTimeline,
+  useDeleteTimeline,
+} from "@/hooks/useInstructorData";
+import {
+  Plus,
+  Calendar,
+  Trash2,
+  Flag,
+  BookOpen,
+  ClipboardCheck,
+  Video,
+  GraduationCap,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
 
 interface TimelineManagerProps {
   courseId: string;
 }
 
 const milestoneTypes = [
-  { value: 'start', label: 'Course Start', icon: Flag, color: 'text-green-500' },
-  { value: 'module', label: 'Module/Week', icon: BookOpen, color: 'text-primary' },
-  { value: 'assignment', label: 'Assignment Due', icon: ClipboardCheck, color: 'text-accent' },
-  { value: 'exam', label: 'Exam', icon: GraduationCap, color: 'text-red-500' },
-  { value: 'live_class', label: 'Live Class', icon: Video, color: 'text-purple-500' },
-  { value: 'end', label: 'Course End', icon: Flag, color: 'text-green-500' },
+  {
+    value: "start",
+    label: "Course Start",
+    icon: Flag,
+    color: "text-green-500",
+  },
+  {
+    value: "module",
+    label: "Module/Week",
+    icon: BookOpen,
+    color: "text-primary",
+  },
+  {
+    value: "assignment",
+    label: "Assignment Due",
+    icon: ClipboardCheck,
+    color: "text-accent",
+  },
+  { value: "exam", label: "Exam", icon: GraduationCap, color: "text-red-500" },
+  {
+    value: "live_class",
+    label: "Live Class",
+    icon: Video,
+    color: "text-purple-500",
+  },
+  { value: "end", label: "Course End", icon: Flag, color: "text-green-500" },
 ];
 
 export function TimelineManager({ courseId }: TimelineManagerProps) {
@@ -31,10 +84,10 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newMilestone, setNewMilestone] = useState({
-    title: '',
-    description: '',
-    milestone_type: 'module',
-    scheduled_date: '',
+    title: "",
+    description: "",
+    milestone_type: "module",
+    scheduled_date: "",
   });
 
   const handleCreate = async () => {
@@ -46,7 +99,12 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
       milestone_type: newMilestone.milestone_type,
       scheduled_date: new Date(newMilestone.scheduled_date).toISOString(),
     });
-    setNewMilestone({ title: '', description: '', milestone_type: 'module', scheduled_date: '' });
+    setNewMilestone({
+      title: "",
+      description: "",
+      milestone_type: "module",
+      scheduled_date: "",
+    });
     setIsAddOpen(false);
   };
 
@@ -55,7 +113,7 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
   };
 
   const getMilestoneInfo = (type: string) => {
-    return milestoneTypes.find(m => m.value === type) || milestoneTypes[1];
+    return milestoneTypes.find((m) => m.value === type) || milestoneTypes[1];
   };
 
   const isPast = (date: string) => new Date(date) < new Date();
@@ -66,7 +124,11 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-8">Loading timeline...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        Loading timeline...
+      </div>
+    );
   }
 
   return (
@@ -90,14 +152,21 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add Timeline Milestone</DialogTitle>
-                <DialogDescription>Set a deadline or important date</DialogDescription>
+                <DialogDescription>
+                  Set a deadline or important date
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Milestone Type</Label>
                   <Select
                     value={newMilestone.milestone_type}
-                    onValueChange={(value) => setNewMilestone({ ...newMilestone, milestone_type: value })}
+                    onValueChange={(value) =>
+                      setNewMilestone({
+                        ...newMilestone,
+                        milestone_type: value,
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -121,7 +190,12 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
                     id="milestone-title"
                     placeholder="e.g., Week 3: React Hooks"
                     value={newMilestone.title}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewMilestone({
+                        ...newMilestone,
+                        title: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -131,24 +205,41 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
                     id="milestone-date"
                     type="datetime-local"
                     value={newMilestone.scheduled_date}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, scheduled_date: e.target.value })}
+                    onChange={(e) =>
+                      setNewMilestone({
+                        ...newMilestone,
+                        scheduled_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="milestone-description">Description (optional)</Label>
+                  <Label htmlFor="milestone-description">
+                    Description (optional)
+                  </Label>
                   <Textarea
                     id="milestone-description"
                     placeholder="Additional details..."
                     value={newMilestone.description}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewMilestone({
+                        ...newMilestone,
+                        description: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreate} disabled={createTimeline.isPending}>
-                  {createTimeline.isPending ? 'Adding...' : 'Add Milestone'}
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreate}
+                  disabled={createTimeline.isPending}
+                >
+                  {createTimeline.isPending ? "Adding..." : "Add Milestone"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -160,13 +251,15 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
           <div className="text-center py-8 text-muted-foreground">
             <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No timeline set yet.</p>
-            <p className="text-sm">Add milestones to create your course schedule.</p>
+            <p className="text-sm">
+              Add milestones to create your course schedule.
+            </p>
           </div>
         ) : (
           <div className="relative">
             {/* Timeline line */}
             <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
-            
+
             <div className="space-y-4">
               {timeline.map((item, idx) => {
                 const info = getMilestoneInfo(item.milestone_type);
@@ -177,26 +270,41 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
                 return (
                   <div
                     key={item.id}
-                    className={`relative flex items-start gap-4 pl-12 ${past && !today ? 'opacity-60' : ''}`}
+                    className={`relative flex items-start gap-4 pl-12 ${past && !today ? "opacity-60" : ""}`}
                   >
                     {/* Timeline dot */}
-                    <div className={`absolute left-4 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      today ? 'bg-primary border-primary' : past ? 'bg-muted border-muted-foreground' : 'bg-background border-primary'
-                    }`}>
-                      {past && !today && <div className="w-2 h-2 rounded-full bg-muted-foreground" />}
-                      {today && <div className="w-2 h-2 rounded-full bg-white" />}
+                    <div
+                      className={`absolute left-4 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        today
+                          ? "bg-primary border-primary"
+                          : past
+                            ? "bg-muted border-muted-foreground"
+                            : "bg-background border-primary"
+                      }`}
+                    >
+                      {past && !today && (
+                        <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                      )}
+                      {today && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
                     </div>
 
-                    <div className={`flex-1 p-4 rounded-lg border ${
-                      today ? 'border-primary bg-primary/5' : 'bg-muted/50'
-                    }`}>
+                    <div
+                      className={`flex-1 p-4 rounded-lg border ${
+                        today ? "border-primary bg-primary/5" : "bg-muted/50"
+                      }`}
+                    >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                           <Icon className={`h-5 w-5 ${info.color}`} />
                           <div>
                             <h4 className="font-medium">{item.title}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {format(new Date(item.scheduled_date), 'MMM d, yyyy • h:mm a')}
+                              {format(
+                                new Date(item.scheduled_date),
+                                "MMM d, yyyy • h:mm a",
+                              )}
                             </p>
                           </div>
                         </div>
@@ -214,7 +322,9 @@ export function TimelineManager({ courseId }: TimelineManagerProps) {
                         </div>
                       </div>
                       {item.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {item.description}
+                        </p>
                       )}
                     </div>
                   </div>
