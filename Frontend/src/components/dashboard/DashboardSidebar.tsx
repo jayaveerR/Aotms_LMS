@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   User,
@@ -24,23 +24,24 @@ import {
   Bell,
   Settings,
   LogOut,
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import logo from '@/assets/logo.png';
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const menuItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'My Profile', url: '/dashboard/profile', icon: User },
-  { title: 'My Courses', url: '/dashboard/courses', icon: BookOpen },
-  { title: 'Recorded Videos', url: '/dashboard/videos', icon: Video },
-  { title: 'Live Classes', url: '/dashboard/live-classes', icon: Calendar },
-  { title: 'Mock Papers', url: '/dashboard/mock-papers', icon: FileText },
-  { title: 'Live Exams', url: '/dashboard/exams', icon: ClipboardCheck },
-  { title: 'Exam History', url: '/dashboard/history', icon: History },
-  { title: 'Leaderboard', url: '/dashboard/leaderboard', icon: Trophy },
-  { title: 'Notifications', url: '/dashboard/notifications', icon: Bell },
-  { title: 'Settings', url: '/dashboard/settings', icon: Settings },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "My Profile", url: "/dashboard/profile", icon: User },
+  { title: "Browse Courses", url: "/courses", icon: BookOpen },
+  { title: "My Courses", url: "/dashboard/courses", icon: BookOpen },
+  { title: "Recorded Videos", url: "/dashboard/videos", icon: Video },
+  { title: "Live Classes", url: "/dashboard/live-classes", icon: Calendar },
+  { title: "Mock Papers", url: "/dashboard/mock-papers", icon: FileText },
+  { title: "Live Exams", url: "/exam?type=live", icon: ClipboardCheck },
+  { title: "Exam History", url: "/dashboard/history", icon: History },
+  { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
+  { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function DashboardSidebar() {

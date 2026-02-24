@@ -16,6 +16,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Assignments from "./pages/Assignments";
+import Courses from "./pages/Courses";
+import ExamPage from "./pages/ExamPage";
 import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/exam" element={<ExamPage />} />
             <Route path="/become-instructor" element={<InstructorRegister />} />
             <Route path="/learning-paths" element={<LearningPaths />} />
             <Route path="/dashboard" element={<Dashboard />} />
