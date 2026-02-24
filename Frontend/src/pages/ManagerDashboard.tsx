@@ -39,6 +39,9 @@ import {
   Users,
   GraduationCap,
   UserCheck,
+  ArrowLeft,
+  Search,
+  Clock,
 } from "lucide-react";
 import {
   useExams,
@@ -49,6 +52,7 @@ import {
   useExamRules,
   useExamResults,
   useUserRoles,
+  useProfiles,
 } from "@/hooks/useManagerData";
 import { cn } from "@/lib/utils";
 
@@ -58,10 +62,12 @@ export default function ManagerDashboard() {
   const [userListFilter, setUserListFilter] = useState<
     "student" | "instructor" | "all"
   >("all");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const openUserList = (filter: "student" | "instructor" | "all") => {
     setUserListFilter(filter);
+    setUserSearchQuery("");
     setActiveSection("users-list");
   };
 
@@ -75,6 +81,7 @@ export default function ManagerDashboard() {
   const { data: examRules = [] } = useExamRules();
   const { data: examResults = [] } = useExamResults();
   const { data: userRoles = [] } = useUserRoles();
+  const { data: profiles = [] } = useProfiles();
 
   const totalCandidates = userRoles.length;
   const totalStudents = userRoles.filter((r) => r.role === "student").length;
@@ -158,7 +165,7 @@ export default function ManagerDashboard() {
           </CardContent>
         </Card>
         <Card
-          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-cyan-200"
+          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-cyan-200 group"
           onClick={() => openUserList("student")}
         >
           <CardContent className="p-6">
@@ -173,10 +180,13 @@ export default function ManagerDashboard() {
                 <h3 className="text-2xl font-bold">{totalStudents}</h3>
               </div>
             </div>
+            <p className="text-[11px] text-cyan-500 mt-3 group-hover:underline">
+              Click to view list →
+            </p>
           </CardContent>
         </Card>
         <Card
-          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-fuchsia-200"
+          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-fuchsia-200 group"
           onClick={() => openUserList("instructor")}
         >
           <CardContent className="p-6">
@@ -191,6 +201,9 @@ export default function ManagerDashboard() {
                 <h3 className="text-2xl font-bold">{totalInstructors}</h3>
               </div>
             </div>
+            <p className="text-[11px] text-fuchsia-500 mt-3 group-hover:underline">
+              Click to view list →
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -402,71 +415,181 @@ export default function ManagerDashboard() {
         : userListFilter === "instructor"
           ? "Instructors"
           : "All Candidates";
-    const iconColor =
+
+    const accentColor =
       userListFilter === "student"
-        ? "text-cyan-600"
+        ? {
+            bg: "bg-cyan-50",
+            text: "text-cyan-700",
+            border: "border-cyan-200",
+            icon: "text-cyan-600",
+            hover: "hover:border-cyan-200",
+          }
         : userListFilter === "instructor"
-          ? "text-fuchsia-600"
-          : "text-indigo-600";
-    const filtered =
-      userListFilter === "all"
-        ? userRoles
-        : userRoles.filter((u) => u.role === userListFilter);
+          ? {
+              bg: "bg-fuchsia-50",
+              text: "text-fuchsia-700",
+              border: "border-fuchsia-200",
+              icon: "text-fuchsia-600",
+              hover: "hover:border-fuchsia-200",
+            }
+          : {
+              bg: "bg-indigo-50",
+              text: "text-indigo-700",
+              border: "border-indigo-200",
+              icon: "text-indigo-600",
+              hover: "hover:border-indigo-200",
+            };
+
+    // Join userRoles with profiles for rich info
+    const enrichedUsers = userRoles
+      .filter((u) => userListFilter === "all" || u.role === userListFilter)
+      .map((u) => {
+        const profile = (profiles as any[]).find(
+          (p: any) => p.id === u.user_id,
+        );
+        return {
+          ...u,
+          full_name: profile?.full_name || null,
+          email: profile?.email || null,
+          avatar_url: profile?.avatar_url || null,
+          created_at_profile: profile?.created_at || u.created_at,
+          status: profile?.status || "active",
+        };
+      })
+      .filter((u) => {
+        if (!userSearchQuery) return true;
+        const q = userSearchQuery.toLowerCase();
+        return (
+          u.full_name?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.user_id?.toLowerCase().includes(q)
+        );
+      });
+
+    const formatJoinDate = (dateStr: string | null) => {
+      if (!dateStr) return "Unknown";
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    const getInitials = (name: string | null) => {
+      if (!name) return "?";
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+    };
+
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
+      <div className="space-y-6 animate-in fade-in duration-300">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button
             variant="outline"
             size="sm"
-            className="gap-1"
+            className="gap-2 w-fit"
             onClick={() => setActiveSection("overview")}
           >
-            ← Back
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
           </Button>
-          <h2 className="text-xl font-bold">{label} List</h2>
-          <span className="text-sm text-muted-foreground">
-            ({filtered.length} total)
-          </span>
+          <div>
+            <h2 className="text-2xl font-bold">{label} List</h2>
+            <p className="text-sm text-muted-foreground">
+              {enrichedUsers.length} {label.toLowerCase()} registered on the
+              platform
+            </p>
+          </div>
         </div>
-        <Card className="rounded-xl border shadow-sm">
-          <CardContent className="p-0">
-            {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                <Users className="h-12 w-12 mb-3 opacity-30" />
-                <p>No {label.toLowerCase()} found.</p>
-              </div>
-            ) : (
-              <div className="divide-y">
-                {filtered.map((u, idx) => (
+
+        {/* Search */}
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder={`Search ${label.toLowerCase()} by name or email...`}
+            value={userSearchQuery}
+            onChange={(e) => setUserSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+          />
+        </div>
+
+        {/* List */}
+        <Card className="rounded-xl border shadow-sm overflow-hidden">
+          {enrichedUsers.length === 0 ? (
+            <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+              <Users className="h-12 w-12 opacity-20" />
+              <p className="font-medium">No {label.toLowerCase()} found</p>
+              {userSearchQuery && (
+                <p className="text-xs">Try a different search term</p>
+              )}
+            </CardContent>
+          ) : (
+            <div className="divide-y">
+              {enrichedUsers.map((u, idx) => (
+                <div
+                  key={u.user_id || idx}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                >
+                  {/* Avatar */}
                   <div
-                    key={u.user_id || idx}
-                    className="flex items-center gap-4 p-4 hover:bg-muted/40 transition-colors"
+                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm ${accentColor.bg} ${accentColor.text}`}
                   >
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Users className={`h-4 w-4 ${iconColor}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{u.user_id}</p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {u.role}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded-full ${
-                        u.role === "student"
-                          ? "bg-cyan-50 text-cyan-700"
-                          : u.role === "instructor"
-                            ? "bg-fuchsia-50 text-fuchsia-700"
-                            : "bg-indigo-50 text-indigo-700"
-                      }`}
-                    >
-                      {u.role}
-                    </span>
+                    {u.avatar_url ? (
+                      <img
+                        src={u.avatar_url}
+                        alt={u.full_name || "User"}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      getInitials(u.full_name)
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">
+                      {u.full_name || "Unknown User"}
+                    </p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {u.email || u.user_id}
+                    </p>
+                  </div>
+
+                  {/* Join Date */}
+                  <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                    <Clock className="h-3 w-3" />
+                    <span>Joined {formatJoinDate(u.created_at_profile)}</span>
+                  </div>
+
+                  {/* Role Badge */}
+                  <span
+                    className={`text-xs font-semibold px-3 py-1 rounded-full capitalize flex-shrink-0 ${accentColor.bg} ${accentColor.text}`}
+                  >
+                    {u.role}
+                  </span>
+
+                  {/* Status Badge */}
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
+                      u.status === "suspended"
+                        ? "bg-red-50 text-red-700"
+                        : "bg-green-50 text-green-700"
+                    }`}
+                  >
+                    {u.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     );
