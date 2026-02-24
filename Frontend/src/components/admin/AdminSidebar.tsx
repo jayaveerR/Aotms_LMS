@@ -71,9 +71,6 @@ export function AdminSidebar({
           className="flex items-center gap-3 group transition-transform hover:-translate-y-[2px]"
         >
           <img src={logo} alt="AOTMS Logo" className="h-10" />
-          <span className="font-black text-[#000000] tracking-widest text-lg">
-            AOTMS
-          </span>
         </button>
       </SidebarHeader>
 

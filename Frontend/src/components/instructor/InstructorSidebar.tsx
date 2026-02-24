@@ -57,9 +57,6 @@ export function InstructorSidebar() {
             alt="AOTMS"
             className="h-10 group-hover:-translate-y-1 transition-transform"
           />
-          <span className="font-black text-[#000000] tracking-widest text-lg">
-            AOTMS
-          </span>
         </Link>
       </SidebarHeader>
 
