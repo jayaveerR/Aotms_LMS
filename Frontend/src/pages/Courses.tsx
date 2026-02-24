@@ -66,7 +66,7 @@ function CourseModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+        className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -77,35 +77,35 @@ function CourseModal({
           onClick={onClose}
         />
 
-        {/* Modal — bottom sheet on mobile, centered card on sm+ */}
+        {/* Modal — bottom sheet on mobile/tablet portrait, centered card on md+ */}
         <motion.div
-          className="relative z-10 w-full max-w-2xl bg-white border-t-4 sm:border-4 border-[#000000] rounded-t-3xl sm:rounded-2xl shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden max-h-[95vh] overflow-y-auto"
+          className="relative z-10 w-full max-w-2xl bg-white border-t-4 md:border-4 border-[#000000] rounded-t-3xl md:rounded-2xl shadow-[0px_-4px_0px_0px_rgba(0,0,0,1)] md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden max-h-[92vh] overflow-y-auto"
           initial={{ y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
         >
-          {/* Drag handle (mobile) */}
-          <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          {/* Drag handle (mobile + tablet portrait) */}
+          <div className="flex justify-center pt-3 pb-1 md:hidden">
             <div className="w-10 h-1.5 bg-[#000000]/20 rounded-full" />
           </div>
 
           {/* Header stripe */}
-          <div className="h-1.5 sm:h-2 bg-[#0075CF]" />
+          <div className="h-1.5 md:h-2 bg-[#0075CF]" />
 
-          <div className="p-5 sm:p-8">
+          <div className="p-5 md:p-8">
             {/* Close */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 w-9 h-9 flex items-center justify-center border-2 border-[#000000] rounded-lg hover:bg-[#E9E9E9] active:bg-[#E9E9E9] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10"
+              className="absolute top-4 right-4 md:top-5 md:right-5 w-9 h-9 flex items-center justify-center border-2 border-[#000000] rounded-lg hover:bg-[#E9E9E9] active:bg-[#E9E9E9] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Icon + Category */}
-            <div className="flex items-center gap-3 mb-4 sm:mb-5 pr-10">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#0075CF] border-2 border-[#000000] flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
-                <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            <div className="flex items-center gap-3 mb-4 md:mb-5 pr-12">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#0075CF] border-2 border-[#000000] flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
               <div>
                 <span className="text-xs font-black uppercase tracking-widest text-[#0075CF]">
@@ -127,15 +127,15 @@ function CourseModal({
               </div>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-black text-[#000000] mb-3 leading-tight">
+            <h2 className="text-xl md:text-2xl font-black text-[#000000] mb-3 leading-tight">
               {course.title}
             </h2>
-            <p className="text-[#000000]/70 text-sm leading-relaxed mb-5 sm:mb-6">
+            <p className="text-[#000000]/70 text-sm leading-relaxed mb-5 md:mb-6">
               {course.description ?? "No description available."}
             </p>
 
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5 sm:mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-5 md:mb-6">
               {[
                 {
                   icon: Clock,
@@ -157,15 +157,13 @@ function CourseModal({
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="flex flex-col items-center justify-center p-2 sm:p-3 bg-[#E9E9E9] border-2 border-[#000000] rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  className="flex flex-col items-center justify-center p-3 bg-[#E9E9E9] border-2 border-[#000000] rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                 >
-                  <s.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#0075CF] mb-1" />
-                  <span className="text-base sm:text-lg font-black text-[#000000]">
+                  <s.icon className="w-5 h-5 text-[#0075CF] mb-1" />
+                  <span className="text-lg font-black text-[#000000]">
                     {s.value}
                   </span>
-                  <span className="text-[10px] sm:text-xs text-[#000000]/60">
-                    {s.label}
-                  </span>
+                  <span className="text-xs text-[#000000]/60">{s.label}</span>
                 </div>
               ))}
             </div>
@@ -185,7 +183,7 @@ function CourseModal({
               <Button
                 variant="accent"
                 size="lg"
-                className="w-full text-base h-12 sm:h-14"
+                className="w-full text-base h-12 md:h-14"
                 onClick={() => onEnroll(course.id)}
                 disabled={enrolling}
               >
@@ -237,8 +235,8 @@ function CourseCard({
     >
       <div className="bg-white border-2 border-[#000000] rounded-2xl overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[8px_8px_0px_0px_rgba(0,117,207,1)] transition-shadow duration-200 h-full flex flex-col">
         {/* Thumbnail */}
-        <div className="h-36 sm:h-44 bg-[#E9E9E9] flex items-center justify-center relative border-b-2 border-[#000000] shrink-0">
-          <Icon className="w-14 h-14 sm:w-16 sm:h-16 text-[#0075CF]/40" />
+        <div className="h-36 sm:h-40 md:h-44 bg-[#E9E9E9] flex items-center justify-center relative border-b-2 border-[#000000] shrink-0">
+          <Icon className="w-14 h-14 md:w-16 md:h-16 text-[#0075CF]/40" />
           {/* Category chip */}
           <span className="absolute top-3 left-3 text-[10px] font-black uppercase tracking-widest bg-[#000000] text-white px-2.5 py-1 rounded-full">
             {course.category ?? "Course"}
@@ -258,8 +256,8 @@ function CourseCard({
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-5 flex flex-col flex-1">
-          <h3 className="font-black text-[#000000] text-sm sm:text-base leading-tight mb-2 line-clamp-2 group-hover:text-[#0075CF] transition-colors">
+        <div className="p-4 md:p-5 flex flex-col flex-1">
+          <h3 className="font-black text-[#000000] text-sm md:text-base leading-tight mb-2 line-clamp-2 group-hover:text-[#0075CF] transition-colors">
             {course.title}
           </h3>
           <p className="text-xs text-[#000000]/60 leading-relaxed line-clamp-2 mb-3 flex-1">
@@ -268,7 +266,7 @@ function CourseCard({
 
           {/* Footer row */}
           <div className="flex items-center justify-between pt-3 border-t-2 border-[#E9E9E9] mt-auto">
-            <div className="flex items-center gap-2 sm:gap-3 text-xs text-[#000000]/60 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-[#000000]/60 flex-wrap">
               {course.duration_hours && (
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
@@ -294,8 +292,8 @@ function CourseCard({
 function SkeletonCard() {
   return (
     <div className="bg-white border-2 border-[#E9E9E9] rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-36 sm:h-44 bg-[#E9E9E9]" />
-      <div className="p-4 sm:p-5 space-y-3">
+      <div className="h-36 sm:h-40 md:h-44 bg-[#E9E9E9]" />
+      <div className="p-4 md:p-5 space-y-3">
         <div className="h-4 bg-[#E9E9E9] rounded w-3/4" />
         <div className="h-3 bg-[#E9E9E9] rounded w-full" />
         <div className="h-3 bg-[#E9E9E9] rounded w-2/3" />
@@ -383,20 +381,20 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-[#E9E9E9] font-['Inter']">
       {/* ── Page Header ── */}
       <div className="bg-[#000000] border-b-4 border-[#FD5A1A]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-10 sm:py-12 md:py-14">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 border-2 border-[#FD5A1A] rounded-full text-[#FD5A1A] text-[10px] sm:text-xs font-black uppercase tracking-widest mb-4 sm:mb-5 shadow-[3px_3px_0px_0px_rgba(253,90,26,1)]">
-              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Browse Courses
+            <span className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 border-2 border-[#FD5A1A] rounded-full text-[#FD5A1A] text-[10px] md:text-xs font-black uppercase tracking-widest mb-4 md:mb-5 shadow-[3px_3px_0px_0px_rgba(253,90,26,1)]">
+              <Star className="w-3.5 h-3.5 md:w-4 md:h-4" /> Browse Courses
             </span>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-none tracking-tight mb-3 sm:mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tight mb-3 md:mb-4">
               FIND YOUR
               <br />
               <span className="text-[#FD5A1A]">NEXT SKILL</span>
             </h1>
-            <p className="text-white/60 text-sm max-w-xl">
+            <p className="text-white/60 text-sm md:text-base max-w-xl">
               {enrollments.length > 0
                 ? `You're enrolled in ${enrollments.length} course${enrollments.length > 1 ? "s" : ""}. Keep learning!`
                 : "Explore our library of expert-led courses and start building real-world skills today."}
@@ -407,8 +405,8 @@ export default function CoursesPage() {
 
       {/* ── Filters Bar ── */}
       <div className="sticky top-0 z-30 bg-white border-b-2 border-[#000000] shadow-[0px_4px_0px_0px_rgba(0,0,0,1)]">
-        {/* Mobile search + filter toggle row */}
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-10 pt-3 pb-2 flex gap-2 items-center">
+        {/* Top row: search + controls */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pt-3 pb-2 flex gap-2 md:gap-3 items-center">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#000000]/40" />
@@ -421,12 +419,12 @@ export default function CoursesPage() {
             />
           </div>
 
-          {/* Filter toggle button (mobile) / Levels inline (desktop) */}
+          {/* Controls: filter toggle on mobile/tablet, level pills on lg+ */}
           <div className="flex items-center gap-2">
-            {/* Mobile: filter toggle */}
+            {/* Mobile + tablet: filter toggle button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`sm:hidden flex items-center gap-1.5 text-xs font-black px-3 py-2.5 border-2 border-[#000000] rounded-xl transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+              className={`md:hidden flex items-center gap-1.5 text-xs font-black px-3 py-2.5 border-2 border-[#000000] rounded-xl transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
                 activeFilterCount > 0
                   ? "bg-[#0075CF] text-white"
                   : "bg-white text-[#000000]"
@@ -440,8 +438,8 @@ export default function CoursesPage() {
               )}
             </button>
 
-            {/* Desktop: level pills inline */}
-            <div className="hidden sm:flex gap-2 flex-wrap">
+            {/* Desktop lg+: level pills inline */}
+            <div className="hidden md:flex gap-2 flex-wrap">
               {LEVELS.map((l) => (
                 <button
                   key={l}
@@ -467,7 +465,7 @@ export default function CoursesPage() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="sm:hidden overflow-hidden border-t-2 border-[#000000]/10"
+              className="md:hidden overflow-hidden border-t-2 border-[#000000]/10"
             >
               <div className="px-3 py-3 space-y-3">
                 {/* Level pills */}
@@ -529,8 +527,8 @@ export default function CoursesPage() {
           )}
         </AnimatePresence>
 
-        {/* Desktop: Category row (horizontal scroll) */}
-        <div className="hidden sm:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-3">
+        {/* md+ Category row — always visible, horizontal scroll */}
+        <div className="hidden md:block max-w-7xl mx-auto px-6 md:px-8 lg:px-10 pb-3">
           <div className="flex gap-2 overflow-x-auto scrollbar-none">
             {CATEGORIES.map((cat) => (
               <button
@@ -550,8 +548,8 @@ export default function CoursesPage() {
       </div>
 
       {/* ── Results Count ── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-10 pt-5 sm:pt-8 pb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 flex-wrap">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pt-5 md:pt-8 pb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
           <p className="text-sm font-bold text-[#000000]/60">
             {isLoading
               ? "Loading…"
@@ -561,7 +559,10 @@ export default function CoursesPage() {
           {selectedLevel !== "All" && (
             <span className="flex items-center gap-1 text-xs font-black bg-[#0075CF] text-white px-2.5 py-1 rounded-full border-2 border-[#000000]">
               {selectedLevel}
-              <button onClick={() => setSelectedLevel("All")}>
+              <button
+                onClick={() => setSelectedLevel("All")}
+                aria-label="Remove level filter"
+              >
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -569,7 +570,10 @@ export default function CoursesPage() {
           {selectedCategory !== "All" && (
             <span className="flex items-center gap-1 text-xs font-black bg-[#FD5A1A] text-white px-2.5 py-1 rounded-full border-2 border-[#000000]">
               {selectedCategory}
-              <button onClick={() => setSelectedCategory("All")}>
+              <button
+                onClick={() => setSelectedCategory("All")}
+                aria-label="Remove category filter"
+              >
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -587,8 +591,8 @@ export default function CoursesPage() {
       </div>
 
       {/* ── Grid ── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-10 pb-16 sm:pb-20">
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pb-16 md:pb-20">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {isLoading ? (
             Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
           ) : filtered.length === 0 ? (
