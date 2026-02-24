@@ -1,70 +1,104 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Users, 
-  Search, 
-  Plus, 
-  Edit, 
-  Lock, 
-  Unlock, 
-  UserCog, 
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Users,
+  Search,
+  Plus,
+  Edit,
+  Lock,
+  Unlock,
+  UserCog,
   Clock,
-  AlertCircle
-} from 'lucide-react';
-import type { Profile } from '@/hooks/useAdminData';
+  AlertCircle,
+} from "lucide-react";
+import type { Profile } from "@/hooks/useAdminData";
 
 interface UserManagementProps {
   users: Profile[];
   loading: boolean;
   roleCounts: Record<string, number>;
-  onUpdateStatus: (userId: string, status: 'active' | 'suspended') => Promise<boolean>;
-  onUpdateRole: (userId: string, role: 'admin' | 'manager' | 'instructor' | 'student') => Promise<boolean>;
+  onUpdateStatus: (
+    userId: string,
+    status: "active" | "suspended",
+  ) => Promise<boolean>;
+  onUpdateRole: (
+    userId: string,
+    role: "admin" | "manager" | "instructor" | "student",
+  ) => Promise<boolean>;
+  initialRoleFilter?: string;
 }
 
-export function UserManagement({ 
-  users, 
-  loading, 
+export function UserManagement({
+  users,
+  loading,
   roleCounts,
-  onUpdateStatus, 
-  onUpdateRole 
+  onUpdateStatus,
+  onUpdateRole,
+  initialRoleFilter = "all",
 }: UserManagementProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>(initialRoleFilter);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
-  const [newRole, setNewRole] = useState<string>('');
+  const [newRole, setNewRole] = useState<string>("");
 
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
   const handleRoleChange = async () => {
     if (selectedUser && newRole) {
-      await onUpdateRole(selectedUser.id, newRole as 'admin' | 'manager' | 'instructor' | 'student');
+      await onUpdateRole(
+        selectedUser.id,
+        newRole as "admin" | "manager" | "instructor" | "student",
+      );
       setShowRoleDialog(false);
       setSelectedUser(null);
-      setNewRole('');
+      setNewRole("");
     }
   };
 
+  useEffect(() => {
+    setRoleFilter(initialRoleFilter);
+  }, [initialRoleFilter]);
+
   const formatLastActive = (dateStr: string | null) => {
-    if (!dateStr) return 'Never';
+    if (!dateStr) return "Never";
     const date = new Date(dateStr);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
+
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins} min ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
     return `${Math.floor(diffMins / 1440)} days ago`;
@@ -72,10 +106,14 @@ export function UserManagement({
 
   const getRoleBadgeVariant = (role: string | undefined) => {
     switch (role) {
-      case 'admin': return 'default';
-      case 'manager': return 'secondary';
-      case 'instructor': return 'outline';
-      default: return 'secondary';
+      case "admin":
+        return "default";
+      case "manager":
+        return "secondary";
+      case "instructor":
+        return "outline";
+      default:
+        return "secondary";
     }
   };
 
@@ -117,14 +155,16 @@ export function UserManagement({
                 <Users className="h-5 w-5 text-primary" />
                 User Management
               </CardTitle>
-              <CardDescription>Manage all platform users ({users.length} total)</CardDescription>
+              <CardDescription>
+                Manage all platform users ({users.length} total)
+              </CardDescription>
             </div>
             <div className="flex gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Search users..." 
-                  className="pl-10 w-48" 
+                <Input
+                  placeholder="Search users..."
+                  className="pl-10 w-48"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -165,11 +205,13 @@ export function UserManagement({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-medium">{user.full_name || 'Unknown'}</h4>
+                    <h4 className="font-medium">
+                      {user.full_name || "Unknown"}
+                    </h4>
                     <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {user.role || 'student'}
+                      {user.role || "student"}
                     </Badge>
-                    {user.status === 'suspended' && (
+                    {user.status === "suspended" && (
                       <Badge variant="destructive">suspended</Badge>
                     )}
                   </div>
@@ -183,33 +225,33 @@ export function UserManagement({
                   <Button variant="ghost" size="icon" title="Edit">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     title="Change Role"
                     onClick={() => {
                       setSelectedUser(user);
-                      setNewRole(user.role || 'student');
+                      setNewRole(user.role || "student");
                       setShowRoleDialog(true);
                     }}
                   >
                     <UserCog className="h-4 w-4" />
                   </Button>
-                  {user.status === 'active' ? (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                  {user.status === "active" ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       title="Suspend"
-                      onClick={() => onUpdateStatus(user.id, 'suspended')}
+                      onClick={() => onUpdateStatus(user.id, "suspended")}
                     >
                       <Lock className="h-4 w-4 text-destructive" />
                     </Button>
                   ) : (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       title="Activate"
-                      onClick={() => onUpdateStatus(user.id, 'active')}
+                      onClick={() => onUpdateStatus(user.id, "active")}
                     >
                       <Unlock className="h-4 w-4 text-green-600" />
                     </Button>
@@ -220,7 +262,7 @@ export function UserManagement({
           )}
         </CardContent>
       </Card>
-      
+
       {/* Role Management Sidebar */}
       <Card>
         <CardHeader>
@@ -287,9 +329,7 @@ export function UserManagement({
             <Button variant="outline" onClick={() => setShowRoleDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleRoleChange}>
-              Save Changes
-            </Button>
+            <Button onClick={handleRoleChange}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

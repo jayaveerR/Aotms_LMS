@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -35,9 +35,15 @@ import {
   Database,
   Globe,
   ShieldAlert,
-  RefreshCw,
   FileText,
   Trash2,
+  GraduationCap,
+  UserCheck,
+  RefreshCw,
+  ArrowLeft,
+  Clock,
+  Search,
+  DollarSign,
 } from "lucide-react";
 
 const platformMetrics = [
@@ -66,6 +72,31 @@ export default function AdminDashboard() {
     resolveSecurityEvent,
   } = useAdminData();
 
+  const [activeTab, setActiveTab] = useState("users");
+  const [roleListView, setRoleListView] = useState<
+    "all" | "student" | "instructor" | null
+  >(null);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+
+  const totalCandidates = stats.totalUsers || 0;
+  const totalStudents = stats.roleCounts?.student || 0;
+  const totalInstructors = stats.roleCounts?.instructor || 0;
+
+  const openRoleListView = (role: "all" | "student" | "instructor") => {
+    setRoleListView(role);
+    setUserSearchQuery("");
+  };
+
+  const formatLastActive = (dateStr: string | null) => {
+    if (!dateStr) return "Never";
+    const date = new Date(dateStr);
+    const diffMins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
+  };
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -77,6 +108,158 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
+    );
+  }
+
+  // --- Role List Full-Page View ---
+  if (roleListView !== null) {
+    const label =
+      roleListView === "student"
+        ? "Students"
+        : roleListView === "instructor"
+          ? "Instructors"
+          : "All Candidates";
+
+    const accentColor =
+      roleListView === "student"
+        ? {
+            bg: "bg-cyan-50",
+            text: "text-cyan-700",
+            border: "border-cyan-200",
+            icon: "text-cyan-600",
+          }
+        : roleListView === "instructor"
+          ? {
+              bg: "bg-fuchsia-50",
+              text: "text-fuchsia-700",
+              border: "border-fuchsia-200",
+              icon: "text-fuchsia-600",
+            }
+          : {
+              bg: "bg-indigo-50",
+              text: "text-indigo-700",
+              border: "border-indigo-200",
+              icon: "text-indigo-600",
+            };
+
+    const filtered = profiles
+      .filter((p) => roleListView === "all" || p.role === roleListView)
+      .filter(
+        (p) =>
+          !userSearchQuery ||
+          p.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+          p.email?.toLowerCase().includes(userSearchQuery.toLowerCase()),
+      );
+
+    return (
+      <SidebarProvider>
+        <AdminSidebar />
+        <SidebarInset>
+          <AmbientBackground />
+          <AdminHeader />
+          <main className="flex-1 p-6 space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setRoleListView(null)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">{label} List</h1>
+                <p className="text-sm text-muted-foreground">
+                  {filtered.length} {label.toLowerCase()} found
+                </p>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder={`Search ${label.toLowerCase()}...`}
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+
+            {/* User List */}
+            <Card className="rounded-xl border shadow-sm overflow-hidden">
+              {dataLoading ? (
+                <CardContent className="p-6 space-y-4">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-3 w-56" />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              ) : filtered.length === 0 ? (
+                <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+                  <Users className="h-12 w-12 opacity-20" />
+                  <p className="font-medium">No {label.toLowerCase()} found</p>
+                  {userSearchQuery && (
+                    <p className="text-xs">Try a different search term</p>
+                  )}
+                </CardContent>
+              ) : (
+                <div className="divide-y">
+                  {filtered.map((person) => (
+                    <div
+                      key={person.id}
+                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                    >
+                      <div
+                        className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${accentColor.bg}`}
+                      >
+                        <Users className={`h-5 w-5 ${accentColor.icon}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate">
+                          {person.full_name || "Unknown User"}
+                        </p>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {person.email}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatLastActive(person.last_active_at)}
+                        </span>
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded-full capitalize ${accentColor.bg} ${accentColor.text}`}
+                        >
+                          {person.role || roleListView}
+                        </span>
+                        <Badge
+                          variant={
+                            person.status === "suspended"
+                              ? "destructive"
+                              : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {person.status || "active"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
@@ -117,25 +300,99 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          {/* Candidates Overview */}
+          <div className="grid gap-4 sm:grid-cols-3 mb-6">
+            <Card
+              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-indigo-200 group"
+              onClick={() => openRoleListView("all")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-indigo-50">
+                    <Users className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                      Total Candidates
+                    </p>
+                    <h3 className="text-2xl font-bold">
+                      {totalCandidates.toLocaleString()}
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[11px] text-indigo-500 mt-3 group-hover:underline">
+                  Click to view list →
+                </p>
+              </CardContent>
+            </Card>
+            <Card
+              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-cyan-200 group"
+              onClick={() => openRoleListView("student")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-cyan-50">
+                    <GraduationCap className="h-5 w-5 text-cyan-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                      Students
+                    </p>
+                    <h3 className="text-2xl font-bold">
+                      {totalStudents.toLocaleString()}
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[11px] text-cyan-500 mt-3 group-hover:underline">
+                  Click to view list →
+                </p>
+              </CardContent>
+            </Card>
+            <Card
+              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-fuchsia-200 group"
+              onClick={() => openRoleListView("instructor")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-fuchsia-50">
+                    <UserCheck className="h-5 w-5 text-fuchsia-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                      Instructors
+                    </p>
+                    <h3 className="text-2xl font-bold">
+                      {totalInstructors.toLocaleString()}
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[11px] text-fuchsia-500 mt-3 group-hover:underline">
+                  Click to view list →
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Stats Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="hover-lift">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
+            <Card className="hover-lift border-primary/20 bg-primary/5">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Users
+                  Total Revenue
                 </CardTitle>
-                <Users className="h-5 w-5 text-primary" />
+                <DollarSign className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 {dataLoading ? (
-                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-24" />
                 ) : (
                   <>
                     <div className="text-2xl font-bold">
-                      {stats.totalUsers.toLocaleString()}
+                      ${stats.totalRevenue.toLocaleString()}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Real-time data
+                    <p className="text-xs text-muted-foreground mt-1 text-green-600 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      +12% from last month
                     </p>
                   </>
                 )}
@@ -205,7 +462,11 @@ export default function AdminDashboard() {
           </div>
 
           {/* Main Tabs */}
-          <Tabs defaultValue="users" className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
             <TabsList className="grid w-full max-w-2xl grid-cols-5">
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -327,6 +588,20 @@ export default function AdminDashboard() {
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                           {stats.highPriorityEvents} high priority
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign className="h-4 w-4 text-primary" />
+                          <span className="text-sm text-muted-foreground">
+                            Total Revenue
+                          </span>
+                        </div>
+                        <p className="text-2xl font-bold text-primary">
+                          ${stats.totalRevenue.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                          <TrendingUp className="h-3 w-3" /> +12% growth
                         </p>
                       </div>
                       <div className="p-4 rounded-lg bg-muted/50">

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 // Types for admin data
 export interface Profile {
@@ -7,7 +7,7 @@ export interface Profile {
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
-  status: 'active' | 'suspended' | 'pending';
+  status: "active" | "suspended" | "pending";
   last_active_at: string | null;
   created_at: string;
   role?: string;
@@ -16,7 +16,7 @@ export interface Profile {
 export interface UserRole {
   id: string;
   user_id: string;
-  role: 'admin' | 'manager' | 'instructor' | 'student';
+  role: "admin" | "manager" | "instructor" | "student";
   created_at: string;
 }
 
@@ -26,7 +26,7 @@ export interface Course {
   description: string | null;
   instructor_id: string | null;
   instructor_name: string | null;
-  status: 'pending' | 'approved' | 'rejected' | 'disabled';
+  status: "pending" | "approved" | "rejected" | "disabled";
   category: string | null;
   thumbnail_url: string | null;
   submitted_at: string;
@@ -41,7 +41,7 @@ export interface SecurityEvent {
   user_id: string | null;
   user_email: string | null;
   ip_address: string | null;
-  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  risk_level: "low" | "medium" | "high" | "critical";
   details: Record<string, unknown> | null;
   resolved: boolean;
   created_at: string;
@@ -49,7 +49,7 @@ export interface SecurityEvent {
 
 export interface SystemLog {
   id: string;
-  log_type: 'info' | 'warning' | 'error' | 'audit' | 'system';
+  log_type: "info" | "warning" | "error" | "audit" | "system";
   module: string;
   action: string;
   user_id: string | null;
@@ -64,29 +64,30 @@ export interface AdminStats {
   securityEvents: number;
   highPriorityEvents: number;
   roleCounts: Record<string, number>;
+  totalRevenue: number;
 }
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "http://localhost:5000/api";
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('access_token');
-  if (!token) throw new Error('No access token found');
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
     ...options.headers,
   };
   const res = await fetch(`${API_URL}${url}`, { ...options, headers });
   if (!res.ok) {
     if (res.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('user_role');
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("user_role");
       window.location.reload();
-      throw new Error('Session expired. Please login again.');
+      throw new Error("Session expired. Please login again.");
     }
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'API Request Failed');
+    throw new Error(err.error || "API Request Failed");
   }
   return res.json();
 };
@@ -106,6 +107,7 @@ export function useAdminData() {
     securityEvents: 0,
     highPriorityEvents: 0,
     roleCounts: {},
+    totalRevenue: 0,
   });
 
   // Fetch all admin data
@@ -113,12 +115,22 @@ export function useAdminData() {
     setLoading(true);
     try {
       // Fetch in parallel
-      const [profilesData, rolesData, coursesData, eventsData, logsData] = await Promise.all([
-        fetchWithAuth('/data/profiles?sort=created_at&order=desc'),
-        fetchWithAuth('/data/user_roles'),
-        fetchWithAuth('/data/courses?sort=submitted_at&order=desc'),
-        fetchWithAuth('/data/security_events?sort=created_at&order=desc&limit=50'),
-        fetchWithAuth('/data/system_logs?sort=created_at&order=desc&limit=100'),
+      const [
+        profilesData,
+        rolesData,
+        coursesData,
+        eventsData,
+        logsData,
+        enrollmentsData,
+      ] = await Promise.all([
+        fetchWithAuth("/data/profiles?sort=created_at&order=desc"),
+        fetchWithAuth("/data/user_roles"),
+        fetchWithAuth("/data/courses?sort=submitted_at&order=desc"),
+        fetchWithAuth(
+          "/data/security_events?sort=created_at&order=desc&limit=50",
+        ),
+        fetchWithAuth("/data/system_logs?sort=created_at&order=desc&limit=100"),
+        fetchWithAuth("/data/course_enrollments").catch(() => []), // Fallback if table doesn't exist
       ]);
 
       if (profilesData) setProfiles(profilesData as Profile[]);
@@ -133,14 +145,22 @@ export function useAdminData() {
       }
       if (coursesData) {
         setCourses(coursesData as Course[]);
-        const pending = (coursesData as Course[]).filter((c) => c.status === 'pending').length;
-        const approved = (coursesData as Course[]).filter((c) => c.status === 'approved').length;
-        setStats((prev) => ({ ...prev, pendingCourses: pending, activeCourses: approved }));
+        const pending = (coursesData as Course[]).filter(
+          (c) => c.status === "pending",
+        ).length;
+        const approved = (coursesData as Course[]).filter(
+          (c) => c.status === "approved",
+        ).length;
+        setStats((prev) => ({
+          ...prev,
+          pendingCourses: pending,
+          activeCourses: approved,
+        }));
       }
       if (eventsData) {
         setSecurityEvents(eventsData as SecurityEvent[]);
         const highPriority = (eventsData as SecurityEvent[]).filter(
-          (e) => e.risk_level === 'high' || e.risk_level === 'critical'
+          (e) => e.risk_level === "high" || e.risk_level === "critical",
         ).length;
         setStats((prev) => ({
           ...prev,
@@ -150,14 +170,24 @@ export function useAdminData() {
       }
       if (logsData) setSystemLogs(logsData as SystemLog[]);
 
+      // Calculate revenue from enrollments
+      if (enrollmentsData) {
+        const revenue = (enrollmentsData as any[]).reduce((sum, enr) => {
+          // Check for price or amount, default to 0 if not found
+          const price = enr.amount || enr.price || 0;
+          return sum + price;
+        }, 0);
+        setStats((prev) => ({ ...prev, totalRevenue: revenue }));
+      }
+
       // Update total users count
       setStats((prev) => ({ ...prev, totalUsers: profilesData?.length || 0 }));
     } catch (error) {
-      console.error('Error fetching admin data:', error);
+      console.error("Error fetching admin data:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load admin data',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load admin data",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -173,33 +203,46 @@ export function useAdminData() {
   }, [fetchAllData]);
 
   // Admin actions
-  const updateUserStatus = async (userId: string, status: 'active' | 'suspended') => {
+  const updateUserStatus = async (
+    userId: string,
+    status: "active" | "suspended",
+  ) => {
     try {
       await fetchWithAuth(`/data/profiles/${userId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ status, updated_at: new Date().toISOString() })
+        method: "PUT",
+        body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
       });
 
       // Log action
-      await fetchWithAuth('/rpc/log_admin_action', {
-        method: 'POST',
+      await fetchWithAuth("/rpc/log_admin_action", {
+        method: "POST",
         body: JSON.stringify({
-          _module: 'User',
-          _action: `User ${status === 'suspended' ? 'suspended' : 'activated'}`,
+          _module: "User",
+          _action: `User ${status === "suspended" ? "suspended" : "activated"}`,
           _details: { user_id: userId },
-        })
+        }),
       });
 
-      toast({ title: 'Success', description: `User ${status === 'suspended' ? 'suspended' : 'activated'}` });
+      toast({
+        title: "Success",
+        description: `User ${status === "suspended" ? "suspended" : "activated"}`,
+      });
       fetchAllData(); // Refresh data
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to update user status', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Failed to update user status",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'admin' | 'manager' | 'instructor' | 'student') => {
+  const updateUserRole = async (
+    userId: string,
+    newRole: "admin" | "manager" | "instructor" | "student",
+  ) => {
     try {
       // Find if user has a role record first. My generic API is simple CRUD.
       // Assuming we can just create/update.
@@ -208,118 +251,142 @@ export function useAdminData() {
       // or just add a DELETE endpoint logic here.
 
       // Find existing role ID
-      const currentRole = userRoles.find(ur => ur.user_id === userId);
+      const currentRole = userRoles.find((ur) => ur.user_id === userId);
       if (currentRole) {
-        await fetchWithAuth(`/data/user_roles/${currentRole.id}`, { method: 'DELETE' });
+        await fetchWithAuth(`/data/user_roles/${currentRole.id}`, {
+          method: "DELETE",
+        });
       }
 
-      await fetchWithAuth('/data/user_roles', {
-        method: 'POST',
-        body: JSON.stringify({ user_id: userId, role: newRole })
+      await fetchWithAuth("/data/user_roles", {
+        method: "POST",
+        body: JSON.stringify({ user_id: userId, role: newRole }),
       });
 
       // Log action
-      await fetchWithAuth('/rpc/log_admin_action', {
-        method: 'POST',
+      await fetchWithAuth("/rpc/log_admin_action", {
+        method: "POST",
         body: JSON.stringify({
-          _module: 'Role',
+          _module: "Role",
           _action: `Role changed to ${newRole}`,
           _details: { user_id: userId, new_role: newRole },
-        })
+        }),
       });
 
-      toast({ title: 'Success', description: `User role updated to ${newRole}` });
+      toast({
+        title: "Success",
+        description: `User role updated to ${newRole}`,
+      });
       fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to update user role', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Failed to update user role",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
   const approveCourse = async (courseId: string) => {
     try {
-      const { user } = await fetchWithAuth('/user/profile');
+      const { user } = await fetchWithAuth("/user/profile");
 
       await fetchWithAuth(`/data/courses/${courseId}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify({
-          status: 'approved',
+          status: "approved",
           reviewed_at: new Date().toISOString(),
           reviewed_by: user?.user?.id || user?.id, // Depends on profile structure
           updated_at: new Date().toISOString(),
-        })
+        }),
       });
 
-      await fetchWithAuth('/rpc/log_admin_action', {
-        method: 'POST',
+      await fetchWithAuth("/rpc/log_admin_action", {
+        method: "POST",
         body: JSON.stringify({
-          _module: 'Course',
-          _action: 'Course approved',
+          _module: "Course",
+          _action: "Course approved",
           _details: { course_id: courseId },
-        })
+        }),
       });
 
-      toast({ title: 'Success', description: 'Course approved successfully' });
+      toast({ title: "Success", description: "Course approved successfully" });
       fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to approve course', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Failed to approve course",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
   const rejectCourse = async (courseId: string, reason: string) => {
     try {
-      const { user } = await fetchWithAuth('/user/profile');
+      const { user } = await fetchWithAuth("/user/profile");
 
       await fetchWithAuth(`/data/courses/${courseId}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify({
-          status: 'rejected',
+          status: "rejected",
           rejection_reason: reason,
           reviewed_at: new Date().toISOString(),
           reviewed_by: user?.user?.id || user.id,
           updated_at: new Date().toISOString(),
-        })
+        }),
       });
 
-      await fetchWithAuth('/rpc/log_admin_action', {
-        method: 'POST',
+      await fetchWithAuth("/rpc/log_admin_action", {
+        method: "POST",
         body: JSON.stringify({
-          _module: 'Course',
-          _action: 'Course rejected',
+          _module: "Course",
+          _action: "Course rejected",
           _details: { course_id: courseId, reason },
-        })
+        }),
       });
 
-      toast({ title: 'Success', description: 'Course rejected' });
+      toast({ title: "Success", description: "Course rejected" });
       fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to reject course', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Failed to reject course",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
   const resolveSecurityEvent = async (eventId: string) => {
     try {
-      const { user } = await fetchWithAuth('/user/profile');
+      const { user } = await fetchWithAuth("/user/profile");
 
       await fetchWithAuth(`/data/security_events/${eventId}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify({
           resolved: true,
           resolved_at: new Date().toISOString(),
           resolved_by: user?.user?.id || user.id,
-        })
+        }),
       });
 
-      toast({ title: 'Success', description: 'Security event marked as resolved' });
+      toast({
+        title: "Success",
+        description: "Security event marked as resolved",
+      });
       fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to resolve security event', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: "Failed to resolve security event",
+        variant: "destructive",
+      });
       return false;
     }
   };
@@ -330,7 +397,7 @@ export function useAdminData() {
       const userRole = userRoles.find((r) => r.user_id === profile.id);
       return {
         ...profile,
-        role: userRole?.role || 'student',
+        role: userRole?.role || "student",
       };
     });
   };
