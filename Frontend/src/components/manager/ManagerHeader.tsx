@@ -33,7 +33,7 @@ export function ManagerHeader() {
       .toUpperCase() || "MG";
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b-4 border-[#000000] bg-white px-4 shrink-0 transition-all font-['Inter'] shadow-[0px_4px_0px_0px_rgba(0,0,0,1)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mb-4">
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b-4 border-[#000000] bg-white px-4 shrink-0 transition-all font-['Inter'] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
       <div className="flex items-center gap-4">
         <SidebarTrigger className="-ml-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white hover:bg-[#E9E9E9]" />
 

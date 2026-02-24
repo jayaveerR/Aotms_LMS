@@ -80,8 +80,8 @@ export function ManagerSidebar({
     });
 
   return (
-    <Sidebar className="border-r border-border font-['Inter']">
-      <SidebarHeader className="p-4 border-b-4 border-[#000000] bg-[#E9E9E9]">
+    <Sidebar className="border-r-4 border-[#000000] font-['Inter']">
+      <SidebarHeader className="h-16 px-4 bg-[#E9E9E9] border-b-4 border-[#000000] flex justify-center">
         <button
           onClick={() => onSectionChange("overview")}
           className="flex items-center gap-3 group transition-transform hover:-translate-y-[2px]"

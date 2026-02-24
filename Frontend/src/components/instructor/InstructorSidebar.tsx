@@ -49,8 +49,8 @@ export function InstructorSidebar() {
     (path !== "/instructor" && location.pathname.startsWith(path));
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b-4 border-[#000000] p-4 bg-[#E9E9E9]">
+    <Sidebar className="border-r-4 border-[#000000] font-['Inter']">
+      <SidebarHeader className="h-16 px-4 bg-[#E9E9E9] border-b-4 border-[#000000] flex justify-center">
         <Link to="/" className="flex items-center gap-2 group">
           <img
             src={logo}
