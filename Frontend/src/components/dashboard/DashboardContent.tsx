@@ -31,6 +31,8 @@ import {
 import { UserProfile } from "./UserProfile";
 import NotificationsPage from "@/pages/NotificationsPage";
 import MyCoursesPage from "@/pages/MyCoursesPage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 // Dashboard Home Content
 function DashboardHome() {
@@ -353,6 +355,14 @@ export function DashboardContent() {
     currentPath === "/dashboard/videos"
   ) {
     return <MyCoursesPage />;
+  }
+
+  if (currentPath === "/dashboard/leaderboard") {
+    return <LeaderboardPage />;
+  }
+
+  if (currentPath === "/dashboard/settings") {
+    return <SettingsPage />;
   }
 
   if (config) {
