@@ -33,7 +33,7 @@ export default function Dashboard() {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <SidebarInset>
+      <SidebarInset className="bg-[#E9E9E9] font-['Inter']">
         <AmbientBackground />
         <DashboardHeader />
 

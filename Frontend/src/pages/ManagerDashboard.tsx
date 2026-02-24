@@ -114,32 +114,27 @@ export default function ManagerDashboard() {
   const activeExamsCount = exams.filter((e) => e.status === "active").length;
 
   const renderOverview = () => (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 font-['Inter'] pb-12">
       {/* Search and Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">
-            Manager Dashboard
+          <h2 className="text-3xl font-black tracking-tight text-[#000000] uppercase">
+            Manager Console
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-bold text-[#000000]/60">
             Welcome back, {user?.user_metadata?.full_name || "Manager"}. Here is
             what's happening today.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden sm:flex gap-2 rounded-lg"
-          >
-            <Settings className="h-4 w-4" /> System Settings
+        <div className="flex items-center gap-3">
+          <Button className="hidden sm:flex bg-white text-[#000000] border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:-translate-y-[-2px] hover:-translate-x-[-2px] transition-all font-black uppercase tracking-widest text-xs">
+            <Settings className="h-4 w-4 mr-2" /> System Settings
           </Button>
           <Button
-            size="sm"
             onClick={() => setActiveSection("exams")}
-            className="rounded-lg"
+            className="bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A]/90 hover:-translate-y-[-2px] hover:-translate-x-[-2px] transition-all font-black uppercase tracking-widest text-xs"
           >
-            <Plus className="h-4 w-4 mr-1" /> New Exam
+            <Plus className="h-4 w-4 mr-2" /> New Exam
           </Button>
         </div>
       </div>
@@ -147,63 +142,63 @@ export default function ManagerDashboard() {
       {/* Candidates Overview */}
       <div className="grid gap-4 sm:grid-cols-3 mb-6">
         <Card
-          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-indigo-200"
+          className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
           onClick={() => openUserList("all")}
         >
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-indigo-50">
-                <Users className="h-5 w-5 text-indigo-600" />
+              <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <Users className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#000000]/50 mb-1">
                   Total Candidates
                 </p>
-                <h3 className="text-2xl font-bold">{totalCandidates}</h3>
+                <h3 className="text-3xl font-black group-hover:text-[#0075CF] transition-colors">
+                  {totalCandidates}
+                </h3>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card
-          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-cyan-200 group"
+          className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
           onClick={() => openUserList("student")}
         >
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-cyan-50">
-                <GraduationCap className="h-5 w-5 text-cyan-600" />
+              <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#0075CF] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#000000]/50 mb-1">
                   Students
                 </p>
-                <h3 className="text-2xl font-bold">{totalStudents}</h3>
+                <h3 className="text-3xl font-black group-hover:text-[#0075CF] transition-colors">
+                  {totalStudents}
+                </h3>
               </div>
             </div>
-            <p className="text-[11px] text-cyan-500 mt-3 group-hover:underline">
-              Click to view list →
-            </p>
           </CardContent>
         </Card>
         <Card
-          className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-fuchsia-200 group"
+          className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
           onClick={() => openUserList("instructor")}
         >
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-fuchsia-50">
-                <UserCheck className="h-5 w-5 text-fuchsia-600" />
+              <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#FD5A1A] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <UserCheck className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#000000]/50 mb-1">
                   Instructors
                 </p>
-                <h3 className="text-2xl font-bold">{totalInstructors}</h3>
+                <h3 className="text-3xl font-black group-hover:text-[#FD5A1A] transition-colors">
+                  {totalInstructors}
+                </h3>
               </div>
             </div>
-            <p className="text-[11px] text-fuchsia-500 mt-3 group-hover:underline">
-              Click to view list →
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -214,52 +209,39 @@ export default function ManagerDashboard() {
           {
             label: "Exams Scheduled",
             value: exams.length,
-            color: "text-blue-600",
             icon: CalendarCheck,
-            bg: "bg-blue-50",
           },
           {
             label: "Question Bank",
             value: questions.length,
-            color: "text-purple-600",
             icon: BookOpen,
-            bg: "bg-purple-50",
           },
           {
             label: "Leaderboard",
             value: leaderboard.length,
-            color: "text-amber-600",
             icon: Trophy,
-            bg: "bg-amber-50",
           },
           {
             label: "Guest Access",
             value: guests.length,
-            color: "text-emerald-600",
             icon: UserPlus,
-            bg: "bg-emerald-50",
           },
         ].map((stat, i) => (
           <Card
             key={i}
-            className="rounded-xl border shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default"
           >
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div
-                  className={cn(
-                    "h-10 w-10 rounded-lg flex items-center justify-center",
-                    stat.bg,
-                  )}
-                >
-                  <stat.icon className={cn("h-5 w-5", stat.color)} />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
-                    {stat.label}
-                  </p>
-                  <h3 className="text-2xl font-bold">{stat.value}</h3>
-                </div>
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-[#000000]/50 mb-1">
+                  {stat.label}
+                </p>
+                <h3 className="text-2xl font-black text-[#000000]">
+                  {stat.value}
+                </h3>
+              </div>
+              <div className="h-10 w-10 bg-[#E9E9E9] border-2 border-[#000000] rounded flex items-center justify-center">
+                <stat.icon className="h-5 w-5 text-[#000000]" />
               </div>
             </CardContent>
           </Card>
@@ -268,74 +250,82 @@ export default function ManagerDashboard() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Main Quick Actions Section */}
-        <Card className="md:col-span-2 rounded-xl border-none shadow-sm bg-muted/30">
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Tasks</CardTitle>
-            <CardDescription>Commonly used management tools</CardDescription>
+        <Card className="md:col-span-2 bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <CardHeader className="border-b-4 border-[#000000] bg-[#E9E9E9] rounded-t-lg">
+            <CardTitle className="text-xl font-black uppercase tracking-widest text-[#000000]">
+              Quick Tasks
+            </CardTitle>
+            <CardDescription className="text-[#000000]/60 font-bold">
+              Commonly used management tools
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardContent className="p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-white">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   id: "exams",
                   label: "Exam Scheduler",
                   icon: CalendarCheck,
                   desc: "Manage exam timelines",
-                  color: "text-blue-500",
+                  bg: "bg-[#0075CF]",
                 },
                 {
                   id: "questions",
                   label: "Question Bank",
                   icon: BookOpen,
                   desc: "Update question pools",
-                  color: "text-purple-500",
+                  bg: "bg-[#FD5A1A]",
                 },
                 {
                   id: "mock-tests",
                   label: "Mock Tests",
                   icon: FileText,
                   desc: "Practice test configs",
-                  color: "text-orange-500",
+                  bg: "bg-[#000000]",
                 },
                 {
                   id: "monitoring",
                   label: "Live Monitoring",
                   icon: MonitorPlay,
                   desc: "Watch active assessments",
-                  color: "text-rose-500",
+                  bg: "bg-white",
                 },
                 {
                   id: "guests",
                   label: "Guest Access",
                   icon: UserPlus,
                   desc: "Temporary credentials",
-                  color: "text-emerald-500",
+                  bg: "bg-[#0075CF]",
                 },
                 {
                   id: "exam-rules",
                   label: "Exam Rules",
                   icon: Gavel,
                   desc: "Configure proctoring",
-                  color: "text-slate-600",
+                  bg: "bg-[#000000]",
                 },
               ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className="group flex flex-col p-4 rounded-xl border bg-card hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+                  className="group flex flex-col p-4 rounded-xl border-2 border-[#000000] bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all text-left"
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <div
-                      className={cn(
-                        "h-9 w-9 rounded-lg flex items-center justify-center bg-muted transition-colors group-hover:bg-primary/10",
-                      )}
+                      className={`h-10 w-10 rounded-lg flex items-center justify-center border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${item.bg}`}
                     >
-                      <item.icon className={cn("h-4 w-4", item.color)} />
+                      <item.icon
+                        className={`h-5 w-5 ${item.bg === "bg-white" ? "text-[#000000]" : "text-white"}`}
+                      />
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground/0 group-hover:text-muted-foreground transition-all" />
+                    <ChevronRight className="h-5 w-5 text-[#000000]/20 group-hover:text-[#000000] transition-colors" />
                   </div>
-                  <p className="font-semibold text-sm">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  <p className="font-black text-[#000000] uppercase tracking-wider">
+                    {item.label}
+                  </p>
+                  <p className="text-[10px] font-bold text-[#000000]/60 uppercase tracking-widest mt-1">
+                    {item.desc}
+                  </p>
                 </button>
               ))}
             </div>
@@ -343,64 +333,63 @@ export default function ManagerDashboard() {
         </Card>
 
         {/* Status/Health Section */}
-        <div className="space-y-4">
-          <Card className="rounded-xl shadow-sm border">
-            <CardHeader className="p-5 pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Shield className="h-4 w-4 text-emerald-500" />
+        <div className="space-y-6">
+          <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <CardHeader className="p-5 pb-3 border-b-2 border-[#000000] bg-[#E9E9E9] rounded-t-lg">
+              <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2 text-[#000000]">
+                <Shield className="h-4 w-4 text-[#000000]" />
                 System Status
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0 space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Active Sessions</span>
-                  <span className="font-bold underline">Online</span>
+            <CardContent className="p-5 pt-4 space-y-4">
+              <div className="space-y-4 font-bold">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#000000]/60">Active Sessions</span>
+                  <span className="font-black text-[#0075CF] uppercase tracking-wider">
+                    Online
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Database Sync</span>
-                  <span className="text-emerald-600 font-bold uppercase tracking-tighter">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#000000]/60">Database Sync</span>
+                  <span className="text-[#000000] font-black uppercase tracking-wider">
                     Verified
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Live Exams</span>
-                  <span className="font-bold">{activeExamsCount}</span>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#000000]/60">Live Exams</span>
+                  <span className="font-black text-xl">{activeExamsCount}</span>
                 </div>
               </div>
               <Button
-                variant="outline"
-                className="w-full text-xs h-9 rounded-lg"
+                className="w-full text-xs h-10 rounded-none bg-white text-[#000000] border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] transition-all font-black uppercase tracking-widest mt-2"
                 onClick={() => setActiveSection("monitoring")}
               >
-                Full Monitoring Dashboard
+                Monitoring Console
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl shadow-sm border bg-primary text-primary-foreground overflow-hidden relative">
-            <CardHeader className="p-5 pb-0 relative z-10">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <Card className="bg-[#FD5A1A] rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white overflow-hidden relative group">
+            <CardHeader className="p-5 pb-2 relative z-10">
+              <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                 <Activity className="h-4 w-4" />
                 Integrity Shield
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 relative z-10 space-y-3">
-              <p className="text-xs opacity-80 leading-relaxed">
+            <CardContent className="p-5 relative z-10 space-y-4">
+              <p className="text-sm font-bold opacity-90 leading-relaxed">
                 Proctoring systems are currently monitoring {activeExamsCount}{" "}
                 active exams.
               </p>
               <Button
-                variant="secondary"
-                size="sm"
-                className="w-full text-xs h-9 rounded-lg font-bold"
+                className="w-full text-[10px] h-10 rounded-none bg-[#000000] text-white border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#000000]/80 hover:translate-y-[2px] transition-all font-black uppercase tracking-widest"
                 onClick={() => setActiveSection("access-control")}
               >
                 Manage Permissions
               </Button>
             </CardContent>
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <Server className="h-16 w-16" />
+            <div className="absolute -bottom-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Server className="h-32 w-32" />
             </div>
           </Card>
         </div>
@@ -419,26 +408,26 @@ export default function ManagerDashboard() {
     const accentColor =
       userListFilter === "student"
         ? {
-            bg: "bg-cyan-50",
-            text: "text-cyan-700",
-            border: "border-cyan-200",
-            icon: "text-cyan-600",
-            hover: "hover:border-cyan-200",
+            bg: "bg-[#0075CF]",
+            text: "text-white",
+            border: "border-[#000000]",
+            icon: "text-white",
+            hover: "hover:bg-[#0075CF]/90",
           }
         : userListFilter === "instructor"
           ? {
-              bg: "bg-fuchsia-50",
-              text: "text-fuchsia-700",
-              border: "border-fuchsia-200",
-              icon: "text-fuchsia-600",
-              hover: "hover:border-fuchsia-200",
+              bg: "bg-[#FD5A1A]",
+              text: "text-white",
+              border: "border-[#000000]",
+              icon: "text-white",
+              hover: "hover:bg-[#FD5A1A]/90",
             }
           : {
-              bg: "bg-indigo-50",
-              text: "text-indigo-700",
-              border: "border-indigo-200",
-              icon: "text-indigo-600",
-              hover: "hover:border-indigo-200",
+              bg: "bg-[#000000]",
+              text: "text-white",
+              border: "border-[#000000]",
+              icon: "text-white",
+              hover: "hover:bg-[#000000]/90",
             };
 
     // Join userRoles with profiles for rich info
@@ -488,21 +477,21 @@ export default function ManagerDashboard() {
     };
 
     return (
-      <div className="space-y-6 animate-in fade-in duration-300">
+      <div className="space-y-6 animate-in fade-in duration-300 font-['Inter']">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 w-fit"
+            className="gap-2 w-fit bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs"
             onClick={() => setActiveSection("overview")}
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
           <div>
-            <h2 className="text-2xl font-bold">{label} List</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-3xl font-black text-[#000000] uppercase tracking-wider">
+              {label} List
+            </h2>
+            <p className="text-sm font-bold text-[#000000]/60">
               {enrichedUsers.length} {label.toLowerCase()} registered on the
               platform
             </p>
@@ -510,43 +499,47 @@ export default function ManagerDashboard() {
         </div>
 
         {/* Search */}
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative max-w-sm group focus-within:translate-y-[-2px] focus-within:translate-x-[-2px] transition-transform">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#000000]" />
           <input
             type="text"
             placeholder={`Search ${label.toLowerCase()} by name or email...`}
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            className="pl-10 pr-4 py-3 w-full border-4 border-[#000000] bg-white text-[#000000] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none placeholder:font-normal placeholder:text-[#000000]/50"
           />
         </div>
 
         {/* List */}
-        <Card className="rounded-xl border shadow-sm overflow-hidden">
+        <Card className="rounded-xl border-4 border-[#000000] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white relative overflow-hidden">
           {enrichedUsers.length === 0 ? (
-            <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-              <Users className="h-12 w-12 opacity-20" />
-              <p className="font-medium">No {label.toLowerCase()} found</p>
+            <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-[#000000]/60 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+              <div className="p-4 bg-[#E9E9E9] border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-xl mb-2">
+                <Users className="h-10 w-10 text-[#000000]" />
+              </div>
+              <p className="font-black uppercase tracking-wider text-xl text-[#000000]">
+                No {label.toLowerCase()} found
+              </p>
               {userSearchQuery && (
-                <p className="text-xs">Try a different search term</p>
+                <p className="font-bold text-sm">Try a different search term</p>
               )}
             </CardContent>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y-4 divide-[#000000]">
               {enrichedUsers.map((u, idx) => (
                 <div
                   key={u.user_id || idx}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-[#E9E9E9] transition-colors group cursor-default"
                 >
                   {/* Avatar */}
                   <div
-                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm ${accentColor.bg} ${accentColor.text}`}
+                    className={`h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 font-black text-sm border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${accentColor.bg} ${accentColor.text}`}
                   >
                     {u.avatar_url ? (
                       <img
                         src={u.avatar_url}
                         alt={u.full_name || "User"}
-                        className="h-10 w-10 rounded-full object-cover"
+                        className="h-12 w-12 rounded-lg object-cover"
                       />
                     ) : (
                       getInitials(u.full_name)
@@ -555,33 +548,33 @@ export default function ManagerDashboard() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">
+                    <p className="font-black text-[#000000] text-lg uppercase tracking-wider truncate mb-1">
                       {u.full_name || "Unknown User"}
                     </p>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-sm font-bold text-[#000000]/60 truncate">
                       {u.email || u.user_id}
                     </p>
                   </div>
 
                   {/* Join Date */}
-                  <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
-                    <Clock className="h-3 w-3" />
+                  <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-[#000000]/60 flex-shrink-0">
+                    <Clock className="h-4 w-4" />
                     <span>Joined {formatJoinDate(u.created_at_profile)}</span>
                   </div>
 
                   {/* Role Badge */}
                   <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full capitalize flex-shrink-0 ${accentColor.bg} ${accentColor.text}`}
+                    className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${accentColor.bg} ${accentColor.text} flex-shrink-0`}
                   >
                     {u.role}
                   </span>
 
                   {/* Status Badge */}
                   <span
-                    className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
+                    className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex-shrink-0 ${
                       u.status === "suspended"
-                        ? "bg-red-50 text-red-700"
-                        : "bg-green-50 text-green-700"
+                        ? "bg-red-500 text-white"
+                        : "bg-green-500 text-white"
                     }`}
                   >
                     {u.status}

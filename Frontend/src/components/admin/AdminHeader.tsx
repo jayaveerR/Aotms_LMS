@@ -1,107 +1,125 @@
- import { SidebarTrigger } from '@/components/ui/sidebar';
- import { Button } from '@/components/ui/button';
- import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
- import {
-   DropdownMenu,
-   DropdownMenuContent,
-   DropdownMenuItem,
-   DropdownMenuLabel,
-   DropdownMenuSeparator,
-   DropdownMenuTrigger,
- } from '@/components/ui/dropdown-menu';
- import { Bell, Search, User, Settings, LogOut, ChevronDown, ShieldCheck, AlertTriangle } from 'lucide-react';
- import { Input } from '@/components/ui/input';
- import { useAuth } from '@/hooks/useAuth';
- import { Badge } from '@/components/ui/badge';
- 
- export function AdminHeader() {
-   const { user, signOut } = useAuth();
-   const initials = user?.user_metadata?.full_name
-     ?.split(' ')
-     .map((n: string) => n[0])
-     .join('')
-     .toUpperCase() || 'AD';
- 
-   return (
-     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-       <div className="flex items-center gap-4">
-         <SidebarTrigger className="-ml-1" />
-         
-         {/* Search */}
-         <div className="relative hidden md:block">
-           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-           <Input
-             placeholder="Search users, courses, logs..."
-             className="pl-10 w-80 bg-muted/50"
-           />
-         </div>
-       </div>
-       
-       <div className="flex items-center gap-4">
-         {/* Security Alert */}
-         <Button variant="ghost" size="sm" className="gap-2 text-destructive hidden sm:flex">
-           <AlertTriangle className="h-4 w-4" />
-           3 Alerts
-         </Button>
-         
-         {/* Role Badge */}
-         <Badge variant="destructive" className="hidden sm:flex gap-1">
-           <ShieldCheck className="h-3 w-3" />
-           Super Admin
-         </Badge>
-         
-         {/* Notifications */}
-         <Button variant="ghost" size="icon" className="relative">
-           <Bell className="h-5 w-5" />
-           <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
-             8
-           </span>
-         </Button>
-         
-         {/* User Menu */}
-         <DropdownMenu>
-           <DropdownMenuTrigger asChild>
-             <Button variant="ghost" className="flex items-center gap-2 px-2">
-               <Avatar className="h-8 w-8 ring-2 ring-destructive/50">
-                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                 <AvatarFallback className="bg-destructive text-destructive-foreground text-sm">
-                   {initials}
-                 </AvatarFallback>
-               </Avatar>
-               <div className="hidden md:block text-left">
-                 <p className="text-sm font-medium">
-                   {user?.user_metadata?.full_name || 'Administrator'}
-                 </p>
-                 <p className="text-xs text-muted-foreground truncate max-w-[120px]">
-                   {user?.email}
-                 </p>
-               </div>
-               <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />
-             </Button>
-           </DropdownMenuTrigger>
-           <DropdownMenuContent align="end" className="w-56">
-             <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
-             <DropdownMenuSeparator />
-             <DropdownMenuItem>
-               <User className="mr-2 h-4 w-4" />
-               Profile
-             </DropdownMenuItem>
-             <DropdownMenuItem>
-               <Settings className="mr-2 h-4 w-4" />
-               Settings
-             </DropdownMenuItem>
-             <DropdownMenuItem>
-               <ShieldCheck className="mr-2 h-4 w-4" />
-               Security
-             </DropdownMenuItem>
-             <DropdownMenuSeparator />
-             <DropdownMenuItem onClick={signOut} className="text-destructive">
-               <LogOut className="mr-2 h-4 w-4" />
-               Sign out
-             </DropdownMenuItem>
-           </DropdownMenuContent>
-         </DropdownMenu>
-       </div>
-     </header>
-   );
- }
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Search,
+  ShieldCheck,
+  Settings,
+  LogOut,
+  ChevronDown,
+  AlertTriangle,
+  User,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+import { NotificationBell } from "@/components/ui/NotificationBell";
+import { useNavigate } from "react-router-dom";
+
+export function AdminHeader() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const initials =
+    user?.user_metadata?.full_name
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase() || "AD";
+
+  return (
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b-4 border-[#000000] bg-white px-4 shrink-0 transition-all font-['Inter'] shadow-[0px_4px_0px_0px_rgba(0,0,0,1)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mb-4">
+      <div className="flex items-center gap-4">
+        <SidebarTrigger className="-ml-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white hover:bg-[#E9E9E9]" />
+
+        {/* Search */}
+        <div className="relative hidden md:block group focus-within:translate-y-[-2px] focus-within:translate-x-[-2px] transition-transform">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#000000] z-10" />
+          <Input
+            placeholder="Search users, courses, logs..."
+            className="pl-10 w-80 bg-[#E9E9E9] border-2 border-[#000000] text-[#000000] font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:bg-white transition-all placeholder:font-normal placeholder:text-[#000000]/50"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {/* Security Alert */}
+        <Button className="hidden sm:flex gap-2 bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] font-black uppercase tracking-widest text-[10px] h-8 px-3">
+          <AlertTriangle className="h-3 w-3" />3 Alerts
+        </Button>
+
+        {/* Role Badge */}
+        <Badge className="hidden sm:flex gap-1.5 bg-[#000000] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest pointer-events-none text-[10px] px-2 py-1 rounded-sm hover:bg-[#000000]">
+          <ShieldCheck className="h-3 w-3 text-[#FD5A1A]" />
+          Super Admin
+        </Badge>
+
+        {/* Notifications Component */}
+        <NotificationBell />
+
+        {/* User Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 px-2 border-2 border-transparent hover:border-[#000000] hover:bg-white hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all h-10 group rounded-none"
+            >
+              <Avatar className="h-8 w-8 border-2 border-[#000000] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none transition-shadow">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="bg-[#FD5A1A] text-white text-xs font-black">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-black text-[#000000] uppercase tracking-wider leading-tight">
+                  {user?.user_metadata?.full_name || "Administrator"}
+                </p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-[#000000] hidden md:block" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-56 border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none p-0 bg-white z-50 font-['Inter']"
+          >
+            <DropdownMenuLabel className="font-black uppercase text-[10px] tracking-widest text-[#000000]/60 bg-[#E9E9E9] border-b-2 border-[#000000] py-2 px-3">
+              Admin Account
+            </DropdownMenuLabel>
+
+            <div className="p-1 gap-1 flex flex-col">
+              <DropdownMenuItem className="font-bold text-[#000000] focus:bg-[#0075CF] focus:text-white cursor-pointer rounded-none border-2 border-transparent focus:border-[#000000]">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="font-bold text-[#000000] focus:bg-[#0075CF] focus:text-white cursor-pointer rounded-none border-2 border-transparent focus:border-[#000000]">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="font-bold text-[#000000] focus:bg-[#0075CF] focus:text-white cursor-pointer rounded-none border-2 border-transparent focus:border-[#000000]">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Security
+              </DropdownMenuItem>
+            </div>
+
+            <div className="border-t-2 border-[#000000] p-1">
+              <DropdownMenuItem
+                onClick={signOut}
+                className="font-black text-[#FD5A1A] focus:bg-[#FD5A1A] focus:text-white cursor-pointer rounded-none border-2 border-transparent focus:border-[#000000] uppercase tracking-widest text-xs"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}

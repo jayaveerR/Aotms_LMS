@@ -123,23 +123,20 @@ export default function AdminDashboard() {
     const accentColor =
       roleListView === "student"
         ? {
-            bg: "bg-cyan-50",
-            text: "text-cyan-700",
-            border: "border-cyan-200",
-            icon: "text-cyan-600",
+            bg: "bg-[#0075CF]",
+            text: "text-white",
+            icon: "text-white",
           }
         : roleListView === "instructor"
           ? {
-              bg: "bg-fuchsia-50",
-              text: "text-fuchsia-700",
-              border: "border-fuchsia-200",
-              icon: "text-fuchsia-600",
+              bg: "bg-[#FD5A1A]",
+              text: "text-white",
+              icon: "text-white",
             }
           : {
-              bg: "bg-indigo-50",
-              text: "text-indigo-700",
-              border: "border-indigo-200",
-              icon: "text-indigo-600",
+              bg: "bg-[#000000]",
+              text: "text-white",
+              icon: "text-white",
             };
 
     const filtered = profiles
@@ -154,103 +151,107 @@ export default function AdminDashboard() {
     return (
       <SidebarProvider>
         <AdminSidebar />
-        <SidebarInset>
-          <AmbientBackground />
+        <SidebarInset className="bg-[#E9E9E9] font-['Inter']">
           <AdminHeader />
           <main className="flex-1 p-6 space-y-6">
             {/* Header */}
             <div className="flex items-center gap-4">
               <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
+                className="gap-2 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs"
                 onClick={() => setRoleListView(null)}
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">{label} List</h1>
-                <p className="text-sm text-muted-foreground">
+                <h1 className="text-3xl font-black text-[#000000] uppercase tracking-wider">
+                  {label} List
+                </h1>
+                <p className="text-sm font-bold text-[#000000]/60">
                   {filtered.length} {label.toLowerCase()} found
                 </p>
               </div>
             </div>
 
             {/* Search */}
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative max-w-sm group focus-within:translate-y-[-2px] focus-within:translate-x-[-2px] transition-transform">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#000000]" />
               <input
                 type="text"
                 placeholder={`Search ${label.toLowerCase()}...`}
                 value={userSearchQuery}
                 onChange={(e) => setUserSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                className="pl-10 pr-4 py-3 w-full border-4 border-[#000000] bg-white text-[#000000] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none placeholder:font-normal placeholder:text-[#000000]/50"
               />
             </div>
 
             {/* User List */}
-            <Card className="rounded-xl border shadow-sm overflow-hidden">
+            <Card className="rounded-xl border-4 border-[#000000] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all bg-white relative overflow-hidden">
               {dataLoading ? (
                 <CardContent className="p-6 space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <Skeleton className="h-10 w-10 rounded-full bg-[#E9E9E9]" />
                       <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-40" />
-                        <Skeleton className="h-3 w-56" />
+                        <Skeleton className="h-4 w-40 bg-[#E9E9E9]" />
+                        <Skeleton className="h-3 w-56 bg-[#E9E9E9]" />
                       </div>
                     </div>
                   ))}
                 </CardContent>
               ) : filtered.length === 0 ? (
-                <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-                  <Users className="h-12 w-12 opacity-20" />
-                  <p className="font-medium">No {label.toLowerCase()} found</p>
+                <CardContent className="flex flex-col items-center justify-center py-20 gap-3 text-[#000000]/60 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+                  <div className="p-4 bg-[#E9E9E9] border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-xl mb-2">
+                    <Users className="h-10 w-10 text-[#000000]" />
+                  </div>
+                  <p className="font-black uppercase tracking-wider text-xl text-[#000000]">
+                    No {label.toLowerCase()} found
+                  </p>
                   {userSearchQuery && (
-                    <p className="text-xs">Try a different search term</p>
+                    <p className="font-bold text-sm">
+                      Try a different search term
+                    </p>
                   )}
                 </CardContent>
               ) : (
-                <div className="divide-y">
+                <div className="divide-y-4 divide-[#000000]">
                   {filtered.map((person) => (
                     <div
                       key={person.id}
-                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                      className="flex items-center gap-4 px-6 py-4 hover:bg-[#E9E9E9] transition-colors group cursor-pointer"
                     >
                       <div
-                        className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${accentColor.bg}`}
+                        className={`h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all ${accentColor.bg}`}
                       >
-                        <Users className={`h-5 w-5 ${accentColor.icon}`} />
+                        <Users className={`h-6 w-6 ${accentColor.icon}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">
+                        <p className="font-black text-[#000000] text-lg uppercase tracking-wider truncate mb-1">
                           {person.full_name || "Unknown User"}
                         </p>
-                        <p className="text-sm text-muted-foreground truncate">
+                        <p className="text-sm font-bold text-[#000000]/60 truncate">
                           {person.email}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
+                      <div className="flex items-center gap-4 flex-shrink-0">
+                        <span className="text-xs font-bold text-[#000000]/60 flex items-center gap-1 hidden sm:flex">
+                          <Clock className="h-4 w-4" />
                           {formatLastActive(person.last_active_at)}
                         </span>
                         <span
-                          className={`text-xs font-semibold px-2 py-1 rounded-full capitalize ${accentColor.bg} ${accentColor.text}`}
+                          className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${accentColor.bg} ${accentColor.text}`}
                         >
                           {person.role || roleListView}
                         </span>
-                        <Badge
-                          variant={
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
                             person.status === "suspended"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="text-xs"
+                              ? "bg-red-500 text-white"
+                              : "bg-[#E9E9E9] text-[#000000]"
+                          }`}
                         >
                           {person.status || "active"}
-                        </Badge>
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -265,26 +266,24 @@ export default function AdminDashboard() {
 
   return (
     <SidebarProvider>
-      <AdminSidebar />
-      <SidebarInset>
-        <AmbientBackground />
+      <AdminSidebar activeSection={activeTab} onSectionChange={setActiveTab} />
+      <SidebarInset className="bg-[#E9E9E9] font-['Inter']">
         <AdminHeader />
 
         <main className="flex-1 p-6 space-y-6">
           {/* Welcome Section */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-3xl font-black text-[#000000] uppercase tracking-tight">
                 Admin Control Panel 🔐
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-sm font-bold text-[#000000]/60 mt-1">
                 Full system access and platform management
               </p>
             </div>
             <div className="flex gap-3">
               <Button
-                variant="outline"
-                className="gap-2"
+                className="gap-2 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs"
                 onClick={refresh}
                 disabled={dataLoading}
               >
@@ -293,7 +292,7 @@ export default function AdminDashboard() {
                 />
                 Refresh
               </Button>
-              <Button className="gap-2">
+              <Button className="gap-2 bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A]/90 hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs">
                 <Settings className="h-4 w-4" />
                 Settings
               </Button>
@@ -303,94 +302,87 @@ export default function AdminDashboard() {
           {/* Candidates Overview */}
           <div className="grid gap-4 sm:grid-cols-3 mb-6">
             <Card
-              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-indigo-200 group"
+              className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
               onClick={() => openRoleListView("all")}
             >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-indigo-50">
-                    <Users className="h-5 w-5 text-indigo-600" />
+                  <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <Users className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                    <p className="text-[10px] font-black tracking-widest uppercase text-[#000000]/60 mb-1">
                       Total Candidates
                     </p>
-                    <h3 className="text-2xl font-bold">
+                    <h3 className="text-3xl font-black group-hover:text-[#0075CF] transition-colors">
                       {totalCandidates.toLocaleString()}
                     </h3>
                   </div>
                 </div>
-                <p className="text-[11px] text-indigo-500 mt-3 group-hover:underline">
-                  Click to view list →
-                </p>
               </CardContent>
             </Card>
             <Card
-              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-cyan-200 group"
+              className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
               onClick={() => openRoleListView("student")}
             >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-cyan-50">
-                    <GraduationCap className="h-5 w-5 text-cyan-600" />
+                  <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#0075CF] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <GraduationCap className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                    <p className="text-[10px] font-black tracking-widest uppercase text-[#000000]/60 mb-1">
                       Students
                     </p>
-                    <h3 className="text-2xl font-bold">
+                    <h3 className="text-3xl font-black group-hover:text-[#0075CF] transition-colors">
                       {totalStudents.toLocaleString()}
                     </h3>
                   </div>
                 </div>
-                <p className="text-[11px] text-cyan-500 mt-3 group-hover:underline">
-                  Click to view list →
-                </p>
               </CardContent>
             </Card>
             <Card
-              className="rounded-xl border shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-fuchsia-200 group"
+              className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
               onClick={() => openRoleListView("instructor")}
             >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-fuchsia-50">
-                    <UserCheck className="h-5 w-5 text-fuchsia-600" />
+                  <div className="h-12 w-12 rounded-lg flex items-center justify-center bg-[#FD5A1A] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <UserCheck className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                    <p className="text-[10px] font-black tracking-widest uppercase text-[#000000]/60 mb-1">
                       Instructors
                     </p>
-                    <h3 className="text-2xl font-bold">
+                    <h3 className="text-3xl font-black group-hover:text-[#FD5A1A] transition-colors">
                       {totalInstructors.toLocaleString()}
                     </h3>
                   </div>
                 </div>
-                <p className="text-[11px] text-fuchsia-500 mt-3 group-hover:underline">
-                  Click to view list →
-                </p>
               </CardContent>
             </Card>
           </div>
 
           {/* Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
-            <Card className="hover-lift border-primary/20 bg-primary/5">
+            <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
                   Total Revenue
                 </CardTitle>
-                <DollarSign className="h-5 w-5 text-primary" />
+                <div className="h-8 w-8 bg-[#000000] rounded flex items-center justify-center">
+                  <DollarSign className="h-4 w-4 text-[#FD5A1A]" />
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 {dataLoading ? (
-                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-8 w-24 bg-[#E9E9E9]" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold">
+                    <div className="text-3xl font-black text-[#000000]">
                       ${stats.totalRevenue.toLocaleString()}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 text-green-600 flex items-center gap-1">
+                    <p className="text-[10px] font-bold mt-2 text-[#0075CF] uppercase tracking-widest flex items-center gap-1">
                       <TrendingUp className="h-3 w-3" />
                       +12% from last month
                     </p>
@@ -399,22 +391,24 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover-lift">
+            <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
                   Active Courses
                 </CardTitle>
-                <BookOpen className="h-5 w-5 text-accent" />
+                <div className="h-8 w-8 bg-[#0075CF]/10 rounded flex items-center justify-center border-2 border-[#000000]">
+                  <BookOpen className="h-4 w-4 text-[#0075CF]" />
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 {dataLoading ? (
-                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20 bg-[#E9E9E9]" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold">
+                    <div className="text-3xl font-black text-[#000000]">
                       {stats.activeCourses}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[10px] font-bold mt-2 text-[#FD5A1A] uppercase tracking-widest">
                       {stats.pendingCourses} pending approval
                     </p>
                   </>
@@ -422,22 +416,24 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover-lift">
+            <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
                   Security Events
                 </CardTitle>
-                <ShieldAlert className="h-5 w-5 text-destructive" />
+                <div className="h-8 w-8 bg-red-100 rounded flex items-center justify-center border-2 border-[#000000]">
+                  <ShieldAlert className="h-4 w-4 text-red-600" />
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 {dataLoading ? (
-                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20 bg-[#E9E9E9]" />
                 ) : (
                   <>
-                    <div className="text-2xl font-bold">
+                    <div className="text-3xl font-black text-[#000000]">
                       {stats.securityEvents}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[10px] font-bold mt-2 text-red-600 uppercase tracking-widest">
                       {stats.highPriorityEvents} high priority
                     </p>
                   </>
@@ -445,16 +441,18 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover-lift">
+            <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
                   System Health
                 </CardTitle>
-                <Server className="h-5 w-5 text-green-600" />
+                <div className="h-8 w-8 bg-green-100 rounded flex items-center justify-center border-2 border-[#000000]">
+                  <Server className="h-4 w-4 text-green-600" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">98%</div>
-                <p className="text-xs text-muted-foreground mt-1">
+              <CardContent className="pb-4">
+                <div className="text-3xl font-black text-[#000000]">98%</div>
+                <p className="text-[10px] font-bold mt-2 text-green-600 uppercase tracking-widest">
                   All systems normal
                 </p>
               </CardContent>
@@ -467,24 +465,39 @@ export default function AdminDashboard() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid w-full max-w-2xl grid-cols-5">
-              <TabsTrigger value="users" className="gap-2">
+            <TabsList className="grid w-full lg:max-w-4xl grid-cols-2 md:grid-cols-5 h-auto gap-2 bg-transparent p-0">
+              <TabsTrigger
+                value="users"
+                className="gap-2 h-12 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-all font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-[#0075CF] data-[state=active]:text-white data-[state=active]:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] data-[state=active]:translate-y-[2px] data-[state=active]:translate-x-[2px]"
+              >
                 <Users className="h-4 w-4" />
                 Users
               </TabsTrigger>
-              <TabsTrigger value="courses" className="gap-2">
+              <TabsTrigger
+                value="courses"
+                className="gap-2 h-12 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-all font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-[#FD5A1A] data-[state=active]:text-white data-[state=active]:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] data-[state=active]:translate-y-[2px] data-[state=active]:translate-x-[2px]"
+              >
                 <BookOpen className="h-4 w-4" />
                 Courses
               </TabsTrigger>
-              <TabsTrigger value="security" className="gap-2">
+              <TabsTrigger
+                value="security"
+                className="gap-2 h-12 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-all font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-[#000000] data-[state=active]:text-white data-[state=active]:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] data-[state=active]:translate-y-[2px] data-[state=active]:translate-x-[2px]"
+              >
                 <Shield className="h-4 w-4" />
                 Security
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="gap-2">
+              <TabsTrigger
+                value="analytics"
+                className="gap-2 h-12 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-all font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-[#0075CF] data-[state=active]:text-white data-[state=active]:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] data-[state=active]:translate-y-[2px] data-[state=active]:translate-x-[2px]"
+              >
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2">
+              <TabsTrigger
+                value="settings"
+                className="gap-2 h-12 bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-all font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-[#FD5A1A] data-[state=active]:text-white data-[state=active]:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] data-[state=active]:translate-y-[2px] data-[state=active]:translate-x-[2px]"
+              >
                 <Settings className="h-4 w-4" />
                 Settings
               </TabsTrigger>

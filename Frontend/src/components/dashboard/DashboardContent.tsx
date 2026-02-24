@@ -61,13 +61,13 @@ function DashboardHome() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Inter']">
       {/* Welcome Section */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-3xl font-black text-[#000000] uppercase tracking-wider">
           Welcome back, {user?.user_metadata?.full_name || "Student"}! 👋
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-sm font-bold text-[#000000]/60 mt-1 uppercase tracking-widest">
           Here's what's happening with your learning journey
         </p>
       </div>
@@ -75,15 +75,24 @@ function DashboardHome() {
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statsCards.map((stat) => (
-          <Card key={stat.title} className="hover-lift">
+          <Card
+            key={stat.title}
+            className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default"
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
                 {stat.title}
               </CardTitle>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              <div className="h-8 w-8 bg-[#E9E9E9] rounded flex items-center justify-center border-2 border-[#000000]">
+                <stat.icon
+                  className={`h-4 w-4 ${stat.color === "text-primary" ? "text-[#0075CF]" : stat.color === "text-accent" ? "text-[#FD5A1A]" : "text-[#000000]"}`}
+                />
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+            <CardContent className="pb-4">
+              <div className="text-3xl font-black text-[#000000]">
+                {stat.value}
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -92,38 +101,43 @@ function DashboardHome() {
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Enrolled Courses */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="lg:col-span-2 bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <CardHeader className="border-b-4 border-[#000000] bg-[#E9E9E9] rounded-t-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-widest text-[#000000]">
+                  <BookOpen className="h-6 w-6 text-[#0075CF]" />
                   Continue Learning
                 </CardTitle>
-                <CardDescription>Pick up where you left off</CardDescription>
+                <CardDescription className="text-[#000000]/60 font-bold uppercase tracking-wider text-[10px] mt-1">
+                  Pick up where you left off
+                </CardDescription>
               </div>
-              <Badge variant="secondary">{enrollments.length} Active</Badge>
+              <Badge className="bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest pointer-events-none self-start sm:self-auto">
+                {enrollments.length} Active
+              </Badge>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-white">
             {enrollLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-16 bg-muted rounded-lg animate-pulse"
+                    className="h-20 bg-[#E9E9E9] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-lg animate-pulse"
                   />
                 ))}
               </div>
             ) : enrollments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <BookOpen className="h-10 w-10 text-muted-foreground/30 mb-3" />
-                <p className="text-sm text-muted-foreground mb-4">
+              <div className="flex flex-col items-center justify-center py-10 text-center bg-white border-4 border-dashed border-[#000000] rounded-lg">
+                <div className="h-16 w-16 bg-[#E9E9E9] rounded flex items-center justify-center border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
+                  <BookOpen className="h-8 w-8 text-[#000000]" />
+                </div>
+                <p className="text-sm font-bold text-[#000000]/60 mb-4 uppercase tracking-wider">
                   You haven't enrolled in any courses yet.
                 </p>
                 <Button
-                  variant="accent"
-                  size="sm"
+                  className="bg-[#0075CF] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs"
                   onClick={() => navigate("/courses")}
                 >
                   Browse Courses
@@ -133,27 +147,29 @@ function DashboardHome() {
               enrollments.slice(0, 3).map((enrollment) => (
                 <div
                   key={enrollment.id}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                  className="flex items-center gap-4 p-4 rounded-lg bg-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer group"
                   onClick={() =>
                     navigate(`/course/${enrollment.course_id}/play`)
                   }
                 >
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Play className="h-5 w-5 text-primary" />
+                  <div className="h-12 w-12 rounded bg-[#0075CF] border-2 border-[#000000] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Play className="h-5 w-5 text-white ml-1" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">
+                    <h4 className="font-black text-[#000000] uppercase tracking-wider truncate text-sm">
                       {enrollment.course?.title ??
                         `Course ${enrollment.course_id.slice(0, 8)}`}
                     </h4>
-                    <p className="text-sm text-muted-foreground">Enrolled</p>
+                    <p className="text-[10px] font-bold text-[#000000]/60 uppercase tracking-widest">
+                      Enrolled
+                    </p>
                   </div>
                   <div className="w-24">
                     <Progress
                       value={enrollment.progress_percent ?? 0}
-                      className="h-2"
+                      className="h-3 border-2 border-[#000000] rounded-none bg-[#E9E9E9]"
                     />
-                    <p className="text-xs text-muted-foreground mt-1 text-right">
+                    <p className="text-[10px] font-black text-[#000000] mt-1 text-right">
                       {enrollment.progress_percent ?? 0}%
                     </p>
                   </div>
@@ -164,74 +180,91 @@ function DashboardHome() {
         </Card>
 
         {/* Upcoming Classes placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-accent" />
+        <Card className="bg-[#0075CF] rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden group">
+          <CardHeader className="p-5 pb-2 relative z-10">
+            <CardTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-widest">
+              <Calendar className="h-6 w-6" />
               Upcoming Classes
             </CardTitle>
-            <CardDescription>Your scheduled sessions</CardDescription>
+            <CardDescription className="text-white/70 font-bold uppercase tracking-wider text-[10px] mt-1">
+              Your scheduled sessions
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Calendar className="h-10 w-10 text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">
-                No upcoming classes scheduled yet.
-              </p>
+          <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center text-center mt-4">
+            <div className="h-16 w-16 bg-white rounded flex items-center justify-center border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4 group-hover:-translate-y-2 transition-transform">
+              <Calendar className="h-8 w-8 text-[#0075CF]" />
             </div>
+            <p className="text-sm font-bold opacity-90 leading-relaxed max-w-[200px]">
+              No upcoming classes scheduled yet.
+            </p>
           </CardContent>
+          <div className="absolute -bottom-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <Calendar className="h-40 w-40" />
+          </div>
         </Card>
       </div>
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card
-          className="hover-lift cursor-pointer group"
+          className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
           onClick={() => navigate("/courses")}
         >
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-              <Compass className="h-6 w-6 text-primary" />
+          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+            <div className="h-16 w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-4 group-hover:bg-[#0075CF] group-hover:text-white transition-colors">
+              <Compass className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
             </div>
-            <h4 className="font-medium">Browse Courses</h4>
-            <p className="text-xs text-muted-foreground mt-1">
+            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
+              Browse Courses
+            </h4>
+            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
               Explore catalogue
             </p>
           </CardContent>
         </Card>
 
         <Card
-          className="hover-lift cursor-pointer group"
+          className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group"
           onClick={() => navigate("/exam?type=mock")}
         >
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-              <FileText className="h-6 w-6 text-primary" />
+          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+            <div className="h-16 w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-4 group-hover:bg-[#FD5A1A] group-hover:text-white transition-colors">
+              <FileText className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
             </div>
-            <h4 className="font-medium">Take Mock Test</h4>
-            <p className="text-xs text-muted-foreground mt-1">Practice exams</p>
+            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
+              Take Mock Test
+            </h4>
+            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
+              Practice exams
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="hover-lift cursor-pointer group">
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/20 transition-colors">
-              <Award className="h-6 w-6 text-accent" />
+        <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group">
+          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+            <div className="h-16 w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-4 group-hover:bg-[#000000] group-hover:text-white transition-colors">
+              <Award className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
             </div>
-            <h4 className="font-medium">View Certificates</h4>
-            <p className="text-xs text-muted-foreground mt-1">
+            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
+              View Certificates
+            </h4>
+            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
               Your achievements
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover-lift cursor-pointer group">
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-              <Trophy className="h-6 w-6 text-primary" />
+        <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all cursor-pointer group">
+          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+            <div className="h-16 w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-4 group-hover:bg-[#0075CF] group-hover:text-white transition-colors">
+              <Trophy className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
             </div>
-            <h4 className="font-medium">Leaderboard</h4>
-            <p className="text-xs text-muted-foreground mt-1">See rankings</p>
+            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
+              Leaderboard
+            </h4>
+            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
+              See rankings
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -250,24 +283,30 @@ function ModulePage({
   icon: React.ElementType;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
+    <div className="space-y-6 font-['Inter']">
+      <div className="flex items-center gap-4">
+        <div className="h-16 w-16 rounded bg-[#E9E9E9] border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+          <Icon className="h-8 w-8 text-[#000000]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
+          <h1 className="text-3xl font-black text-[#000000] uppercase tracking-wider">
+            {title}
+          </h1>
+          <p className="text-sm font-bold text-[#000000]/60 uppercase tracking-widest mt-1">
+            {description}
+          </p>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-          <Icon className="h-16 w-16 text-muted-foreground/30 mb-4" />
-          <h3 className="text-lg font-medium text-muted-foreground">
+      <Card className="bg-white rounded-xl border-4 border-[#000000] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] overflow-hidden">
+        <CardContent className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="p-6 bg-[#E9E9E9] border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-xl mb-6 transform -rotate-3 transition-transform hover:rotate-3">
+            <Icon className="h-16 w-16 text-[#000000]" />
+          </div>
+          <h3 className="text-2xl font-black text-[#000000] uppercase tracking-wider">
             Coming Soon
           </h3>
-          <p className="text-sm text-muted-foreground/70 mt-1 max-w-md">
+          <p className="text-sm font-bold text-[#000000]/60 mt-2 max-w-md uppercase tracking-widest leading-relaxed">
             This module is under development. Stay tuned for updates!
           </p>
         </CardContent>
