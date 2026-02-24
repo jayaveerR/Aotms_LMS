@@ -12,6 +12,7 @@ import InstructorRegister from "./pages/InstructorRegister";
 import Dashboard from "./pages/Dashboard";
 import InstructorDashboard from "./pages/InstructorDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import CoursePlayer from "./pages/CoursePlayer";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/course/:courseId/play" element={<CoursePlayer />} />
             <Route path="/exam" element={<ExamPage />} />
             <Route path="/become-instructor" element={<InstructorRegister />} />
             <Route path="/learning-paths" element={<LearningPaths />} />

@@ -29,6 +29,8 @@ import {
   Compass,
 } from "lucide-react";
 import { UserProfile } from "./UserProfile";
+import NotificationsPage from "@/pages/NotificationsPage";
+import MyCoursesPage from "@/pages/MyCoursesPage";
 
 // Dashboard Home Content
 function DashboardHome() {
@@ -127,7 +129,9 @@ function DashboardHome() {
                 <div
                   key={enrollment.id}
                   className="flex items-center gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                  onClick={() => navigate("/courses")}
+                  onClick={() =>
+                    navigate(`/course/${enrollment.course_id}/play`)
+                  }
                 >
                   <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Play className="h-5 w-5 text-primary" />
@@ -338,6 +342,17 @@ export function DashboardContent() {
 
   if (currentPath === "/dashboard/profile") {
     return <UserProfile />;
+  }
+
+  if (currentPath === "/dashboard/notifications") {
+    return <NotificationsPage />;
+  }
+
+  if (
+    currentPath === "/dashboard/courses" ||
+    currentPath === "/dashboard/videos"
+  ) {
+    return <MyCoursesPage />;
   }
 
   if (config) {

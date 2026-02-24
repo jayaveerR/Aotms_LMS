@@ -1,17 +1,18 @@
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Bell, Search, Settings, LogOut, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Search, Settings, LogOut, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();
@@ -26,12 +27,12 @@ export function DashboardHeader() {
         .toUpperCase()
         .slice(0, 2);
     }
-    return user?.email?.slice(0, 2).toUpperCase() || 'ST';
+    return user?.email?.slice(0, 2).toUpperCase() || "ST";
   };
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -49,17 +50,7 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          onClick={() => navigate('/dashboard/notifications')}
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-[10px] font-medium text-accent-foreground flex items-center justify-center">
-            3
-          </span>
-        </Button>
+        <NotificationBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -72,21 +63,37 @@ export function DashboardHeader() {
               </Avatar>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-background border border-border shadow-lg z-[100]">
+          <DropdownMenuContent
+            align="end"
+            className="w-56 bg-background border border-border shadow-lg z-[100]"
+          >
             <div className="px-3 py-2 border-b border-border">
-              <p className="text-sm font-medium text-foreground">{user?.user_metadata?.full_name || "Student"}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-sm font-medium text-foreground">
+                {user?.user_metadata?.full_name || "Student"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
             </div>
-            <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => navigate("/dashboard/profile")}
+              className="cursor-pointer"
+            >
               <User className="h-4 w-4 mr-2" />
               My Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/dashboard/settings')} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => navigate("/dashboard/settings")}
+              className="cursor-pointer"
+            >
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
               <LogOut className="h-4 w-4 mr-2" />
               Log out
             </DropdownMenuItem>
