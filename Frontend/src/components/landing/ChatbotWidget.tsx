@@ -100,7 +100,7 @@ const ChatbotWidget = () => {
     <>
       {/* Chatbot Window */}
       <div
-        className={`fixed bottom-24 right-6 z-[60] w-[350px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
+        className={`fixed bottom-24 right-6 z-[60] w-[390px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 translate-x-0"
             : "scale-50 opacity-0 translate-y-10 translate-x-10 pointer-events-none"
