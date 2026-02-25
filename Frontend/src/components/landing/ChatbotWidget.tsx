@@ -18,6 +18,7 @@ interface Message {
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -37,6 +38,21 @@ const ChatbotWidget = () => {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+
+  // Hide widget when footer enters viewport
+  useEffect(() => {
+    const footer = document.getElementById("contact");
+    if (!footer) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFooterVisible(entry.isIntersecting);
+        if (entry.isIntersecting) setIsOpen(false); // close chat if open
+      },
+      { threshold: 0.05 },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -219,7 +235,7 @@ const ChatbotWidget = () => {
         </div>
       </div>
 
-      {/* Floating Toggle Button */}
+      {/* Floating Toggle Button — hidden when footer is visible */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         onMouseEnter={() => setIsHovered(true)}
@@ -228,7 +244,8 @@ const ChatbotWidget = () => {
           rounded-2xl shadow-[0_8px_30px_rgba(0,117,207,0.4)]
           transition-all duration-300 ease-out group overflow-hidden
           border-2 border-white/20 hover:border-white/40
-          ${isOpen ? "w-14 h-14 bg-white text-gray-800 rotate-90 scale-90" : "w-[110px] h-12 bg-gradient-to-r from-[#0075CF] to-[#005fa3] text-white hover:shadow-[0_10px_40px_rgba(0,117,207,0.6)] hover:-translate-y-1 active:scale-95"}`}
+          ${footerVisible ? "opacity-0 translate-y-4 pointer-events-none" : "opacity-100 translate-y-0"}
+          ${isOpen ? "w-14 h-14 bg-white text-gray-800 rotate-90 scale-90" : "w-[140px] h-12 bg-gradient-to-r from-[#0075CF] to-[#005fa3] text-white hover:shadow-[0_10px_40px_rgba(0,117,207,0.6)] hover:-translate-y-1 active:scale-95"}`}
       >
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
 
@@ -238,7 +255,7 @@ const ChatbotWidget = () => {
             strokeWidth={2.5}
           />
         ) : (
-          <div className="flex items-center gap-3 px-4 w-full h-full">
+          <div className="flex items-center gap-2 px-3 w-full h-full">
             <div className="relative shrink-0">
               <MessageSquare
                 className="w-6 h-6"
@@ -248,10 +265,10 @@ const ChatbotWidget = () => {
               <div className="absolute top-0 -right-1 w-2.5 h-2.5 bg-[#FD5A1A] rounded-full border border-[#005fa3] animate-pulse" />
             </div>
             <span
-              className="font-sans text-sm font-bold tracking-widest whitespace-nowrap overflow-hidden"
+              className="font-sans text-sm font-bold tracking-widest whitespace-nowrap"
               style={{ textShadow: "none" }}
             >
-              CHAT
+              ASK AI
             </span>
           </div>
         )}
