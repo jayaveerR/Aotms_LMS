@@ -205,23 +205,38 @@ const TechnologyEcosystem = () => {
     <section
       ref={sectionRef}
       id="technology-ecosystem"
-      className="relative py-20 overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(160deg, #f9fafb 0%, #ffffff 50%, #f0f9ff 100%)",
-      }}
+      className="relative py-20 overflow-hidden bg-white"
     >
-      {/* Decorative background blobs */}
+      {/* ── Dynamic Tech-Inspired Background ── */}
+      {/* Dot Grid Overlay */}
       <div
-        className="absolute -top-20 -left-20 w-72 h-72 rounded-full opacity-30 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.3]"
         style={{
-          background: "radial-gradient(circle, #bfdbfe 0%, transparent 70%)",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%230B5CFF' fill-opacity='0.15'/%3E%3C/svg%3E")`,
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Brand-Colored Animated Glowing Orbs */}
+      <div
+        className="absolute top-0 -left-32 w-[600px] h-[600px] rounded-full pointer-events-none mix-blend-multiply opacity-50 animate-blob"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(11, 92, 255, 0.12) 0%, transparent 70%)",
         }}
       />
       <div
-        className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full opacity-30 pointer-events-none"
+        className="absolute bottom-0 -right-32 w-[600px] h-[600px] rounded-full pointer-events-none mix-blend-multiply opacity-50 animate-blob animation-delay-2000"
         style={{
-          background: "radial-gradient(circle, #d1fae5 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(242, 112, 6, 0.12) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none mix-blend-multiply opacity-30 animate-blob animation-delay-4000"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(11, 92, 255, 0.08) 0%, rgba(242, 112, 6, 0.08) 40%, transparent 70%)",
         }}
       />
 
@@ -384,6 +399,22 @@ const TechnologyEcosystem = () => {
         .tech-node:hover {
           animation-play-state: paused;
           z-index: 30 !important;
+        }
+        
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 8s infinite alternate ease-in-out;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
         }
       `}</style>
     </section>
