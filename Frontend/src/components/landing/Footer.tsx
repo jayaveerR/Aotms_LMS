@@ -39,13 +39,13 @@ const Footer = () => {
   return (
     <footer
       id="contact"
-      className="relative overflow-hidden bg-black border-t-8 border-black font-['Inter']"
+      className="relative overflow-hidden bg-[#0075CF] border-t-8 border-black font-['Inter']"
     >
-      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
       {/* Newsletter Section */}
-      <div className="container-width py-16 border-b-4 border-white/10 relative z-10 px-4 md:px-8">
-        <div className="bg-white border-4 border-black p-8 sm:p-12 shadow-[12px_12px_0px_0px_rgba(0,117,207,1)] max-w-4xl mx-auto rotate-[-0.5deg]">
+      <div className="container-width py-16 border-b-4 border-black/20 relative z-10 px-4 md:px-8">
+        <div className="bg-white border-4 border-black p-8 sm:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] max-w-4xl mx-auto rotate-[-0.5deg]">
           <div className="flex flex-col lg:flex-row items-center gap-10">
             <div className="flex-1 text-center lg:text-left">
               <h3 className="text-3xl font-black text-black uppercase tracking-tight mb-2 italic">
@@ -76,7 +76,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <div className="bg-white inline-block p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,117,207,1)] mb-8">
+            <div className="bg-white inline-block p-4 border-4 border-black shadow-[6px_6px_0px_0px_#000000] mb-8">
               <img src={logo} alt="AOTMS" className="h-12 w-auto" />
             </div>
             <p className="text-white font-black uppercase tracking-widest text-[10px] leading-relaxed opacity-40">
@@ -95,7 +95,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#FD5A1A] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#FD5A1A] underline-offset-4"
+                    className="text-[11px] font-black uppercase tracking-widest text-white/80 hover:text-[#FD5A1A] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#FD5A1A] underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -113,7 +113,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#0075CF] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#0075CF] underline-offset-4"
+                    className="text-[11px] font-black uppercase tracking-widest text-white/80 hover:text-black hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-black underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -143,9 +143,9 @@ const Footer = () => {
                   Visit Us
                 </p>
                 <p className="text-xs font-black text-white leading-relaxed uppercase tracking-tighter">
-                  Auram Creative Center, 19th Floor
+                  AOTMS Center, 2nd Floor
                   <br />
-                  Vijayawada, AP, India - 520001
+                  Vijayawada, AP, India - 520010
                 </p>
               </div>
             </div>
@@ -153,8 +153,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-20 pt-10 border-t-4 border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-          <p className="text-[10px] font-black uppercase tracking-widest text-white/20">
+        <div className="mt-20 pt-10 border-t-4 border-black/10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-[10px] font-black uppercase tracking-widest text-white/50">
             © {currentYear} AOTMS PORTAL. BUILT FOR THE FUTURE.
           </p>
 
@@ -163,7 +163,7 @@ const Footer = () => {
               <a
                 key={social.label}
                 href={social.href}
-                className="w-12 h-12 bg-white/5 border-2 border-white/10 flex items-center justify-center text-white hover:bg-[#0075CF] hover:border-black hover:text-white hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] transition-all rounded-none"
+                className="w-12 h-12 bg-white/10 border-2 border-black/20 flex items-center justify-center text-white hover:bg-black hover:border-black hover:text-white transition-all rounded-none"
               >
                 <social.icon className="w-5 h-5" />
               </a>
