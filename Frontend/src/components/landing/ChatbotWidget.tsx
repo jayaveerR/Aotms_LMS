@@ -100,7 +100,7 @@ const ChatbotWidget = () => {
     <>
       {/* Chatbot Window */}
       <div
-        className={`fixed bottom-24 right-6 z-[60] w-[280px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
+        className={`fixed bottom-24 right-6 z-[60] w-[350px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 translate-x-0"
             : "scale-50 opacity-0 translate-y-10 translate-x-10 pointer-events-none"
@@ -197,7 +197,7 @@ const ChatbotWidget = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="flex-1 bg-transparent border-none focus:outline-none text-sm px-3 py-2 text-gray-700 placeholder:text-gray-400"
+              className="flex-1 bg-transparent border-none focus:outline-none text-sm px-3 py-2 text-gray-700 placeholder:text-gray-800"
             />
             <button
               onClick={handleSend}
@@ -212,7 +212,7 @@ const ChatbotWidget = () => {
             </button>
           </div>
           <div className="text-center mt-2">
-            <span className="text-[10px] text-gray-400 flex items-center justify-center gap-1 font-medium">
+            <span className="text-[10px] text-gray-800 flex items-center justify-center gap-1 font-medium">
               Powered by AOTMS AI <Check className="w-3 h-3 text-[#0075CF]" />
             </span>
           </div>
