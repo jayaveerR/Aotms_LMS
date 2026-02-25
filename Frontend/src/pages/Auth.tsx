@@ -18,7 +18,17 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
-import { Mail, Lock, User, Eye, EyeOff, Check, X } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Check,
+  X,
+  Trophy,
+  ArrowRight,
+} from "lucide-react";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 
 const loginSchema = z.object({
@@ -196,44 +206,46 @@ export default function Auth() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
-      {/* Left Panel - Brand Showcase */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0075CF] p-12 flex-col justify-between relative overflow-hidden">
-        {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white rounded-full blur-[100px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-[#FD5A1A] rounded-full blur-[100px]" />
-        </div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#E9E9E9] font-['Inter'] relative overflow-hidden">
+      <AmbientBackground />
 
-        <div className="relative z-10">
+      {/* Left Panel - Brand Showcase */}
+      <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between relative z-10 border-r-4 border-black">
+        <div className="space-y-12">
           <Link
             to="/"
-            className="inline-block bg-white p-4 rounded-2xl shadow-xl"
+            className="inline-block bg-white p-5 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
           >
             <img src={logo} alt="AOTMS Logo" className="h-10 w-auto" />
           </Link>
+
+          <div className="bg-white border-4 border-black p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-500">
+              <span className="text-8xl font-black">✦</span>
+            </div>
+            <h1 className="text-4xl xl:text-5xl font-black text-black leading-[1.1] uppercase tracking-tighter relative z-10">
+              Empowering Your <br />
+              <span className="text-[#0075CF] bg-[#E9E9E9] px-2 border-2 border-black inline-block mt-2">
+                Career Journey
+              </span>{" "}
+              <br />
+              with Industry Expertise.
+            </h1>
+            <p className="text-black/70 text-lg font-bold mt-8 uppercase tracking-wider leading-relaxed max-w-lg relative z-10">
+              Join thousands of students who are already learning the skills
+              that matter. Access real-world projects, expert mentorship, and
+              career support all in one place.
+            </p>
+          </div>
         </div>
 
-        <div className="relative z-10 space-y-6">
-          <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight">
-            Empowering Your <br />
-            <span className="text-[#FD5A1A]">Career Journey</span> with <br />
-            Industry Expertise.
-          </h1>
-          <p className="text-white/80 text-lg max-w-lg leading-relaxed">
-            Join thousands of students who are already learning the skills that
-            matter. Access real-world projects, expert mentorship, and career
-            support all in one place.
-          </p>
-        </div>
-
-        <div className="relative z-10 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
-          <div className="flex items-center gap-4">
-            <div className="flex -space-x-3">
+        <div className="bg-[#FD5A1A] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-1 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex -space-x-4">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="h-10 w-10 rounded-full border-2 border-[#0075CF] bg-muted overflow-hidden"
+                  className="h-12 w-12 rounded bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
                 >
                   <img
                     src={`https://i.pravatar.cc/150?u=${i}`}
@@ -243,443 +255,420 @@ export default function Auth() {
                 </div>
               ))}
             </div>
-            <p className="text-white text-sm font-medium">
-              Join <span className="text-[#FD5A1A] font-bold">5,000+</span>{" "}
-              graduates today!
-            </p>
+            <div>
+              <p className="text-white text-lg font-black uppercase tracking-tighter">
+                5,000+ Graduates
+              </p>
+              <p className="text-white/80 text-[10px] font-black uppercase tracking-widest mt-0.5">
+                Join our elite community
+              </p>
+            </div>
+          </div>
+          <div className="h-12 w-12 bg-white rounded border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <Trophy className="h-6 w-6 text-black" />
           </div>
         </div>
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="lg:w-1/2 bg-background p-6 lg:p-8 flex items-center justify-center relative z-50 overflow-y-auto">
-        <div className="w-full max-w-md relative z-50 pointer-events-auto py-4">
-          {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-accent text-2xl">✦</span>
-            </div>
-          </div>
-
+      <div className="flex-1 p-4 sm:p-8 lg:p-12 flex items-center justify-center relative z-20 overflow-y-auto">
+        <div className="w-full max-w-xl bg-white border-4 border-black p-8 sm:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
           {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-xl lg:text-2xl font-bold text-foreground mb-1">
-              {isLogin ? "Welcome back" : "Create an account"}
+          <div className="text-center mb-10">
+            <div className="inline-block p-4 bg-[#E9E9E9] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8 transform -rotate-3 hover:translate-x-[2px] transition-all">
+              <span className="text-black text-4xl font-black">✦</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter mb-3">
+              {isLogin ? "Welcome back" : "Create Account"}
             </h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-black/60 font-black text-xs uppercase tracking-[0.2em]">
               {isLogin
-                ? "Sign in to continue your learning journey."
-                : "Access your courses, track progress, and grow."}
+                ? "Sign in to continue your journey"
+                : "Join the next generation of experts"}
             </p>
           </div>
 
-          {/* Login Form */}
-          {isLogin ? (
-            <Form {...loginForm}>
-              <form
-                onSubmit={loginForm.handleSubmit(handleLogin)}
-                className="space-y-6"
-              >
-                <FormField
-                  control={loginForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel
-                        htmlFor="login-email"
-                        className="text-sm font-medium text-foreground"
-                      >
-                        Email Address
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          id="login-email"
-                          type="email"
-                          placeholder="Enter your email"
-                          className="h-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60"
-                          autoComplete="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Phone Number */}
-                <FormField
-                  control={loginForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-foreground">
-                        Phone Number{" "}
-                        <span className="text-muted-foreground text-xs">
-                          (Optional)
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <PhoneInput
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          countryCode={loginForm.watch("countryCode")}
-                          onCountryChange={(code) =>
-                            loginForm.setValue("countryCode", code)
-                          }
-                          placeholder="9876543210"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel
-                        htmlFor="login-password"
-                        className="text-sm font-medium text-foreground"
-                      >
-                        Password
-                      </FormLabel>
-                      <div className="relative">
-                        <FormControl>
-                          <Input
-                            id="login-password"
-                            type={showLoginPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            className="h-12 pr-12 bg-muted/30 text-foreground border-0 rounded-xl focus:ring-2 focus:ring-primary/30 focus:bg-background transition-all placeholder:text-muted-foreground/60 relative z-10"
-                            autoComplete="current-password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowLoginPassword(!showLoginPassword)
-                          }
-                          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-muted-foreground hover:text-foreground transition-colors"
-                          tabIndex={-1}
-                        >
-                          {showLoginPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full h-12 bg-[#0075CF] text-white hover:bg-[#005fa3] font-bold text-base rounded-2xl shadow-[0_8px_20px_rgba(0,117,207,0.3)] hover:shadow-[0_12px_30px_rgba(0,117,207,0.4)] transition-all duration-300 transform hover:-translate-y-1"
+          {/* Form Content */}
+          <div className="space-y-6">
+            {isLogin ? (
+              <Form {...loginForm}>
+                <form
+                  onSubmit={loginForm.handleSubmit(handleLogin)}
+                  className="space-y-8"
                 >
-                  {loading ? "Signing in..." : "Sign In to Portal"}
-                </Button>
-              </form>
-            </Form>
-          ) : (
-            /* Register Form */
-            <Form {...registerForm}>
-              <form
-                onSubmit={registerForm.handleSubmit(handleRegister)}
-                className="space-y-3"
-              >
-                {/* Row 1: Full Name & Email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField
-                    control={registerForm.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="register-name" className="text-sm">
-                          Full Name
-                        </FormLabel>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                          <FormControl>
-                            <Input
-                              id="register-name"
-                              type="text"
-                              placeholder="John Doe"
-                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                              autoComplete="name"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={registerForm.control}
+                    control={loginForm.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="register-email" className="text-sm">
-                          Email
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-black">
+                          Email Address
                         </FormLabel>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                          <FormControl>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                             <Input
-                              id="register-email"
-                              type="email"
-                              placeholder="student@example.com"
-                              className="pl-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
+                              placeholder="Enter your email"
+                              className="h-14 pl-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 focus:border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all placeholder:text-black/30 placeholder:font-bold rounded-none"
                               autoComplete="email"
                               {...field}
                             />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* Phone Number with Country Code */}
-                <FormField
-                  control={registerForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">
-                        Phone Number{" "}
-                        <span className="text-muted-foreground text-xs">
-                          (Optional)
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <PhoneInput
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          countryCode={registerForm.watch("countryCode")}
-                          onCountryChange={(code) =>
-                            registerForm.setValue("countryCode", code)
-                          }
-                          placeholder="9876543210"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Row 2: Password & Confirm Password */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField
-                    control={registerForm.control}
+                    control={loginForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-black">
+                          Phone Number{" "}
+                          <span className="text-black/40 text-[10px]">
+                            (Optional)
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <PhoneInput
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            countryCode={loginForm.watch("countryCode")}
+                            onCountryChange={(code) =>
+                              loginForm.setValue("countryCode", code)
+                            }
+                            placeholder="Enter Phone Number"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={loginForm.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel
-                          htmlFor="register-password"
-                          className="text-sm"
-                        >
-                          Password
-                        </FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                          <FormControl>
+                      <FormItem className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-black">
+                            Password
+                          </FormLabel>
+                          <Link
+                            to="/forgot-password"
+                            className="text-[10px] font-black uppercase text-[#0075CF] hover:underline underline-offset-4 decoration-2"
+                          >
+                            Forgot?
+                          </Link>
+                        </div>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                             <Input
-                              id="register-password"
-                              type={showRegisterPassword ? "text" : "password"}
+                              type={showLoginPassword ? "text" : "password"}
                               placeholder="••••••••"
-                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                              autoComplete="new-password"
+                              className="h-14 pl-12 pr-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 focus:border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all placeholder:text-black/30 placeholder:font-bold rounded-none"
+                              autoComplete="current-password"
                               {...field}
                             />
-                          </FormControl>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowRegisterPassword(!showRegisterPassword)
-                            }
-                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
-                            tabIndex={-1}
-                          >
-                            {showRegisterPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </button>
-                        </div>
-                        <FormMessage />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setShowLoginPassword(!showLoginPassword)
+                              }
+                              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-black hover:scale-110 transition-transform"
+                            >
+                              {showLoginPassword ? (
+                                <EyeOff className="h-5 w-5 stroke-[2.5px]" />
+                              ) : (
+                                <Eye className="h-5 w-5 stroke-[2.5px]" />
+                              )}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                       </FormItem>
                     )}
                   />
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-16 bg-[#0075CF] text-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] font-black uppercase tracking-widest text-lg transition-all rounded-none mt-4"
+                  >
+                    {loading ? "Signing in..." : "Sign In to Portal"}
+                  </Button>
+                </form>
+              </Form>
+            ) : (
+              /* Register Form */
+              <Form {...registerForm}>
+                <form
+                  onSubmit={registerForm.handleSubmit(handleRegister)}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={registerForm.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                            Full Name
+                          </FormLabel>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black z-10" />
+                            <Input
+                              placeholder="Enter your full name"
+                              className="h-12 pl-9 bg-[#E9E9E9] border-4 border-black font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none"
+                              {...field}
+                            />
+                          </div>
+                          <FormMessage className="text-[10px] font-black italic text-[#FD5A1A]" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                            Email
+                          </FormLabel>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black z-10" />
+                            <Input
+                              placeholder="Enter your email"
+                              className="h-12 pl-9 bg-[#E9E9E9] border-4 border-black font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none"
+                              {...field}
+                            />
+                          </div>
+                          <FormMessage className="text-[10px] font-black italic text-[#FD5A1A]" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={registerForm.control}
-                    name="confirmPassword"
+                    name="phone"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel
-                          htmlFor="register-confirm-password"
-                          className="text-sm"
-                        >
-                          Confirm Password
+                      <FormItem className="space-y-2">
+                        <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                          Phone Number{" "}
+                          <span className="text-black/40 text-[10px]">
+                            (Optional)
+                          </span>
                         </FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                          <FormControl>
-                            <Input
-                              id="register-confirm-password"
-                              type={showConfirmPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              className="pl-10 pr-10 h-11 bg-background text-foreground border-input relative z-10 pointer-events-auto cursor-text"
-                              autoComplete="new-password"
-                              {...field}
-                            />
-                          </FormControl>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowConfirmPassword(!showConfirmPassword)
+                        <FormControl>
+                          <PhoneInput
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            countryCode={registerForm.watch("countryCode")}
+                            onCountryChange={(code) =>
+                              registerForm.setValue("countryCode", code)
                             }
-                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors z-10"
-                            tabIndex={-1}
-                          >
-                            {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </button>
-                        </div>
-                        <FormMessage />
+                            placeholder="Enter Phone Number"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-[10px] font-black italic text-[#FD5A1A]" />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* Password Strength Indicator */}
-                {watchPassword && watchPassword.length > 0 && (
-                  <div className="p-2.5 bg-muted/50 rounded-lg grid grid-cols-2 gap-1">
-                    <PasswordRequirement
-                      met={passwordStrength.checks.length}
-                      text="8+ characters"
+                  {/* Password Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                            Password
+                          </FormLabel>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black z-10" />
+                            <Input
+                              type={showRegisterPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="h-12 pl-9 pr-9 bg-[#E9E9E9] border-4 border-black font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setShowRegisterPassword(!showRegisterPassword)
+                              }
+                              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 text-black"
+                            >
+                              {showRegisterPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                          <FormMessage className="text-[10px] font-black italic text-[#FD5A1A]" />
+                        </FormItem>
+                      )}
                     />
-                    <PasswordRequirement
-                      met={passwordStrength.checks.uppercase}
-                      text="Uppercase"
-                    />
-                    <PasswordRequirement
-                      met={passwordStrength.checks.lowercase}
-                      text="Lowercase"
-                    />
-                    <PasswordRequirement
-                      met={passwordStrength.checks.number}
-                      text="Number"
+                    <FormField
+                      control={registerForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                            Confirm
+                          </FormLabel>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black z-10" />
+                            <Input
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="h-12 pl-9 pr-9 bg-[#E9E9E9] border-4 border-black font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setShowConfirmPassword(!showConfirmPassword)
+                              }
+                              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 text-black"
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                          <FormMessage className="text-[10px] font-black italic text-[#FD5A1A]" />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                )}
 
-                {/* Terms Checkbox */}
-                <FormField
-                  control={registerForm.control}
-                  name="agreeToTerms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-1">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="mt-0.5"
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-xs font-normal text-muted-foreground cursor-pointer">
+                  {/* Password Strength Indicator */}
+                  {watchPassword && watchPassword.length > 0 && (
+                    <div className="p-4 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] grid grid-cols-2 gap-3">
+                      <PasswordRequirement
+                        met={passwordStrength.checks.length}
+                        text="8+ chars"
+                      />
+                      <PasswordRequirement
+                        met={passwordStrength.checks.uppercase}
+                        text="Uppercase"
+                      />
+                      <PasswordRequirement
+                        met={passwordStrength.checks.lowercase}
+                        text="Lowercase"
+                      />
+                      <PasswordRequirement
+                        met={passwordStrength.checks.number}
+                        text="Number"
+                      />
+                    </div>
+                  )}
+
+                  {/* Terms */}
+                  <FormField
+                    control={registerForm.control}
+                    name="agreeToTerms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border-4 border-black bg-[#E9E9E9] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="h-6 w-6 border-4 border-black data-[state=checked]:bg-[#0075CF] transition-colors rounded-none"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-[10px] font-black uppercase tracking-widest leading-tight cursor-pointer">
                           I agree to the{" "}
-                          <a
-                            href="/terms"
-                            className="text-accent hover:underline"
+                          <Link
+                            to="/terms"
+                            className="text-[#0075CF] underline decoration-2"
                           >
                             Terms
-                          </a>{" "}
+                          </Link>{" "}
                           &{" "}
-                          <a
-                            href="/privacy"
-                            className="text-accent hover:underline"
+                          <Link
+                            to="/privacy"
+                            className="text-[#0075CF] underline decoration-2"
                           >
-                            Privacy Policy
-                          </a>
+                            Privacy
+                          </Link>
                         </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                      </FormItem>
+                    )}
+                  />
 
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full h-12 bg-[#FD5A1A] text-white hover:bg-[#e45117] font-bold text-base rounded-2xl shadow-[0_8px_20px_rgba(253,90,26,0.3)] hover:shadow-[0_12px_30px_rgba(253,90,26,0.4)] transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  {loading ? "Creating account..." : "Create Account"}
-                </Button>
-              </form>
-            </Form>
-          )}
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-16 bg-[#FD5A1A] text-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] font-black uppercase tracking-widest text-lg transition-all rounded-none mt-4"
+                  >
+                    {loading ? "Creating..." : "Create Account"}
+                  </Button>
+                </form>
+              </Form>
+            )}
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-4">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-muted-foreground text-xs">or</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
+            {/* Divider */}
+            <div className="flex items-center gap-4 py-2">
+              <div className="flex-1 h-1 bg-black" />
+              <span className="text-black font-black uppercase text-xs tracking-[0.2em]">
+                OR
+              </span>
+              <div className="flex-1 h-1 bg-black" />
+            </div>
 
-          {/* Google Sign In Button */}
-          <Button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            variant="outline"
-            className="w-full h-11 font-medium text-sm rounded-lg flex items-center justify-center gap-2 border hover:bg-muted/50"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Google
-          </Button>
-
-          {/* Toggle Login/Register */}
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button
+            {/* Google */}
+            <Button
               type="button"
-              onClick={toggleMode}
-              className="text-accent hover:underline font-medium"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              variant="outline"
+              className="w-full h-14 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] font-black uppercase tracking-widest text-sm transition-all rounded-none flex items-center justify-center gap-3"
             >
-              {isLogin ? "Register" : "Login"}
-            </button>
-          </p>
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Continue with Google
+            </Button>
+
+            {/* Toggle */}
+            <div className="text-center mt-6">
+              <span className="text-black/60 font-black uppercase text-[10px] tracking-widest">
+                {isLogin ? "New to AOTMS? " : "Joined before? "}
+              </span>
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="text-[#FD5A1A] font-black uppercase text-[10px] tracking-widest hover:underline underline-offset-4 decoration-2 ml-1"
+              >
+                {isLogin ? "Register Now" : "Login Here"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

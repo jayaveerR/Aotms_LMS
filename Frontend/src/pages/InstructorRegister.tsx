@@ -1,71 +1,124 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
-import logo from '@/assets/logo.png';
-import { Mail, Lock, User, Eye, EyeOff, Upload, Briefcase, GraduationCap, Check, X, ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import logo from "@/assets/logo.png";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Upload,
+  Briefcase,
+  GraduationCap,
+  Check,
+  X,
+  ArrowLeft,
+  Trophy,
+} from "lucide-react";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 
-const instructorSchema = z.object({
-  fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }).max(100, { message: 'Name must be less than 100 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z
-    .string()
-    .min(8, { message: 'Password must be at least 8 characters' })
-    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
-    .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
-  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
-  areaOfExpertise: z.string().min(1, { message: 'Please select your area of expertise' }),
-  customExpertise: z.string().optional(),
-  experience: z.string().min(1, { message: 'Please select your experience level' }),
-  resume: z.any().optional(),
-  agreeToTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must agree to the Terms & Privacy Policy',
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-}).refine((data) => {
-  if (data.areaOfExpertise === 'Other') {
-    return data.customExpertise && data.customExpertise.trim().length >= 2;
-  }
-  return true;
-}, {
-  message: "Please specify your area of expertise",
-  path: ["customExpertise"],
-});
+const instructorSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, { message: "Name must be at least 2 characters" })
+      .max(100, { message: "Name must be less than 100 characters" }),
+    email: z.string().email({ message: "Please enter a valid email address" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" })
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .regex(/[a-z]/, {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Please confirm your password" }),
+    areaOfExpertise: z
+      .string()
+      .min(1, { message: "Please select your area of expertise" }),
+    customExpertise: z.string().optional(),
+    experience: z
+      .string()
+      .min(1, { message: "Please select your experience level" }),
+    resume: z.any().optional(),
+    agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the Terms & Privacy Policy",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  })
+  .refine(
+    (data) => {
+      if (data.areaOfExpertise === "Other") {
+        return data.customExpertise && data.customExpertise.trim().length >= 2;
+      }
+      return true;
+    },
+    {
+      message: "Please specify your area of expertise",
+      path: ["customExpertise"],
+    },
+  );
 
 type InstructorFormData = z.infer<typeof instructorSchema>;
 
 const expertiseOptions = [
-  'Web Development',
-  'Mobile Development',
-  'Data Science',
-  'Machine Learning',
-  'Cloud Computing',
-  'Cybersecurity',
-  'DevOps',
-  'UI/UX Design',
-  'Database Management',
-  'Software Engineering',
-  'Other',
+  "Web Development",
+  "Mobile Development",
+  "Data Science",
+  "Machine Learning",
+  "Cloud Computing",
+  "Cybersecurity",
+  "DevOps",
+  "UI/UX Design",
+  "Database Management",
+  "Software Engineering",
+  "Other",
 ];
 
 const experienceOptions = [
-  '0-1 years',
-  '1-3 years',
-  '3-5 years',
-  '5-10 years',
-  '10+ years',
+  "0-1 years",
+  "1-3 years",
+  "3-5 years",
+  "5-10 years",
+  "10+ years",
 ];
 
 const getPasswordStrength = (password: string) => {
@@ -92,34 +145,34 @@ export default function InstructorRegister() {
   const form = useForm<InstructorFormData>({
     resolver: zodResolver(instructorSchema),
     defaultValues: {
-      fullName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      areaOfExpertise: '',
-      customExpertise: '',
-      experience: '',
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      areaOfExpertise: "",
+      customExpertise: "",
+      experience: "",
       agreeToTerms: false,
     },
   });
 
-  const watchPassword = form.watch('password');
-  const watchExpertise = form.watch('areaOfExpertise');
-  const passwordStrength = getPasswordStrength(watchPassword || '');
+  const watchPassword = form.watch("password");
+  const watchExpertise = form.watch("areaOfExpertise");
+  const passwordStrength = getPasswordStrength(watchPassword || "");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: 'File too large',
-          description: 'Resume must be less than 5MB',
-          variant: 'destructive',
+          title: "File too large",
+          description: "Resume must be less than 5MB",
+          variant: "destructive",
         });
         return;
       }
       setResumeFile(file);
-      form.setValue('resume', file);
+      form.setValue("resume", file);
     }
   };
 
@@ -128,159 +181,174 @@ export default function InstructorRegister() {
 
     try {
       const formData = new FormData();
-      formData.append('fullName', data.fullName);
-      formData.append('email', data.email);
-      formData.append('password', data.password);
-      formData.append('areaOfExpertise', data.areaOfExpertise);
-      if (data.customExpertise) formData.append('customExpertise', data.customExpertise);
-      formData.append('experience', data.experience);
+      formData.append("fullName", data.fullName);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("areaOfExpertise", data.areaOfExpertise);
+      if (data.customExpertise)
+        formData.append("customExpertise", data.customExpertise);
+      formData.append("experience", data.experience);
       if (resumeFile) {
-        formData.append('resume', resumeFile);
+        formData.append("resume", resumeFile);
       }
 
-      const res = await fetch('http://localhost:5000/api/instructor/register', {
-        method: 'POST',
-        body: formData
+      const res = await fetch("http://localhost:5000/api/instructor/register", {
+        method: "POST",
+        body: formData,
       });
 
       const result = await res.json();
 
       if (!res.ok) {
-        throw new Error(result.error || 'Registration failed');
+        throw new Error(result.error || "Registration failed");
       }
 
       toast({
-        title: 'Application Submitted!',
-        description: 'Please check your email to verify your account. Your instructor application is under review.',
+        title: "Application Submitted!",
+        description:
+          "Please check your email to verify your account. Your instructor application is under review.",
       });
 
-      navigate('/auth');
+      navigate("/auth");
     } catch (error: unknown) {
       toast({
-        title: 'Registration Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred',
-        variant: 'destructive',
+        title: "Registration Failed",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => (
-    <div className={`flex items-center gap-1.5 text-xs ${met ? 'text-green-600' : 'text-muted-foreground'}`}>
-      {met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+  const PasswordRequirement = ({
+    met,
+    text,
+  }: {
+    met: boolean;
+    text: string;
+  }) => (
+    <div
+      className={`flex items-center gap-2 p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${met ? "bg-green-400 text-black px-3" : "bg-white text-black/40"}`}
+    >
+      {met ? (
+        <Check className="h-3 w-3 stroke-[3px]" />
+      ) : (
+        <div className="h-1.5 w-1.5 bg-black/20 rounded-full" />
+      )}
       <span>{text}</span>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Panel - Motivational Content */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-primary/20 via-accent/30 to-primary/40 p-6 lg:p-10 flex flex-col relative overflow-hidden">
-        {/* Back Button & Logo */}
-        <div className="flex items-center justify-between z-10">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="text-sm font-medium">Back to Home</span>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#E9E9E9] font-['Inter'] relative overflow-hidden">
+      <AmbientBackground />
+
+      {/* Left Panel - Brand Showcase */}
+      <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between relative z-10 border-r-4 border-black">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="bg-white p-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+              <img src={logo} alt="AOTMS Logo" className="h-8 w-auto" />
+            </div>
+            <span className="text-2xl font-black uppercase tracking-tighter text-black">
+              AOTMS
+            </span>
           </Link>
-          <a href="/" className="flex items-center gap-3">
-            <img src={logo} alt="AOTMS Logo" className="h-8 lg:h-10" />
-          </a>
         </div>
 
-        {/* Motivational Content */}
-        <div className="flex-1 flex flex-col justify-center mt-8 lg:mt-0 z-10">
-          <div className="max-w-md">
-            <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="text-sm font-medium text-primary uppercase tracking-wider">Instructor Program</span>
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FD5A1A] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white font-black uppercase tracking-widest text-xs mb-8">
+            <Trophy className="h-4 w-4" />
+            <span>Instructor Program</span>
+          </div>
+          <h1 className="text-6xl xl:text-7xl font-black text-black leading-none uppercase tracking-tighter mb-8 italic">
+            Empower the <br />
+            <span className="text-[#0075CF] not-italic">Next Gen</span> <br />
+            of <span className="text-[#FD5A1A]">Tech.</span>
+          </h1>
+          <p className="text-xl font-bold text-black/60 uppercase tracking-widest leading-relaxed mb-12">
+            Join 500+ expert mentors shaping the future of global technology
+            education.
+          </p>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <h3 className="text-3xl font-black text-black mb-1">98%</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/40">
+                Student Satisfaction
+              </p>
             </div>
-
-            <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight mb-4">
-              Share Your Knowledge, <span className="text-primary">Inspire Minds</span>
-            </h1>
-
-            <p className="text-lg text-muted-foreground mb-8">
-              Join our community of expert instructors and help shape the future of learning. Create courses, conduct live sessions, and make a real impact.
-            </p>
-
-            {/* Benefits */}
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Flexible Schedule</h3>
-                  <p className="text-sm text-muted-foreground">Teach on your own terms, anytime, anywhere</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Global Reach</h3>
-                  <p className="text-sm text-muted-foreground">Connect with students from around the world</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Competitive Earnings</h3>
-                  <p className="text-sm text-muted-foreground">Earn while doing what you love</p>
-                </div>
-              </div>
+            <div className="bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+              <h3 className="text-3xl font-black text-black mb-1">$2M+</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/40">
+                Instructor Earnings
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Decorative gradient orbs */}
-        <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-primary/30 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="absolute bottom-1/3 left-1/4 w-56 h-56 bg-accent/40 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="flex items-center gap-8 border-t-4 border-black pt-12">
+          <div className="flex -space-x-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-12 w-12 rounded-none border-2 border-black bg-[#E9E9E9] flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
+              >
+                <img
+                  src={`https://i.pravatar.cc/150?u=${i + 20}`}
+                  alt="Instructor"
+                  className="grayscale hover:grayscale-0 transition-all"
+                />
+              </div>
+            ))}
+          </div>
+          <p className="text-xs font-black uppercase tracking-widest text-black/40">
+            Trusted by industry <br /> leaders worldwide
+          </p>
+        </div>
       </div>
 
-      {/* Right Panel - Registration Form */}
-      <div className="lg:w-1/2 bg-background p-6 lg:p-8 flex items-center justify-center relative z-50 overflow-y-auto">
-        <div className="w-full max-w-lg relative z-50 py-4">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <Briefcase className="h-6 w-6 text-primary" />
+      {/* Right Panel - Auth Form */}
+      <div className="flex-1 p-4 sm:p-8 lg:p-12 flex items-center justify-center relative z-20 overflow-y-auto">
+        <div className="w-full max-w-2xl bg-white border-4 border-black p-8 sm:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 border-b-4 border-black pb-8">
+            <div>
+              <h2 className="text-4xl font-black text-black uppercase tracking-tight mb-2 italic">
+                Apply Now.
+              </h2>
+              <p className="text-sm font-bold text-black/50 uppercase tracking-widest flex items-center gap-2">
+                <Briefcase className="h-4 w-4" /> Become an instructor
+              </p>
             </div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              Become an Instructor
-            </h2>
-            <p className="text-muted-foreground">
-              Fill in your details to apply as an instructor
-            </p>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              {/* Row 1: Full Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-8"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="fullName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Full Name</FormLabel>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Full Name
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                           <Input
                             placeholder="John Doe"
-                            className="pl-10 h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                            className="h-14 pl-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none"
                             {...field}
                           />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
@@ -289,53 +357,59 @@ export default function InstructorRegister() {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Email Address</FormLabel>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Email Address
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                           <Input
                             type="email"
                             placeholder="instructor@example.com"
-                            className="pl-10 h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                            className="h-14 pl-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none"
                             {...field}
                           />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
               </div>
 
               {/* Row 2: Password & Confirm Password */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Password
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            className="pl-10 pr-10 h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                            className="h-14 pl-12 pr-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none"
                             {...field}
                           />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
-                          tabIndex={-1}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                      <FormMessage />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-black hover:scale-110 transition-transform z-10"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
@@ -344,66 +418,91 @@ export default function InstructorRegister() {
                   control={form.control}
                   name="confirmPassword"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Confirm Password</FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                        <FormControl>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Confirm Password
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black z-10" />
                           <Input
                             type={showConfirmPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            className="pl-10 pr-10 h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                            className="h-14 pl-12 pr-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none"
                             {...field}
                           />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
-                          tabIndex={-1}
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                      <FormMessage />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-black hover:scale-110 transition-transform z-10"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
               </div>
 
-              {/* Password Strength Indicator */}
               {watchPassword && (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 p-3 bg-muted/30 rounded-xl">
-                  <PasswordRequirement met={passwordStrength.checks.length} text="8+ characters" />
-                  <PasswordRequirement met={passwordStrength.checks.uppercase} text="Uppercase letter" />
-                  <PasswordRequirement met={passwordStrength.checks.lowercase} text="Lowercase letter" />
-                  <PasswordRequirement met={passwordStrength.checks.number} text="Number" />
+                <div className="grid grid-cols-2 gap-4 p-4 bg-[#E9E9E9] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <PasswordRequirement
+                    met={passwordStrength.checks.length}
+                    text="8+ characters"
+                  />
+                  <PasswordRequirement
+                    met={passwordStrength.checks.uppercase}
+                    text="Uppercase letter"
+                  />
+                  <PasswordRequirement
+                    met={passwordStrength.checks.lowercase}
+                    text="Lowercase letter"
+                  />
+                  <PasswordRequirement
+                    met={passwordStrength.checks.number}
+                    text="Number"
+                  />
                 </div>
               )}
 
-              {/* Row 3: Area of Expertise & Experience */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="areaOfExpertise"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Area of Expertise</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Area of Expertise
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
-                          <SelectTrigger className="h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30">
+                          <SelectTrigger className="h-14 bg-[#E9E9E9] border-4 border-black text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none">
                             <SelectValue placeholder="Select expertise" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-background border border-border shadow-lg z-[100]">
+                        <SelectContent className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
                           {expertiseOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
+                            <SelectItem
+                              key={option}
+                              value={option}
+                              className="font-black uppercase tracking-widest text-[10px] hover:bg-[#E9E9E9] focus:bg-[#E9E9E9]"
+                            >
                               {option}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
@@ -412,75 +511,84 @@ export default function InstructorRegister() {
                   control={form.control}
                   name="experience"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Experience</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Experience
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
-                          <SelectTrigger className="h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30">
+                          <SelectTrigger className="h-14 bg-[#E9E9E9] border-4 border-black text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none">
                             <SelectValue placeholder="Select experience" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-background border border-border shadow-lg z-[100]">
+                        <SelectContent className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
                           {experienceOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
+                            <SelectItem
+                              key={option}
+                              value={option}
+                              className="font-black uppercase tracking-widest text-[10px] hover:bg-[#E9E9E9] focus:bg-[#E9E9E9]"
+                            >
                               {option}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
               </div>
 
-              {/* Custom Expertise Field - Shows when "Other" is selected */}
-              {watchExpertise === 'Other' && (
+              {watchExpertise === "Other" && (
                 <FormField
                   control={form.control}
                   name="customExpertise"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Specify Your Expertise</FormLabel>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                        Specify Expertise
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., Blockchain Development, Game Design..."
-                          className="h-11 bg-muted/30 border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
+                          placeholder="e.g., Blockchain Development"
+                          className="h-14 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                     </FormItem>
                   )}
                 />
               )}
 
-              {/* Resume Upload */}
               <FormField
                 control={form.control}
                 name="resume"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Resume/CV <span className="text-muted-foreground text-xs">(Optional, Max 5MB)</span></FormLabel>
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-black">
+                      Resume / CV
+                    </FormLabel>
                     <FormControl>
-                      <div className="relative">
+                      <div className="relative group">
                         <input
                           type="file"
                           accept=".pdf,.doc,.docx"
                           onChange={handleFileChange}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                          aria-label="Upload Resume"
-                          title="Upload Resume"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                         />
-                        <div className="flex items-center gap-3 h-11 px-4 bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 transition-colors">
-                          <Upload className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {resumeFile ? resumeFile.name : 'Upload your resume (PDF, DOC)'}
+                        <div className="flex items-center gap-4 h-14 px-6 bg-[#E9E9E9] border-4 border-dashed border-black/40 group-hover:bg-[#E9E9E9]/50 group-hover:border-black transition-all rounded-none">
+                          <Upload className="h-5 w-5 text-black/60 group-hover:text-black" />
+                          <span className="text-sm font-black uppercase tracking-widest text-black/40 group-hover:text-black">
+                            {resumeFile ? resumeFile.name : "Upload Document"}
                           </span>
                         </div>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[#FD5A1A] font-black uppercase text-[10px] italic" />
                   </FormItem>
                 )}
               />
@@ -490,177 +598,164 @@ export default function InstructorRegister() {
                 control={form.control}
                 name="agreeToTerms"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 bg-muted/20 rounded-xl">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 bg-[#E9E9E9]/50 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="mt-0.5"
+                        className="h-5 w-5 border-2 border-black data-[state=checked]:bg-black"
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm cursor-pointer">
-                        I agree to the{' '}
+                    <div className="leading-tight">
+                      <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black cursor-pointer">
+                        I agree to the{" "}
                         <button
                           type="button"
                           onClick={() => setShowTermsDialog(true)}
-                          className="text-primary hover:underline font-medium"
+                          className="text-[#0075CF] underline"
                         >
-                          Terms of Service
-                        </button>
-                        {' '}and{' '}
+                          Terms
+                        </button>{" "}
+                        &{" "}
                         <button
                           type="button"
                           onClick={() => setShowPrivacyDialog(true)}
-                          className="text-primary hover:underline font-medium"
+                          className="text-[#0075CF] underline"
                         >
-                          Privacy Policy
+                          Privacy
                         </button>
                       </FormLabel>
-                      <FormMessage />
+                      <FormMessage className="text-[#FD5A1A] font-black uppercase text-[8px] italic mt-1" />
                     </div>
                   </FormItem>
                 )}
               />
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full h-16 bg-[#0075CF] text-white border-4 border-black font-black uppercase tracking-[0.2em] text-sm shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all disabled:opacity-50"
               >
-                {loading ? 'Submitting Application...' : 'Submit Application'}
+                {loading ? "Processing..." : "Submit Application"}
               </Button>
 
-              {/* Login Link */}
-              <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{' '}
-                <Link to="/auth" className="text-primary font-medium hover:underline">
-                  Sign in
+              <div className="text-center pt-4">
+                <Link
+                  to="/auth"
+                  className="text-xs font-black uppercase tracking-widest text-black hover:text-[#0075CF] transition-colors"
+                >
+                  Already registered? Sign in
                 </Link>
-              </p>
+              </div>
             </form>
           </Form>
         </div>
       </div>
 
-      {/* Terms of Service Dialog */}
+      {/* Dialogs - Neobrutalist Style */}
       <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] bg-background">
+        <DialogContent className="max-w-2xl max-h-[80vh] bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none p-8">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Terms of Service</DialogTitle>
-            <DialogDescription>
-              Please read our terms of service carefully before registering as an instructor.
-            </DialogDescription>
+            <DialogTitle className="text-3xl font-black uppercase tracking-tighter italic">
+              Terms of Service
+            </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <h3 className="font-semibold text-foreground">1. Instructor Agreement</h3>
-              <p>
-                By registering as an instructor on AOTMS, you agree to provide accurate and truthful information about your qualifications, experience, and expertise. You are responsible for maintaining the accuracy of your profile information.
-              </p>
-
-              <h3 className="font-semibold text-foreground">2. Content Guidelines</h3>
-              <p>
-                All course content must be original or properly licensed. You retain ownership of your content but grant AOTMS a non-exclusive license to distribute and promote your courses on our platform.
-              </p>
-
-              <h3 className="font-semibold text-foreground">3. Quality Standards</h3>
-              <p>
-                Instructors must maintain high-quality standards in their courses, including clear audio/video, well-structured content, and responsive student support. Courses may be reviewed and removed if they don't meet our quality guidelines.
-              </p>
-
-              <h3 className="font-semibold text-foreground">4. Payment Terms</h3>
-              <p>
-                Instructor earnings are calculated based on student enrollments and course completions. Payments are processed monthly, with a minimum threshold of applicable currency. Detailed payment terms will be provided upon approval.
-              </p>
-
-              <h3 className="font-semibold text-foreground">5. Code of Conduct</h3>
-              <p>
-                Instructors must maintain professional behavior in all interactions with students. Harassment, discrimination, or any form of misconduct will result in immediate account suspension.
-              </p>
-
-              <h3 className="font-semibold text-foreground">6. Intellectual Property</h3>
-              <p>
-                You must not upload content that infringes on third-party intellectual property rights. AOTMS reserves the right to remove any content that violates copyright or trademark laws.
-              </p>
-
-              <h3 className="font-semibold text-foreground">7. Account Termination</h3>
-              <p>
-                AOTMS reserves the right to terminate instructor accounts that violate these terms, receive consistent negative feedback, or fail to meet platform standards after appropriate warnings.
-              </p>
-
-              <h3 className="font-semibold text-foreground">8. Dispute Resolution</h3>
-              <p>
-                Any disputes arising from this agreement shall be resolved through arbitration in accordance with applicable laws. Both parties agree to attempt resolution through good-faith negotiation first.
-              </p>
+          <ScrollArea className="h-[400px] mt-6 mt-6 pr-4 border-t-2 border-black pt-6">
+            <div className="space-y-6 font-bold text-black/60 uppercase tracking-widest text-xs leading-loose">
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  1. Instructor Agreement
+                </h3>
+                <p>
+                  Registering as an instructor requires accurate and truthful
+                  information about qualifications and experience.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  2. Content Guidelines
+                </h3>
+                <p>
+                  All course content must be original or properly licensed.
+                  AOTMS retains non-exclusive distribution rights.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  3. Quality Standards
+                </h3>
+                <p>
+                  Maintain high standards in audio, video, and responsiveness.
+                  We review all content regularly.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  4. Payment Terms
+                </h3>
+                <p>
+                  Earnings are calculated based on enrollments and completions.
+                  Monthly payouts apply.
+                </p>
+              </section>
             </div>
           </ScrollArea>
-          <div className="flex justify-end pt-4 border-t">
-            <Button onClick={() => setShowTermsDialog(false)}>I Understand</Button>
+          <div className="mt-8 flex justify-end">
+            <Button
+              onClick={() => setShowTermsDialog(false)}
+              className="bg-black text-white px-8 py-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest text-xs hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              I Understand
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Privacy Policy Dialog */}
       <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] bg-background">
+        <DialogContent className="max-w-2xl max-h-[80vh] bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-none p-8">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Privacy Policy</DialogTitle>
-            <DialogDescription>
-              Learn how we collect, use, and protect your personal information.
-            </DialogDescription>
+            <DialogTitle className="text-3xl font-black uppercase tracking-tighter italic">
+              Privacy Policy
+            </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <h3 className="font-semibold text-foreground">1. Information We Collect</h3>
-              <p>
-                We collect information you provide during registration including your name, email address, professional qualifications, and resume. We also collect usage data to improve our services.
-              </p>
-
-              <h3 className="font-semibold text-foreground">2. How We Use Your Information</h3>
-              <p>
-                Your information is used to verify your identity, process your instructor application, facilitate course creation, process payments, and communicate important updates about our platform.
-              </p>
-
-              <h3 className="font-semibold text-foreground">3. Information Sharing</h3>
-              <p>
-                We do not sell your personal information. We may share necessary information with payment processors, identity verification services, and as required by law.
-              </p>
-
-              <h3 className="font-semibold text-foreground">4. Data Security</h3>
-              <p>
-                We implement industry-standard security measures to protect your data, including encryption, secure servers, and regular security audits. However, no system is completely secure.
-              </p>
-
-              <h3 className="font-semibold text-foreground">5. Your Rights</h3>
-              <p>
-                You have the right to access, correct, or delete your personal information. You can also request a copy of your data or opt out of certain communications. Contact our support team for assistance.
-              </p>
-
-              <h3 className="font-semibold text-foreground">6. Cookies and Tracking</h3>
-              <p>
-                We use cookies and similar technologies to enhance your experience, analyze usage patterns, and personalize content. You can manage cookie preferences in your browser settings.
-              </p>
-
-              <h3 className="font-semibold text-foreground">7. Data Retention</h3>
-              <p>
-                We retain your information for as long as your account is active or as needed to provide services. You can request deletion of your account and associated data at any time.
-              </p>
-
-              <h3 className="font-semibold text-foreground">8. Policy Updates</h3>
-              <p>
-                We may update this privacy policy periodically. We will notify you of significant changes via email or through our platform. Continued use of our services constitutes acceptance of updates.
-              </p>
-
-              <h3 className="font-semibold text-foreground">9. Contact Us</h3>
-              <p>
-                If you have questions about this privacy policy or our data practices, please contact our Data Protection Officer at privacy@aotms.com.
-              </p>
+          <ScrollArea className="h-[400px] mt-6 mt-6 pr-4 border-t-2 border-black pt-6">
+            <div className="space-y-6 font-bold text-black/60 uppercase tracking-widest text-xs leading-loose">
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  1. Information Collection
+                </h3>
+                <p>
+                  We collect name, email, qualifications, and resume to process
+                  your application securely.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  2. Data Usage
+                </h3>
+                <p>
+                  Information is used for verification, communication, and
+                  processing payouts.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-black text-black text-sm mb-2">
+                  3. Security
+                </h3>
+                <p>
+                  We implement industry-standard encryption. Your data is
+                  protected by multiple layers of security.
+                </p>
+              </section>
             </div>
           </ScrollArea>
-          <div className="flex justify-end pt-4 border-t">
-            <Button onClick={() => setShowPrivacyDialog(false)}>I Understand</Button>
+          <div className="mt-8 flex justify-end">
+            <Button
+              onClick={() => setShowPrivacyDialog(false)}
+              className="bg-black text-white px-8 py-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest text-xs hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            >
+              I Understand
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

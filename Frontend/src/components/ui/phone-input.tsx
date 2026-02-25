@@ -58,32 +58,46 @@ interface PhoneInputProps {
 }
 
 const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ value, countryCode = "+91", onValueChange, onCountryChange, placeholder = "9876543210", className, disabled }, ref) => {
+  (
+    {
+      value,
+      countryCode = "+91",
+      onValueChange,
+      onCountryChange,
+      placeholder = "Enter Phone Number",
+      className,
+      disabled,
+    },
+    ref,
+  ) => {
     const [open, setOpen] = React.useState(false);
-    const selectedCountry = countries.find(c => c.code === countryCode) || countries[0];
+    const selectedCountry =
+      countries.find((c) => c.code === countryCode) || countries[0];
 
     return (
-      <div className={cn("flex gap-2", className)}>
+      <div className={cn("flex gap-3", className)}>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
               type="button"
               disabled={disabled}
-              className="flex items-center justify-between gap-1 h-11 px-3 rounded-md border border-input bg-background hover:bg-muted/50 transition-colors min-w-[110px] text-sm"
+              className="flex items-center justify-between gap-2 h-12 px-4 bg-white border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all min-w-[120px] text-sm"
             >
               <span className="text-xl">{selectedCountry.flag}</span>
-              <span className="text-foreground font-medium">{selectedCountry.code}</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <span className="text-black font-black uppercase tracking-tight">
+                {selectedCountry.code}
+              </span>
+              <ChevronDown className="h-4 w-4 text-black stroke-[3px]" />
             </button>
           </PopoverTrigger>
-          <PopoverContent 
-            className="w-[280px] p-0 bg-background border border-border shadow-lg z-[100]" 
+          <PopoverContent
+            className="w-[280px] p-0 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] z-[100] rounded-none"
             align="start"
             side="bottom"
-            sideOffset={4}
+            sideOffset={8}
           >
             <ScrollArea className="h-[300px]">
-              <div className="p-1">
+              <div className="p-2 space-y-1">
                 {countries.map((country) => (
                   <button
                     key={country.code}
@@ -93,15 +107,20 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
                       setOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-muted transition-colors",
-                      countryCode === country.code && "bg-muted"
+                      "w-full flex items-center gap-3 px-3 py-3 border-2 border-transparent hover:border-black hover:bg-[#E9E9E9] transition-all text-left",
+                      countryCode === country.code &&
+                        "bg-[#E9E9E9] border-black",
                     )}
                   >
                     <span className="text-2xl">{country.flag}</span>
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-foreground">{country.name}</span>
+                      <span className="text-xs font-black uppercase tracking-widest text-black">
+                        {country.name}
+                      </span>
                     </div>
-                    <span className="text-sm text-muted-foreground font-mono">{country.code}</span>
+                    <span className="text-xs text-black/50 font-black">
+                      {country.code}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -112,15 +131,15 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
           ref={ref}
           type="tel"
           value={value}
-          onChange={(e) => onValueChange?.(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => onValueChange?.(e.target.value.replace(/\D/g, ""))}
           placeholder={placeholder}
-          className="flex-1 h-11 bg-background text-foreground border-input"
+          className="flex-1 h-12 bg-[#E9E9E9] border-4 border-black text-black font-bold focus:ring-0 focus:border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-none placeholder:text-black/30"
           disabled={disabled}
           maxLength={15}
         />
       </div>
     );
-  }
+  },
 );
 
 PhoneInput.displayName = "PhoneInput";
