@@ -109,7 +109,7 @@ const Header = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
         isScrolled
           ? "bg-white/95 backdrop-blur-md border-b-4 border-black shadow-[0_4px_0_0_rgba(0,0,0,1)] py-2"
-          : "bg-transparent py-4"
+          : "bg-white/80 backdrop-blur-sm border-b-2 border-black/10 py-4"
       }`}
     >
       <div className="container-width px-4 sm:px-6 lg:px-8">
@@ -126,11 +126,7 @@ const Header = () => {
                 className="h-8 sm:h-10 md:h-12 w-auto"
               />
             </div>
-            <span
-              className={`text-2xl font-black uppercase tracking-tighter ${
-                isScrolled || hasLightBg ? "text-black" : "text-white"
-              }`}
-            >
+            <span className="text-2xl font-black uppercase tracking-tighter text-black">
               AOTMS
             </span>
           </Link>
@@ -141,11 +137,7 @@ const Header = () => {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
-                className={`px-4 py-2 rounded-none text-sm font-black uppercase tracking-widest border-2 border-transparent transition-all duration-200 hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
-                  isScrolled || hasLightBg
-                    ? "text-black hover:text-[#0075CF]"
-                    : "text-white hover:text-black"
-                }`}
+                className="px-4 py-2 rounded-none text-sm font-black uppercase tracking-widest border-2 border-transparent transition-all duration-200 text-black hover:text-[#0075CF] hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               >
                 {link.name}
               </button>
@@ -166,13 +158,7 @@ const Header = () => {
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform group-hover:translate-y-0.5 ${
-                          isScrolled || hasLightBg
-                            ? "text-black"
-                            : "text-white group-hover:text-black"
-                        }`}
-                      />
+                      <ChevronDown className="h-4 w-4 text-black transition-transform group-hover:translate-y-0.5" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -235,11 +221,7 @@ const Header = () => {
               <div className="hidden sm:flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  className={`h-11 px-6 font-black uppercase tracking-widest text-xs border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${
-                    isScrolled || hasLightBg
-                      ? "text-black"
-                      : "text-white hover:text-black"
-                  }`}
+                  className="h-11 px-6 font-black uppercase tracking-widest text-xs text-black border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all"
                   asChild
                 >
                   <Link to="/auth" state={{ mode: "login" }}>
@@ -263,11 +245,7 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`lg:hidden border-2 border-transparent hover:border-black hover:bg-white active:bg-white transition-all ${
-                    isScrolled || hasLightBg
-                      ? "text-black"
-                      : "text-white hover:text-black"
-                  }`}
+                  className="lg:hidden text-black border-2 border-transparent hover:border-black hover:bg-white active:bg-white transition-all"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
