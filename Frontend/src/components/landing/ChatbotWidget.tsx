@@ -100,7 +100,7 @@ const ChatbotWidget = () => {
     <>
       {/* Chatbot Window */}
       <div
-        className={`fixed bottom-24 right-6 z-[60] w-[350px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
+        className={`fixed bottom-24 right-6 z-[60] w-[280px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border-2 border-[#E9E9E9] overflow-hidden transition-all duration-300 origin-bottom-right flex flex-col ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 translate-x-0"
             : "scale-50 opacity-0 translate-y-10 translate-x-10 pointer-events-none"
@@ -228,7 +228,7 @@ const ChatbotWidget = () => {
           rounded-2xl shadow-[0_8px_30px_rgba(0,117,207,0.4)]
           transition-all duration-300 ease-out group overflow-hidden
           border-2 border-white/20 hover:border-white/40
-          ${isOpen ? "w-14 h-14 bg-white text-gray-800 rotate-90 scale-90" : "w-[160px] h-14 bg-gradient-to-r from-[#0075CF] to-[#005fa3] text-white hover:shadow-[0_10px_40px_rgba(0,117,207,0.6)] hover:-translate-y-1 active:scale-95"}`}
+          ${isOpen ? "w-14 h-14 bg-white text-gray-800 rotate-90 scale-90" : "w-[110px] h-12 bg-gradient-to-r from-[#0075CF] to-[#005fa3] text-white hover:shadow-[0_10px_40px_rgba(0,117,207,0.6)] hover:-translate-y-1 active:scale-95"}`}
       >
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
 
@@ -247,8 +247,11 @@ const ChatbotWidget = () => {
               />
               <div className="absolute top-0 -right-1 w-2.5 h-2.5 bg-[#FD5A1A] rounded-full border border-[#005fa3] animate-pulse" />
             </div>
-            <span className="font-heading text-sm font-bold tracking-wide whitespace-nowrap overflow-hidden">
-              C.H.A.T
+            <span
+              className="font-sans text-sm font-bold tracking-widest whitespace-nowrap overflow-hidden"
+              style={{ textShadow: "none" }}
+            >
+              CHAT
             </span>
           </div>
         )}
