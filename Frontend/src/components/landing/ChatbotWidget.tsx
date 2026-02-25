@@ -1,13 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  Check,
-  MessageSquare,
-  Send,
-  X,
-  Bot,
-  User,
-  Sparkles,
-} from "lucide-react";
+import { MessageSquare, Send, X, Bot, User, Sparkles } from "lucide-react";
 
 interface Message {
   id: string;
@@ -17,8 +9,8 @@ interface Message {
 
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -29,14 +21,19 @@ const ChatbotWidget = () => {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Track mobile breakpoint
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
+    if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
 
   // Hide widget when footer enters viewport
@@ -46,7 +43,7 @@ const ChatbotWidget = () => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setFooterVisible(entry.isIntersecting);
-        if (entry.isIntersecting) setIsOpen(false); // close chat if open
+        if (entry.isIntersecting) setIsOpen(false);
       },
       { threshold: 0.05 },
     );
@@ -57,7 +54,6 @@ const ChatbotWidget = () => {
   const handleSend = () => {
     if (!inputValue.trim()) return;
 
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
@@ -67,7 +63,6 @@ const ChatbotWidget = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Simulate bot thinking and responding based on simple keywords
     setTimeout(() => {
       let botResponse =
         "Our team will get back to you with more details perfectly matched to your query. Feel free to ask anything else!";
@@ -105,23 +100,45 @@ const ChatbotWidget = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
+    if (e.key === "Enter") handleSend();
   };
 
   const quickReplies = ["Explore Courses", "Placement Info", "Fee Details"];
+
+  // Compute chatbot window position/size based on screen size
+  const chatWindowStyle: React.CSSProperties = isMobile
+    ? {
+        position: "fixed",
+        bottom: "88px",
+        left: "12px",
+        right: "12px",
+        width: "auto",
+        height: "500px",
+        maxHeight: "calc(100vh - 140px)",
+        zIndex: 60,
+        boxShadow: "6px 6px 0px 0px rgba(31,31,31,1)",
+      }
+    : {
+        position: "fixed",
+        bottom: "96px",
+        right: "24px",
+        width: "380px",
+        height: "500px",
+        maxHeight: "calc(100vh - 140px)",
+        zIndex: 60,
+        boxShadow: "12px 12px 0px 0px rgba(0,117,207,1)",
+      };
 
   return (
     <>
       {/* Chatbot Window */}
       <div
-        className={`fixed bottom-24 right-6 z-[60] w-[380px] max-w-[calc(100vw-48px)] bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,117,207,1)] transition-all duration-300 origin-bottom-right flex flex-col rounded-none ${
+        style={chatWindowStyle}
+        className={`bg-white border-4 border-black transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 translate-x-0"
             : "scale-50 opacity-0 translate-y-10 translate-x-10 pointer-events-none"
         }`}
-        style={{ height: "500px", maxHeight: "calc(100vh - 120px)" }}
       >
         {/* Header */}
         <div className="bg-black p-4 text-white relative flex items-center gap-3 shrink-0 border-b-4 border-black">
@@ -130,9 +147,9 @@ const ChatbotWidget = () => {
               <Bot className="w-6 h-6 text-black" />
             </div>
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2 italic">
-              AOTMS AI <Sparkles className="w-4 h-4 text-[#FD5A1A]" />
+              AOTMS AI <Sparkles className="w-4 h-4 text-[#FD5A1A] shrink-0" />
             </h3>
             <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em]">
               NEURAL_LINK: ACTIVE
@@ -141,18 +158,18 @@ const ChatbotWidget = () => {
 
           <button
             onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 w-10 h-10 border-2 border-white/20 hover:border-white hover:bg-white hover:text-black flex items-center justify-center transition-all bg-transparent rounded-none"
+            className="w-10 h-10 shrink-0 border-2 border-white/20 hover:border-white hover:bg-white hover:text-black flex items-center justify-center transition-all bg-transparent"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#E9E9E9] scrollbar-thin scrollbar-thumb-black">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#E9E9E9]">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex items-start gap-3 max-w-[90%] ${
+              className={`flex items-start gap-2 max-w-[90%] ${
                 msg.type === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
               }`}
             >
@@ -171,7 +188,7 @@ const ChatbotWidget = () => {
               </div>
 
               <div
-                className={`p-4 text-[13px] font-bold leading-relaxed shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide ${
+                className={`p-3 text-[12px] font-bold leading-relaxed shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide min-w-0 ${
                   msg.type === "user"
                     ? "bg-[#FD5A1A] text-white border-2 border-black"
                     : "bg-white text-black border-2 border-black"
@@ -187,7 +204,10 @@ const ChatbotWidget = () => {
         {/* Quick Replies */}
         {messages.length > 0 &&
           messages[messages.length - 1].type === "bot" && (
-            <div className="bg-[#E9E9E9] px-6 pb-4 flex gap-3 overflow-x-auto hide-scrollbar shrink-0">
+            <div
+              className="bg-[#E9E9E9] px-4 pb-3 flex gap-2 overflow-x-auto shrink-0"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               {quickReplies.map((reply) => (
                 <button
                   key={reply}
@@ -195,7 +215,7 @@ const ChatbotWidget = () => {
                     setInputValue(reply);
                     setTimeout(() => handleSend(), 50);
                   }}
-                  className="shrink-0 px-4 py-2 bg-white border-2 border-black text-black text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                  className="shrink-0 px-3 py-2 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                 >
                   {reply}
                 </button>
@@ -204,30 +224,30 @@ const ChatbotWidget = () => {
           )}
 
         {/* Input Area */}
-        <div className="p-4 bg-white border-t-4 border-black shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="p-3 bg-white border-t-4 border-black shrink-0">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="TYPE_HERE..."
-              className="flex-1 h-14 bg-[#E9E9E9] border-2 border-black text-black placeholder:text-black/20 font-black uppercase tracking-widest px-4 focus:outline-none focus:border-[#FD5A1A]"
+              className="flex-1 min-w-0 h-12 bg-[#E9E9E9] border-2 border-black text-black placeholder:text-black/20 font-black uppercase tracking-widest px-3 focus:outline-none focus:border-[#FD5A1A] text-xs"
             />
             <button
               onClick={handleSend}
               disabled={!inputValue.trim()}
-              className={`w-14 h-14 border-2 border-black flex items-center justify-center shrink-0 transition-all ${
+              className={`w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 transition-all ${
                 inputValue.trim()
                   ? "bg-[#FD5A1A] text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none cursor-pointer"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
-              <Send className="w-5 h-5 ml-1" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
-          <div className="text-center mt-4">
-            <span className="text-[10px] text-black font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+          <div className="text-center mt-3">
+            <span className="text-[9px] text-black font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2">
               POWERED_BY:{" "}
               <span className="text-[#0075CF]">AOTMS_ENGINE_V2</span>
             </span>
@@ -238,33 +258,36 @@ const ChatbotWidget = () => {
       {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 flex items-center justify-center
-          transition-all duration-300 ease-out group overflow-hidden
-          border-4 border-black rounded-none
-          ${footerVisible ? "opacity-0 translate-y-8 pointer-events-none" : "opacity-100 translate-y-0"}
-          ${isOpen ? "w-14 h-14 bg-white text-black rotate-90" : "w-[140px] h-14 bg-black text-white shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,117,207,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none"}`}
+        style={{
+          position: "fixed",
+          bottom: "24px",
+          right: "24px",
+          zIndex: 50,
+          width: isOpen ? "56px" : isMobile ? "56px" : "140px",
+          height: "56px",
+          opacity: footerVisible ? 0 : 1,
+          pointerEvents: footerVisible ? "none" : "auto",
+          transform: footerVisible ? "translateY(32px)" : "translateY(0)",
+        }}
+        className={`flex items-center justify-center transition-all duration-300 ease-out overflow-hidden border-4 border-black ${
+          isOpen
+            ? "bg-white text-black rotate-90"
+            : "bg-black text-white shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,117,207,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none"
+        }`}
       >
         {isOpen ? (
           <X className="w-8 h-8 -rotate-90" strokeWidth={3} />
         ) : (
-          <div className="flex items-center gap-3 px-4 w-full h-full justify-center">
-            <MessageSquare className="w-6 h-6 fill-[#FD5A1A] stroke-black" />
-            <span className="font-black text-xs tracking-widest uppercase italic">
-              ASK AI
-            </span>
+          <div className="flex items-center gap-3 px-3 w-full h-full justify-center">
+            <MessageSquare className="w-6 h-6 fill-[#FD5A1A] stroke-black shrink-0" />
+            {!isMobile && (
+              <span className="font-black text-xs tracking-widest uppercase italic whitespace-nowrap">
+                ASK AI
+              </span>
+            )}
           </div>
         )}
       </button>
-
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </>
   );
 };
