@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { motion, useTransform } from "framer-motion";
-import FaqImage from "@/Home_images/AOTMS_LMS_000.jpg";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Accordion,
   AccordionContent,
@@ -40,7 +39,7 @@ const faqCategories = [
       },
       {
         q: "Do I need to bring my own laptop?",
-        a: "We provide fully equipped computer labs. However, having your own laptop helps with practice at home.",
+        a: "Yes, you are required to bring your own laptop, as having one will help you practice at home.",
       },
       {
         q: "What is the batch size?",
@@ -74,7 +73,7 @@ const faqCategories = [
       },
       {
         q: "Who are the trainers?",
-        a: "Our trainers are industry professionals with 5-15 years of experience in leading tech companies.",
+        a: "Our trainers are industry professionals with 5-12+ years of experience in leading tech companies.",
       },
       {
         q: "Do you provide internship certificates?",
@@ -100,7 +99,7 @@ const faqCategories = [
     questions: [
       {
         q: "Do you offer placement assistance?",
-        a: "Yes, we provide 100% placement assistance including job referrals, interview scheduling, and career counseling.",
+        a: "Yes, we provide placement support until you secure a job, including referrals, interview scheduling, and career guidance.",
       },
       {
         q: "Which companies hire from AOTMS?",
@@ -182,7 +181,7 @@ const faqCategories = [
       },
       {
         q: "What facilities are available at the Vijayawada campus?",
-        a: "AC classrooms, high-speed WiFi, computer labs, library, cafeteria, and recreational areas.",
+        a: "AC classrooms, high-speed WiFi and recreational areas.",
       },
       {
         q: "Is parking available?",
@@ -191,10 +190,6 @@ const faqCategories = [
       {
         q: "Can I visit the campus before enrolling?",
         a: "Yes! We encourage campus visits. Book a free demo session to experience our training firsthand.",
-      },
-      {
-        q: "Do you have hostel facilities?",
-        a: "We have tie-ups with nearby hostels and PGs. Our team can help you find accommodation.",
       },
     ],
   },
@@ -223,48 +218,10 @@ const faqCategories = [
 ];
 
 const FAQSection = () => {
-  // Autoplay FAQ Logic
-  const allQuestions = faqCategories.flatMap((cat, catIdx) =>
-    cat.questions.map((q, qIdx) => ({
-      value: `${catIdx}-${qIdx}`,
-      categoryIndex: catIdx,
-    })),
-  );
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (isPaused) return;
-
-    const intervalTime = 4000; // 4 seconds per item
-    const stepTime = 100;
-    const steps = intervalTime / stepTime;
-
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setActiveIndex((current) => (current + 1) % allQuestions.length);
-          return 0;
-        }
-        return prev + 100 / steps;
-      });
-    }, stepTime);
-
-    return () => clearInterval(timer);
-  }, [isPaused, allQuestions.length]);
-
-  const activeValue = allQuestions[activeIndex].value;
+  const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
 
   const handleAccordionChange = (value: string) => {
-    if (value) {
-      const index = allQuestions.findIndex((q) => q.value === value);
-      if (index !== -1) {
-        setActiveIndex(index);
-        setProgress(0);
-      }
-    }
+    setActiveValue(value);
   };
 
   return (
@@ -296,27 +253,9 @@ const FAQSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Left Side - Sticky Visual */}
-          <div className="hidden lg:block lg:col-span-4 relative">
-            <div className="sticky top-32 w-full aspect-[9/12] bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,117,207,1)] overflow-hidden">
-              <img
-                src={FaqImage}
-                alt="FAQ Visual"
-                className="w-full h-full block object-cover grayscale"
-              />
-              <div className="absolute top-0 left-0 bg-black text-white px-4 py-1 font-black text-[10px] uppercase tracking-widest italic border-b-4 border-r-4 border-white">
-                LIVE_FEED_01
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side - FAQ Content */}
-          <div
-            className="lg:col-span-8 space-y-16"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+        <div className="max-w-4xl mx-auto">
+          {/* FAQ Content */}
+          <div className="space-y-16">
             {faqCategories.map((category, categoryIndex) => (
               <motion.div
                 key={category.title}
@@ -344,7 +283,6 @@ const FAQSection = () => {
                 >
                   {category.questions.map((item, index) => {
                     const itemValue = `${categoryIndex}-${index}`;
-                    const isActive = activeValue === itemValue;
 
                     return (
                       <AccordionItem
@@ -352,12 +290,6 @@ const FAQSection = () => {
                         value={itemValue}
                         className="border-2 border-black px-6 py-1 data-[state=open]:bg-[#E9E9E9] transition-colors rounded-none relative overflow-hidden"
                       >
-                        {isActive && !isPaused && (
-                          <div
-                            className="absolute bottom-0 left-0 h-1 bg-[#FD5A1A] transition-all duration-100 ease-linear"
-                            style={{ width: `${progress}%` }}
-                          />
-                        )}
                         <AccordionTrigger className="text-left text-sm font-black uppercase tracking-wider hover:no-underline py-4">
                           {item.q}
                         </AccordionTrigger>

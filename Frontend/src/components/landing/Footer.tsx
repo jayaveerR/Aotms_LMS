@@ -73,15 +73,16 @@ const Footer = () => {
 
       {/* Main Footer Content */}
       <div className="container-width py-20 relative z-10 px-4 md:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <div className="bg-white inline-block p-4 border-4 border-black shadow-[6px_6px_0px_0px_#000000] mb-8">
               <img src={logo} alt="AOTMS" className="h-12 w-auto" />
             </div>
-            <p className="text-white font-black uppercase tracking-widest text-[10px] leading-relaxed opacity-40">
+            <p className="text-white font-black uppercase tracking-widest text-[10px] leading-relaxed opacity-70">
               Empowering the next generation of tech talent through immersive,
-              industry-led learning experiences.
+              industry-led learning experiences. We bridge the gap between
+              traditional education and industry requirements.
             </p>
           </div>
 
@@ -95,7 +96,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-[11px] font-black uppercase tracking-widest text-white/80 hover:text-[#FD5A1A] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#FD5A1A] underline-offset-4"
+                    className="text-[11px] font-black uppercase tracking-widest text-white hover:text-[#FD5A1A] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#FD5A1A] underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -113,7 +114,25 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-[11px] font-black uppercase tracking-widest text-white/80 hover:text-black hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-black underline-offset-4"
+                    className="text-[11px] font-black uppercase tracking-widest text-white hover:text-black hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-black underline-offset-4"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-8 italic">
+              Resources
+            </h4>
+            <ul className="space-y-4">
+              {footerLinks.resources.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-[11px] font-black uppercase tracking-widest text-white hover:text-black hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-black underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -128,7 +147,7 @@ const Footer = () => {
             </h4>
             <div className="space-y-6">
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/70">
                   Email Us
                 </p>
                 <a
@@ -139,7 +158,18 @@ const Footer = () => {
                 </a>
               </div>
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/70">
+                  Phone
+                </p>
+                <a
+                  href="tel:+918019952233"
+                  className="text-sm font-black text-white hover:text-[#FD5A1A] transition-colors"
+                >
+                  +91 8019952233
+                </a>
+              </div>
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/70">
                   Visit Us
                 </p>
                 <p className="text-xs font-black text-white leading-relaxed uppercase tracking-tighter">
@@ -154,7 +184,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="mt-20 pt-10 border-t-4 border-black/10 flex flex-col md:flex-row items-center justify-between gap-8">
-          <p className="text-[10px] font-black uppercase tracking-widest text-white/50">
+          <p className="text-[10px] font-black uppercase tracking-widest text-white/70">
             © {currentYear} AOTMS PORTAL. BUILT FOR THE FUTURE.
           </p>
 
