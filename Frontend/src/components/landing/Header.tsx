@@ -37,11 +37,12 @@ const lightBgPages = [
   "/admin",
   "/about",
   "/assignments",
+  "/courses",
 ];
 
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "Courses", href: "/#courses" },
+  { name: "Courses", href: "/courses" },
   { name: "Learning Paths", href: "/learning-paths" },
   { name: "Assignments", href: "/assignments" },
   { name: "About", href: "/about" },
@@ -218,7 +219,7 @@ const Header = () => {
               <div className="hidden sm:flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  className="h-11 px-6 font-black uppercase tracking-widest text-xs text-black border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all"
+                  className="h-11 px-6 font-black uppercase tracking-widest text-xs text-black border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all"
                   asChild
                 >
                   <Link to="/auth" state={{ mode: "login" }}>
