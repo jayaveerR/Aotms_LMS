@@ -8,6 +8,8 @@ import {
   PlayCircle,
   Loader2,
   ArrowRight,
+  Star,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,97 +69,114 @@ export default function ExamsPortalPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-[#000000] flex items-center gap-3">
-            {isMockRoute ? (
-              <FileText className="w-8 h-8 text-[#0075CF]" />
-            ) : (
-              <ClipboardCheck className="w-8 h-8 text-[#FD5A1A]" />
-            )}
-            {isMockRoute ? "Mock Papers" : "Live Exams"}
-          </h1>
-          <p className="text-[#000000]/60 font-medium mt-1">
-            {isMockRoute
-              ? "Practice makes perfect. Take unlimited mock tests."
-              : "Scheduled, proctored assignments for your active courses."}
-          </p>
+    <div className="space-y-12 pb-12">
+      {/* HEADER BLOCK */}
+      <div className="bg-[#E9E9E9] border-4 border-black p-8 relative overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+              <Zap className="w-3 h-3 text-[#FD5A1A]" /> BATTLE_PORTAL
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-black uppercase italic leading-none mb-2">
+              {isMockRoute ? "MOCK_PAPERS" : "LIVE_EXAMS"}
+            </h1>
+            <p className="text-black font-bold uppercase tracking-widest text-[10px] opacity-50">
+              {isMockRoute
+                ? "PRACTICE_MODE: NO_LIMITS_ON_EXECUTION."
+                : "STRICT_PROTOCOL: PROCTORED_ENVIRONMENTS_ONLY."}
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#0075CF]">
+              <div className="text-2xl font-black text-black leading-none">
+                {displayedExams.length}
+              </div>
+              <div className="text-[8px] font-black uppercase tracking-widest opacity-40">
+                AVAILABLE_NODES
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* EXAMS GRID */}
       {displayedExams.length === 0 ? (
-        <div className="bg-white border-4 border-[#000000] rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 text-center flex flex-col items-center">
-          {isMockRoute ? (
-            <FileText className="w-16 h-16 text-[#000000]/20 mb-4" />
-          ) : (
-            <ClipboardCheck className="w-16 h-16 text-[#000000]/20 mb-4" />
-          )}
-          <h3 className="text-xl font-black text-[#000000] mb-2">
-            No {isMockRoute ? "Mock Papers" : "Live Exams"} found.
+        <div className="bg-white border-4 border-black p-16 text-center flex flex-col items-center shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+          <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+          <div className="w-20 h-20 bg-[#E9E9E9] border-4 border-black flex items-center justify-center mb-6 relative z-10">
+            {isMockRoute ? (
+              <FileText className="w-10 h-10 text-black/20" />
+            ) : (
+              <ClipboardCheck className="w-10 h-10 text-black/20" />
+            )}
+          </div>
+          <h3 className="text-2xl font-black text-black mb-2 uppercase italic relative z-10">
+            NO_MODULES_DETECTED
           </h3>
-          <p className="text-[#000000]/60 font-bold">
-            Check back later or ask your instructor for updates.
+          <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em] relative z-10">
+            CHECK BACK LATER OR SIGNAL YOUR SUPERVISOR FOR UPDATES.
           </p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {displayedExams.map((exam, i) => (
             <motion.div
               key={exam.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-white border-4 border-[#000000] rounded-2xl flex flex-col overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[6px] hover:translate-y-[6px] transition-all"
+              className="group bg-white border-4 border-black flex flex-col overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[14px_14px_0px_0px_#0075CF] hover:border-[#0075CF] transition-all"
             >
-              {/* Image block fake */}
+              {/* Card Title Block */}
               <div
-                className={`h-32 border-b-4 border-[#000000] flex items-center justify-center p-6 shrink-0 relative ${
+                className={`p-6 border-b-4 border-black relative ${
                   isMockRoute ? "bg-[#0075CF]" : "bg-[#FD5A1A]"
                 }`}
               >
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none" />
                 <div className="absolute top-2 right-2">
-                  <Badge className="bg-white text-[#000000] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase pointer-events-none hover:bg-white">
+                  <Badge className="bg-black text-white border-2 border-white rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] text-[8px] font-black uppercase tracking-widest px-2 py-0.5">
                     {exam.date}
                   </Badge>
                 </div>
                 {isMockRoute ? (
-                  <FileText className="w-12 h-12 text-[#000000]/30" />
+                  <FileText className="w-8 h-8 text-black/30" />
                 ) : (
-                  <ClipboardCheck className="w-12 h-12 text-[#000000]/30" />
+                  <ClipboardCheck className="w-8 h-8 text-black/30" />
                 )}
               </div>
 
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-black text-xl text-[#000000] leading-tight mb-4 group-hover:text-[#0075CF] transition-colors">
-                    {exam.title}
-                  </h3>
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="font-black text-xl text-black uppercase italic leading-tight mb-6 group-hover:text-[#0075CF] transition-colors">
+                  {exam.title}
+                </h3>
 
-                  <div className="space-y-2 mb-6 text-sm font-bold text-[#000000]/70 uppercase tracking-widest">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#000000]" />{" "}
-                      {Math.floor(exam.duration / 60)} Minutes
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-[#000000]" />{" "}
-                      {exam.questions} Questions
-                    </div>
+                <div className="space-y-3 mb-10">
+                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/40 border-b-2 border-dashed border-black/10 pb-2">
+                    <span className="flex items-center gap-2 italic">
+                      <Clock className="w-4 h-4 text-black" /> DURATION
+                    </span>
+                    <span className="text-black">
+                      {Math.floor(exam.duration / 60)} MINS
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/40 border-b-2 border-dashed border-black/10 pb-2">
+                    <span className="flex items-center gap-2 italic">
+                      <FileText className="w-4 h-4 text-black" /> INTEL_LOAD
+                    </span>
+                    <span className="text-black">{exam.questions} Q's</span>
                   </div>
                 </div>
 
                 <Button
-                  className="w-full justify-between mt-auto bg-white text-[#000000] border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9]"
+                  className="w-full h-14 bg-black text-white rounded-none border-2 border-black shadow-[4px_4px_0px_0px_#FD5A1A] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all font-black uppercase tracking-[0.2em] text-xs"
                   onClick={() =>
                     navigate(`/exam?id=${exam.id}&type=${exam.type}`)
                   }
                 >
-                  <span className="font-black uppercase tracking-widest text-xs">
-                    Start {isMockRoute ? "Mock" : "Exam"}
-                  </span>
-                  <PlayCircle className="w-5 h-5 text-[#FD5A1A]" />
+                  INITIALIZE {isMockRoute ? "MOCK" : "EXAM"}
+                  <PlayCircle className="w-5 h-5 ml-3" />
                 </Button>
               </div>
             </motion.div>

@@ -14,7 +14,8 @@ const learningPaths = [
   {
     id: "fullstack",
     title: "Full Stack Web Developer",
-    description: "Master frontend and backend development to build complete web applications from scratch.",
+    description:
+      "Master frontend and backend development to build complete web applications from scratch.",
     level: "Beginner" as const,
     duration: "6 months",
     courseCount: 12,
@@ -29,16 +30,37 @@ const learningPaths = [
         "Database Design (SQL & NoSQL)",
         "REST API Development",
       ],
-      skills: ["HTML/CSS", "JavaScript", "React", "Node.js", "MongoDB", "Git", "REST APIs", "Deployment"],
-      tools: ["VS Code", "Git", "Postman", "MongoDB Compass", "Chrome DevTools"],
-      practices: ["Live coding sessions", "Mini projects", "Mock interviews", "Portfolio building"],
+      skills: [
+        "HTML/CSS",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "MongoDB",
+        "Git",
+        "REST APIs",
+        "Deployment",
+      ],
+      tools: [
+        "VS Code",
+        "Git",
+        "Postman",
+        "MongoDB Compass",
+        "Chrome DevTools",
+      ],
+      practices: [
+        "Live coding sessions",
+        "Mini projects",
+        "Mock interviews",
+        "Portfolio building",
+      ],
       roles: ["Full Stack Developer", "Web Developer", "Software Engineer"],
     },
   },
   {
     id: "frontend",
     title: "Frontend Developer",
-    description: "Become an expert in creating beautiful, responsive, and interactive user interfaces.",
+    description:
+      "Become an expert in creating beautiful, responsive, and interactive user interfaces.",
     level: "Beginner" as const,
     duration: "4 months",
     courseCount: 8,
@@ -53,16 +75,35 @@ const learningPaths = [
         "State Management",
         "Testing & Performance",
       ],
-      skills: ["HTML5", "CSS3", "JavaScript", "React", "TypeScript", "Responsive Design", "Accessibility"],
+      skills: [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "React",
+        "TypeScript",
+        "Responsive Design",
+        "Accessibility",
+      ],
       tools: ["VS Code", "Figma", "Chrome DevTools", "Webpack", "npm"],
-      practices: ["UI challenges", "Responsive projects", "Code reviews", "Design implementation"],
-      roles: ["Frontend Developer", "UI Developer", "React Developer", "Web Designer"],
+      practices: [
+        "UI challenges",
+        "Responsive projects",
+        "Code reviews",
+        "Design implementation",
+      ],
+      roles: [
+        "Frontend Developer",
+        "UI Developer",
+        "React Developer",
+        "Web Designer",
+      ],
     },
   },
   {
     id: "python",
     title: "Python Developer",
-    description: "Learn Python programming for web development, automation, and backend systems.",
+    description:
+      "Learn Python programming for web development, automation, and backend systems.",
     level: "Beginner" as const,
     duration: "5 months",
     courseCount: 10,
@@ -77,16 +118,35 @@ const learningPaths = [
         "Database Integration",
         "API Development with Python",
       ],
-      skills: ["Python", "Django", "Flask", "SQL", "REST APIs", "Testing", "Deployment"],
+      skills: [
+        "Python",
+        "Django",
+        "Flask",
+        "SQL",
+        "REST APIs",
+        "Testing",
+        "Deployment",
+      ],
       tools: ["PyCharm", "Jupyter", "Postman", "Docker", "PostgreSQL"],
-      practices: ["Coding exercises", "Web projects", "Automation scripts", "Backend APIs"],
-      roles: ["Python Developer", "Backend Developer", "Django Developer", "Automation Engineer"],
+      practices: [
+        "Coding exercises",
+        "Web projects",
+        "Automation scripts",
+        "Backend APIs",
+      ],
+      roles: [
+        "Python Developer",
+        "Backend Developer",
+        "Django Developer",
+        "Automation Engineer",
+      ],
     },
   },
   {
     id: "datascience",
     title: "Data Science & AI",
-    description: "Master data analysis, machine learning, and artificial intelligence techniques.",
+    description:
+      "Master data analysis, machine learning, and artificial intelligence techniques.",
     level: "Intermediate" as const,
     duration: "8 months",
     courseCount: 15,
@@ -101,16 +161,30 @@ const learningPaths = [
         "Deep Learning with TensorFlow",
         "Natural Language Processing",
       ],
-      skills: ["Python", "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Data Visualization", "SQL"],
+      skills: [
+        "Python",
+        "Pandas",
+        "NumPy",
+        "Scikit-learn",
+        "TensorFlow",
+        "Data Visualization",
+        "SQL",
+      ],
       tools: ["Jupyter Notebook", "Google Colab", "Tableau", "Power BI", "Git"],
-      practices: ["Data projects", "Kaggle competitions", "Model building", "Research papers"],
+      practices: [
+        "Data projects",
+        "Kaggle competitions",
+        "Model building",
+        "Research papers",
+      ],
       roles: ["Data Scientist", "ML Engineer", "Data Analyst", "AI Developer"],
     },
   },
   {
     id: "placement",
     title: "Placement Readiness",
-    description: "Comprehensive preparation for job interviews, aptitude tests, and soft skills.",
+    description:
+      "Comprehensive preparation for job interviews, aptitude tests, and soft skills.",
     level: "Beginner" as const,
     duration: "3 months",
     courseCount: 6,
@@ -125,16 +199,29 @@ const learningPaths = [
         "Resume Building",
         "Mock Interviews",
       ],
-      skills: ["Problem Solving", "DSA", "Communication", "Aptitude", "Interview Skills", "Resume Writing"],
+      skills: [
+        "Problem Solving",
+        "DSA",
+        "Communication",
+        "Aptitude",
+        "Interview Skills",
+        "Resume Writing",
+      ],
       tools: ["LeetCode", "HackerRank", "LinkedIn", "Resume Templates"],
-      practices: ["Daily aptitude practice", "Mock interviews", "Group discussions", "Presentation skills"],
+      practices: [
+        "Daily aptitude practice",
+        "Mock interviews",
+        "Group discussions",
+        "Presentation skills",
+      ],
       roles: ["Software Engineer", "Associate Developer", "Graduate Trainee"],
     },
   },
   {
     id: "backend",
     title: "Backend Developer",
-    description: "Specialize in server-side development, APIs, databases, and system architecture.",
+    description:
+      "Specialize in server-side development, APIs, databases, and system architecture.",
     level: "Intermediate" as const,
     duration: "5 months",
     courseCount: 10,
@@ -149,45 +236,69 @@ const learningPaths = [
         "Authentication & Security",
         "Cloud Deployment",
       ],
-      skills: ["Node.js", "Python", "SQL", "MongoDB", "Redis", "Docker", "AWS", "Security"],
+      skills: [
+        "Node.js",
+        "Python",
+        "SQL",
+        "MongoDB",
+        "Redis",
+        "Docker",
+        "AWS",
+        "Security",
+      ],
       tools: ["VS Code", "Postman", "Docker", "AWS Console", "pgAdmin"],
-      practices: ["API projects", "Database optimization", "Security audits", "Cloud deployments"],
-      roles: ["Backend Developer", "API Developer", "Database Administrator", "DevOps Engineer"],
+      practices: [
+        "API projects",
+        "Database optimization",
+        "Security audits",
+        "Cloud deployments",
+      ],
+      roles: [
+        "Backend Developer",
+        "API Developer",
+        "Database Administrator",
+        "DevOps Engineer",
+      ],
     },
   },
 ];
 
 const LearningPaths = () => {
-  const [selectedPath, setSelectedPath] = useState<typeof learningPaths[0]["details"] | null>(null);
+  const [selectedPath, setSelectedPath] = useState<
+    (typeof learningPaths)[0]["details"] | null
+  >(null);
 
   const popularPaths = learningPaths.filter((path) => path.isPopular);
   const allPaths = learningPaths;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white font-['Inter'] flex flex-col">
       <Header />
-      <main>
+      <main className="flex-1">
         <LearningPathsHero />
 
         {/* Popular Learning Paths */}
-        <section className="section-padding bg-muted/30">
-          <div className="container-width">
+        <section className="py-20 bg-white relative">
+          <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+          <div className="container-width px-4 sm:px-6 md:px-8 lg:px-16 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-          className="text-center mb-10"
-        >
-          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
-            Popular Learning Paths
-          </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Our most chosen career paths by students across Vijayawada and beyond
+              className="mb-16"
+            >
+              <h2 className="text-3xl md:text-5xl font-black text-black uppercase italic mb-4">
+                POPULAR <br />
+                <span className="text-[#0075CF]">BATTLEPATHS</span>
+              </h2>
+              <p className="text-black font-bold uppercase tracking-widest text-sm opacity-60 max-w-2xl">
+                Our most chosen career paths by elites across Vijayawada and
+                beyond.
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               {popularPaths.map((path, index) => (
                 <motion.div
                   key={path.id}
@@ -207,24 +318,27 @@ const LearningPaths = () => {
         </section>
 
         {/* All Learning Paths */}
-        <section className="section-padding bg-background">
-          <div className="container-width">
+        <section className="py-20 bg-[#E9E9E9] border-y-8 border-black relative">
+          <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+          <div className="container-width px-4 sm:px-6 md:px-8 lg:px-16 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-          className="text-center mb-10"
-        >
-          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
-            All Learning Paths
-          </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Explore all available career paths and find the one that matches your goals
+              className="mb-16 text-right"
+            >
+              <h2 className="text-3xl md:text-5xl font-black text-black uppercase italic mb-4">
+                ALL AVAILABLE <br />
+                <span className="text-[#FD5A1A]">STRATEGIES</span>
+              </h2>
+              <p className="text-black font-bold uppercase tracking-widest text-sm opacity-60 ml-auto max-w-2xl">
+                Explore all available career paths and find the one that matches
+                your ambition.
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
               {allPaths.map((path, index) => (
                 <motion.div
                   key={path.id}

@@ -1,118 +1,99 @@
 import { motion } from "framer-motion";
-import { Route, BookOpen, Video, FileCheck, Trophy, Briefcase } from "lucide-react";
+import {
+  Route,
+  BookOpen,
+  Video,
+  FileCheck,
+  Trophy,
+  Briefcase,
+} from "lucide-react";
 
 const steps = [
   {
     icon: Route,
-    title: "Choose a Path",
-    description: "Select a learning path aligned with your career goals",
+    title: "INITIATE_STRATEGY",
+    description: "CHOOSE YOUR PATH AND DEFINE YOUR DESTINY",
   },
   {
     icon: BookOpen,
-    title: "Follow Courses",
-    description: "Complete structured courses in the right sequence",
+    title: "COGNITIVE_UPLOAD",
+    description: "ABSORB KNOWLEDGE IN THE OPTIMAL SEQUENCE",
   },
   {
     icon: Video,
-    title: "Attend Classes",
-    description: "Join live sessions and watch recorded lectures",
+    title: "LIVE_SYNCED_DATA",
+    description: "JOIN LIVE SESSIONS OR ACCESS RECORDED ARCHIVES",
   },
   {
     icon: FileCheck,
-    title: "Practice Tests",
-    description: "Prepare with mock tests and assignments",
+    title: "STRESS_ANALYSIS",
+    description: "TEST YOUR BOUNDARIES WITH RIGOROUS EVALUATIONS",
   },
   {
     icon: Trophy,
-    title: "Write Exams",
-    description: "Track your rank on the leaderboard",
+    title: "ASCEND_RANKINGS",
+    description: "CRUSH THE COMPETITION ON THE GLOBAL LEADERBOARD",
   },
   {
     icon: Briefcase,
-    title: "Get Job-Ready",
-    description: "Apply for roles with confidence",
+    title: "MISSION_DEPLOY",
+    description: "ENTER THE FIELD WITH UNSTOPPABLE CONFIDENCE",
   },
 ];
 
 const HowPathsWork = () => {
   return (
-    <section className="section-padding bg-gradient-to-b from-sky-50/50 to-background">
-      <div className="container-width">
+    <section className="py-24 bg-white relative overflow-hidden">
+      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+      <div className="container-width px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-20"
         >
-          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
-            How Learning Paths Work
+          <h2 className="text-3xl md:text-5xl font-black text-black uppercase italic mb-4">
+            MISSION <br />
+            <span className="text-[#0075CF]">EXECUTION</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            A simple, proven process to transform you from beginner to job-ready professional
+          <p className="text-black font-bold uppercase tracking-widest text-sm opacity-60 max-w-2xl mx-auto">
+            A precise, algorithmic process to transform you into an elite
+            professional.
           </p>
         </motion.div>
 
-        {/* Desktop: Horizontal flow */}
-        <div className="hidden lg:block">
-          <div className="relative">
-            {/* Connecting line */}
-            <div className="absolute top-12 left-0 right-0 h-0.5 bg-border" />
-            
-            <div className="grid grid-cols-6 gap-4">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative text-center"
-                >
-                  <div className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-card border border-sky-200 shadow-soft flex items-center justify-center relative z-10">
-                    <step.icon className="w-10 h-10 text-sky-500" />
-                  </div>
-                  <div className="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-bold z-20">
-                    {index + 1}
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1 mt-6">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Global Flow Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {steps.map((step, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="relative group h-full"
+            >
+              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0px_0px_rgba(253,90,26,1)] group-hover:border-[#FD5A1A] transition-all h-full">
+                <div className="absolute -top-6 -left-6 w-12 h-12 bg-black text-white border-4 border-black flex items-center justify-center font-black italic shadow-[4px_4px_0px_0px_#FD5A1A] group-hover:bg-[#FD5A1A] group-hover:shadow-none transition-colors">
+                  0{index + 1}
+                </div>
 
-        {/* Mobile/Tablet: Vertical flow */}
-        <div className="lg:hidden">
-          <div className="relative">
-            {/* Connecting line */}
-            <div className="absolute top-0 bottom-0 left-10 w-0.5 bg-border" />
-            
-            <div className="space-y-6">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-start gap-4 relative"
-                >
-                  <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-card border border-sky-200 shadow-soft flex items-center justify-center relative z-10">
-                    <step.icon className="w-8 h-8 text-sky-500" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-sky-500 text-white flex items-center justify-center text-xs font-bold">
-                      {index + 1}
-                    </div>
+                <div className="mb-6 mt-2">
+                  <div className="w-16 h-16 bg-[#E9E9E9] border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000000] group-hover:bg-white transition-colors">
+                    <step.icon className="w-8 h-8 text-black" />
                   </div>
-                  <div className="pt-2">
-                    <h3 className="font-semibold text-foreground mb-1">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                </div>
+
+                <h3 className="text-xl font-black text-black uppercase italic mb-3 tracking-tighter">
+                  {step.title}
+                </h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50 leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

@@ -4,51 +4,74 @@ import { Briefcase, TrendingUp, Award, CheckCircle } from "lucide-react";
 
 const outcomes = [
   {
-    path: "Full Stack Developer",
-    roles: ["Full Stack Developer", "Web Developer", "Software Engineer", "Backend Developer"],
+    path: "FULL STACK DEV",
+    roles: [
+      "Full Stack Developer",
+      "Web Developer",
+      "Software Engineer",
+      "Backend Developer",
+    ],
     industries: ["IT Services", "Product Companies", "Startups", "E-commerce"],
     confidence: 95,
   },
   {
-    path: "Frontend Developer",
-    roles: ["Frontend Developer", "UI Developer", "React Developer", "Web Designer"],
+    path: "FRONTEND DEV",
+    roles: [
+      "Frontend Developer",
+      "UI Developer",
+      "React Developer",
+      "Web Designer",
+    ],
     industries: ["Digital Agencies", "Tech Companies", "Media", "Fintech"],
     confidence: 92,
   },
   {
-    path: "Data Science & AI",
+    path: "DATA SCIENCE & AI",
     roles: ["Data Scientist", "ML Engineer", "Data Analyst", "AI Developer"],
     industries: ["Healthcare", "Finance", "Retail", "Technology"],
     confidence: 88,
   },
   {
-    path: "Python Developer",
-    roles: ["Python Developer", "Backend Developer", "Automation Engineer", "Django Developer"],
-    industries: ["Automation", "Web Services", "Data Companies", "Cloud Services"],
+    path: "PYTHON DEV",
+    roles: [
+      "Python Developer",
+      "Backend Developer",
+      "Automation Engineer",
+      "Django Developer",
+    ],
+    industries: [
+      "Automation",
+      "Web Services",
+      "Data Companies",
+      "Cloud Services",
+    ],
     confidence: 90,
   },
 ];
 
 const CareerOutcomes = () => {
   return (
-    <section className="section-padding bg-background">
-      <div className="container-width">
+    <section className="py-24 bg-[#E9E9E9] relative border-t-8 border-black">
+      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+      <div className="container-width px-4 lg:px-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="mb-16"
         >
-          <h2 className="font-heading text-3xl md:text-4xl text-sky-700 mb-4">
-            Career Outcomes
+          <h2 className="text-3xl md:text-5xl font-black text-black uppercase italic mb-4">
+            MISSION <br />
+            <span className="text-[#0075CF]">OUTCOMES</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover the job roles and industries you can target after completing each learning path
+          <p className="text-black font-bold uppercase tracking-widest text-sm opacity-60 max-w-2xl">
+            Identify your target deployment zones and roles after completing the
+            protocol.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8">
           {outcomes.map((outcome, index) => (
             <motion.div
               key={index}
@@ -56,28 +79,37 @@ const CareerOutcomes = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-card rounded-xl border border-border p-6 hover:shadow-medium transition-shadow"
+              className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_#FD5A1A] transition-all group"
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-8">
                 <div>
-                  <h3 className="font-heading text-xl text-foreground">{outcome.path}</h3>
-                  <p className="text-sm text-muted-foreground">Roles you can apply for</p>
+                  <h3 className="text-2xl font-black text-black uppercase italic leading-none mb-2">
+                    {outcome.path}
+                  </h3>
+                  <div className="flex items-center gap-1 text-black/40 text-[10px] font-black uppercase tracking-widest">
+                    TARGET_ROLES_IDENTIFIED
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-success">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">{outcome.confidence}% Ready</span>
+                <div className="bg-black text-[#FD5A1A] border-2 border-black px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(253,90,26,0.5)] flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3" />
+                  {outcome.confidence}%_READY
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-8">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Briefcase className="w-4 h-4 text-sky-600" />
-                    <span className="text-sm font-medium text-foreground">Job Roles</span>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Briefcase className="w-4 h-4 text-black" />
+                    <span className="text-xs font-black uppercase tracking-widest">
+                      DEPLOYMENT_ROLES
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {outcome.roles.map((role, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
+                      <Badge
+                        key={i}
+                        className="bg-[#E9E9E9] text-black border-2 border-black rounded-none px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      >
                         {role}
                       </Badge>
                     ))}
@@ -85,24 +117,34 @@ const CareerOutcomes = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-accent" />
-                    <span className="text-sm font-medium text-foreground">Target Industries</span>
+                  <div className="flex items-center gap-2 mb-4">
+                    <TrendingUp className="w-4 h-4 text-black" />
+                    <span className="text-xs font-black uppercase tracking-widest">
+                      TARGET_SECTORS
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {outcome.industries.map((industry, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
+                      <Badge
+                        key={i}
+                        className="bg-white text-black border-2 border-black rounded-none px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_#0075CF]"
+                      >
                         {industry}
                       </Badge>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-border">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-accent" />
-                    <span className="text-sm text-muted-foreground">
-                      Skill confidence level: <span className="font-semibold text-foreground">{outcome.confidence}%</span>
+                <div className="pt-6 border-t-2 border-dashed border-black/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-4 h-4 text-black" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-black/40">
+                        CONFIDENCE_INDEX
+                      </span>
+                    </div>
+                    <span className="text-sm font-black text-black italic">
+                      {outcome.confidence}%_VERIFIED
                     </span>
                   </div>
                 </div>

@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { useCourses, useEnrollments, Course } from "@/hooks/useCourses";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 
 /* ── Category icon map ────────────────────────────── */
 const categoryIcons: Record<string, React.ElementType> = {
@@ -343,7 +345,6 @@ export default function CoursesPage() {
     useState<(typeof LEVELS)[number]>("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
     return courses.filter((c) => {
@@ -357,9 +358,6 @@ export default function CoursesPage() {
       return matchSearch && matchLevel && matchCat;
     });
   }, [courses, search, selectedLevel, selectedCategory]);
-
-  const activeFilterCount =
-    (selectedLevel !== "All" ? 1 : 0) + (selectedCategory !== "All" ? 1 : 0);
 
   const handleEnroll = async (courseId: string) => {
     if (!user) {
@@ -378,110 +376,74 @@ export default function CoursesPage() {
   const isLoading = coursesLoading || enrollLoading;
 
   return (
-    <div className="min-h-screen bg-[#E9E9E9] font-['Inter']">
+    <div className="min-h-screen bg-white font-['Inter'] flex flex-col">
+      <Header />
+
       {/* ── Page Header ── */}
-      <div className="bg-[#000000] border-b-4 border-[#FD5A1A]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-10 sm:py-12 md:py-14">
+      <div className="bg-[#E9E9E9] border-b-8 border-black pt-28 pb-12 relative overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+        <div className="container-width px-4 sm:px-6 md:px-8 lg:px-16 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <span className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 border-2 border-[#FD5A1A] rounded-full text-[#FD5A1A] text-[10px] md:text-xs font-black uppercase tracking-widest mb-4 md:mb-5 shadow-[3px_3px_0px_0px_rgba(253,90,26,1)]">
-              <Star className="w-3.5 h-3.5 md:w-4 md:h-4" /> Browse Courses
-            </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tight mb-3 md:mb-4">
-              FIND YOUR
-              <br />
-              <span className="text-[#FD5A1A]">NEXT SKILL</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black border-2 border-black shadow-[4px_4px_0px_0px_#FD5A1A] text-white text-xs font-black uppercase tracking-[0.2em] mb-6">
+              <Star className="w-4 h-4 text-[#FD5A1A]" /> Browse Library
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-black leading-[0.9] uppercase italic mb-6">
+              FIND YOUR <br />
+              <span className="text-[#FD5A1A]">NEXT</span>{" "}
+              <span className="text-[#0075CF]">SKILL</span>
             </h1>
-            <p className="text-white/60 text-sm md:text-base max-w-xl">
+            <p className="text-black font-bold uppercase tracking-widest text-sm max-w-2xl opacity-60">
               {enrollments.length > 0
-                ? `You're enrolled in ${enrollments.length} course${enrollments.length > 1 ? "s" : ""}. Keep learning!`
-                : "Explore our library of expert-led courses and start building real-world skills today."}
+                ? `You're currently mastering ${enrollments.length} course${enrollments.length > 1 ? "s" : ""}. Push your limits!`
+                : "Explore our arsenal of high-octane courses and build the future you deserve."}
             </p>
           </motion.div>
         </div>
       </div>
 
-      {/* ── Filters Bar ── */}
-      <div className="sticky top-0 z-30 bg-white border-b-2 border-[#000000] shadow-[0px_4px_0px_0px_rgba(0,0,0,1)]">
-        {/* Top row: search + controls */}
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pt-3 pb-2 flex gap-2 md:gap-3 items-center">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#000000]/40" />
-            <input
-              type="text"
-              placeholder="Search courses…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-[#E9E9E9] border-2 border-[#000000] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0075CF] focus:border-[#0075CF] transition-all placeholder:text-[#000000]/40"
-            />
-          </div>
+      <main className="flex-1 bg-white relative">
+        <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
 
-          {/* Controls: filter toggle on mobile/tablet, level pills on lg+ */}
-          <div className="flex items-center gap-2">
-            {/* Mobile + tablet: filter toggle button */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`md:hidden flex items-center gap-1.5 text-xs font-black px-3 py-2.5 border-2 border-[#000000] rounded-xl transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-                activeFilterCount > 0
-                  ? "bg-[#0075CF] text-white"
-                  : "bg-white text-[#000000]"
-              }`}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              {activeFilterCount > 0 && (
-                <span className="bg-white text-[#0075CF] rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-black">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+        {/* ── Desktop Sidebar + Main Content Layout ── */}
+        <div className="container-width px-4 sm:px-6 md:px-8 lg:px-16 py-12 relative z-10">
+          <div className="flex flex-col lg:flex-row gap-12">
+            {/* Sidebar Filters */}
+            <aside className="lg:w-72 shrink-0 space-y-8">
+              <div className="sticky top-28 space-y-8">
+                {/* Search Card */}
+                <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                  <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-black/40">
+                    Search
+                  </h4>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
+                    <input
+                      type="text"
+                      placeholder="ENTER KEYWORD..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-[#E9E9E9] border-2 border-black text-xs font-black uppercase tracking-widest focus:outline-none focus:bg-white transition-colors"
+                    />
+                  </div>
+                </div>
 
-            {/* Desktop lg+: level pills inline */}
-            <div className="hidden md:flex gap-2 flex-wrap">
-              {LEVELS.map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setSelectedLevel(l)}
-                  className={`text-xs font-black px-3 py-2 border-2 border-[#000000] rounded-full transition-all duration-150 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] ${
-                    selectedLevel === l
-                      ? "bg-[#0075CF] text-white"
-                      : "bg-white text-[#000000] hover:bg-[#E9E9E9]"
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile expandable filter panel */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t-2 border-[#000000]/10"
-            >
-              <div className="px-3 py-3 space-y-3">
-                {/* Level pills */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#000000]/50 mb-2">
-                    Level
-                  </p>
-                  <div className="flex gap-2 flex-wrap">
+                {/* Level Card */}
+                <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,117,207,1)]">
+                  <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-black/40">
+                    Experience Level
+                  </h4>
+                  <div className="space-y-2">
                     {LEVELS.map((l) => (
                       <button
                         key={l}
                         onClick={() => setSelectedLevel(l)}
-                        className={`text-xs font-black px-3 py-1.5 border-2 border-[#000000] rounded-full transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                        className={`w-full text-left px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-black transition-all ${
                           selectedLevel === l
-                            ? "bg-[#0075CF] text-white"
-                            : "bg-white text-[#000000]"
+                            ? "bg-[#0075CF] text-white translate-x-1 translate-y-1 shadow-none"
+                            : "bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                         }`}
                       >
                         {l}
@@ -489,20 +451,21 @@ export default function CoursesPage() {
                     ))}
                   </div>
                 </div>
-                {/* Category pills */}
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#000000]/50 mb-2">
-                    Category
-                  </p>
-                  <div className="flex gap-2 flex-wrap">
+
+                {/* Category Card */}
+                <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(253,90,26,1)]">
+                  <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-black/40">
+                    Technology Area
+                  </h4>
+                  <div className="space-y-2">
                     {CATEGORIES.map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`text-xs font-black px-3 py-1.5 border-2 border-[#000000] rounded-full transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                        className={`w-full text-left px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-black transition-all ${
                           selectedCategory === cat
-                            ? "bg-[#FD5A1A] text-white"
-                            : "bg-white text-[#000000]"
+                            ? "bg-[#FD5A1A] text-white translate-x-1 translate-y-1 shadow-none"
+                            : "bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                         }`}
                       >
                         {cat}
@@ -510,105 +473,58 @@ export default function CoursesPage() {
                     ))}
                   </div>
                 </div>
-                {/* Clear filters */}
-                {activeFilterCount > 0 && (
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1 space-y-8">
+              {/* Status Bar */}
+              <div className="flex items-center justify-between gap-4 p-4 border-4 border-black bg-[#E9E9E9]">
+                <div className="flex items-center gap-4">
+                  <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                    SYSTEM_STATUS: ACTIVE
+                  </div>
+                  <p className="text-xs font-black uppercase tracking-widest text-black/60 hidden sm:block">
+                    {isLoading
+                      ? "SCANN_IN_PROGRESS..."
+                      : `FOUND_${filtered.length}_RECORDS`}
+                  </p>
+                </div>
+                {user && (
                   <button
-                    onClick={() => {
-                      setSelectedLevel("All");
-                      setSelectedCategory("All");
-                    }}
-                    className="text-xs font-black text-[#FD5A1A] flex items-center gap-1"
+                    onClick={() => navigate("/dashboard/courses")}
+                    className="text-[10px] font-black uppercase tracking-widest text-[#0075CF] flex items-center gap-2 hover:bg-black hover:text-white px-3 py-1 transition-colors border-2 border-transparent hover:border-black"
                   >
-                    <X className="w-3.5 h-3.5" /> Clear filters
+                    ACCESS_ENROLLMENTS <ChevronRight className="w-3 h-3" />
                   </button>
                 )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* md+ Category row — always visible, horizontal scroll */}
-        <div className="hidden md:block max-w-7xl mx-auto px-6 md:px-8 lg:px-10 pb-3">
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap text-xs font-black px-4 py-1.5 border-2 border-[#000000] rounded-full transition-all duration-150 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] shrink-0 ${
-                  selectedCategory === cat
-                    ? "bg-[#FD5A1A] text-white"
-                    : "bg-white text-[#000000] hover:bg-[#E9E9E9]"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+              {/* Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                {isLoading ? (
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))
+                ) : filtered.length === 0 ? (
+                  <EmptyState query={search} />
+                ) : (
+                  filtered.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course.id)}
+                      onClick={() => setActiveCourse(course)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* ── Results Count ── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pt-5 md:pt-8 pb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-          <p className="text-sm font-bold text-[#000000]/60">
-            {isLoading
-              ? "Loading…"
-              : `${filtered.length} course${filtered.length !== 1 ? "s" : ""} found`}
-          </p>
-          {/* Active filter chips */}
-          {selectedLevel !== "All" && (
-            <span className="flex items-center gap-1 text-xs font-black bg-[#0075CF] text-white px-2.5 py-1 rounded-full border-2 border-[#000000]">
-              {selectedLevel}
-              <button
-                onClick={() => setSelectedLevel("All")}
-                aria-label="Remove level filter"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          )}
-          {selectedCategory !== "All" && (
-            <span className="flex items-center gap-1 text-xs font-black bg-[#FD5A1A] text-white px-2.5 py-1 rounded-full border-2 border-[#000000]">
-              {selectedCategory}
-              <button
-                onClick={() => setSelectedCategory("All")}
-                aria-label="Remove category filter"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          )}
-        </div>
-
-        {user && enrollments.length > 0 && (
-          <button
-            onClick={() => navigate("/dashboard/courses")}
-            className="text-xs font-black text-[#0075CF] flex items-center gap-1 hover:underline underline-offset-2 whitespace-nowrap shrink-0"
-          >
-            My Courses <ChevronRight className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* ── Grid ── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 pb-16 md:pb-20">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-          {isLoading ? (
-            Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
-          ) : filtered.length === 0 ? (
-            <EmptyState query={search} />
-          ) : (
-            filtered.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                isEnrolled={isEnrolled(course.id)}
-                onClick={() => setActiveCourse(course)}
-              />
-            ))
-          )}
-        </div>
-      </div>
+      <Footer />
 
       {/* ── Detail Modal ── */}
       {activeCourse && (
