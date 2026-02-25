@@ -29,6 +29,7 @@ import {
   Activity,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export function CourseMonitoring() {
   const { data: courses = [], isLoading: coursesLoading } = useCourses();

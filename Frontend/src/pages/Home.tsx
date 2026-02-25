@@ -3,7 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import WhyAOTMS from "@/components/landing/WhyAOTMS";
 import HowItWorks from "@/components/landing/HowItWorks";
 import KeyFeatures from "@/components/landing/KeyFeatures";
-import Leaderboard from "@/components/landing/Leaderboard";
+import TechnologyEcosystem from "@/components/landing/TechnologyEcosystem";
 import Instructors from "@/components/landing/Instructors";
 import Testimonials from "@/components/landing/Testimonials";
 import FAQSection from "@/components/landing/FAQSection";
@@ -25,7 +25,7 @@ const Home = () => {
           <WhyAOTMS />
           <HowItWorks />
           <KeyFeatures />
-          <Leaderboard />
+          <TechnologyEcosystem />
           <Instructors />
           <Testimonials />
           <FAQSection />
