@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
+import {
+  Settings,
+  LogOut,
+  LayoutDashboard,
+  Menu,
+  X,
+  ChevronDown,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -99,17 +106,33 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled ? "bg-background/95 backdrop-blur-md shadow-lg border-b border-border" : "bg-transparent border-b border-transparent"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md border-b-4 border-black shadow-[0_4px_0_0_rgba(0,0,0,1)] py-2"
+          : "bg-transparent py-4"
+      }`}
     >
-      <div className="container-width px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+      <div className="container-width px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img
-              src={logo}
-              alt="AOTMS Logo"
-              className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto"
-            />
+          <Link
+            to="/"
+            className="flex items-center gap-3 group transition-transform active:scale-95"
+          >
+            <div className="bg-white p-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+              <img
+                src={logo}
+                alt="AOTMS Logo"
+                className="h-8 sm:h-10 md:h-12 w-auto"
+              />
+            </div>
+            <span
+              className={`text-2xl font-black uppercase tracking-tighter ${
+                isScrolled || hasLightBg ? "text-black" : "text-white"
+              }`}
+            >
+              AOTMS
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -118,10 +141,10 @@ const Header = () => {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
-                className={`px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-none text-sm font-black uppercase tracking-widest border-2 border-transparent transition-all duration-200 hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
                   isScrolled || hasLightBg
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-primary"
+                    ? "text-black hover:text-[#0075CF]"
+                    : "text-white hover:text-black"
                 }`}
               >
                 {link.name}
@@ -130,75 +153,93 @@ const Header = () => {
           </nav>
 
           {/* Right Side - Auth & Mobile Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Desktop Auth Buttons */}
+          <div className="flex items-center gap-2 sm:gap-4">
             {user ? (
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
-                      <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/20">
-                        <AvatarImage
-                          src={user.user_metadata?.avatar_url}
-                          alt="User avatar"
-                        />
-                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
+                    <button className="flex items-center gap-2 p-1 border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none focus:outline-none group">
+                      <Avatar className="h-10 w-10 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none bg-[#FD5A1A]">
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback className="bg-[#FD5A1A] text-white font-black">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform group-hover:translate-y-0.5 ${
+                          isScrolled || hasLightBg
+                            ? "text-black"
+                            : "text-white group-hover:text-black"
+                        }`}
+                      />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="w-56 bg-background border border-border shadow-lg z-[100]"
+                    className="w-64 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none p-0 bg-white z-[100]"
                   >
-                    <div className="px-3 py-2 border-b border-border">
-                      <p className="text-sm font-medium text-foreground">
-                        {user.user_metadata?.full_name || "User"}
+                    <div className="bg-[#E9E9E9] p-4 border-b-2 border-black">
+                      <p className="text-sm font-black uppercase text-black">
+                        {user.user_metadata?.full_name || "User Account"}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-[10px] font-bold text-black/50 truncate">
                         {user.email}
                       </p>
                     </div>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link
-                        to={
-                          userRole === "student" || !userRole
-                            ? "/dashboard"
-                            : userRole === "admin"
-                              ? "/admin"
-                              : `/${userRole}`
-                        }
-                        className="flex items-center gap-2"
+                    <div className="p-1">
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-black uppercase text-xs tracking-widest p-3 focus:bg-[#0075CF] focus:text-white rounded-none border-2 border-transparent focus:border-black"
                       >
-                        <LayoutDashboard className="h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/settings" className="flex items-center gap-2">
-                        <Settings className="h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleSignOut}
-                      className="cursor-pointer text-destructive focus:text-destructive"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
+                        <Link
+                          to={
+                            userRole === "student" || !userRole
+                              ? "/dashboard"
+                              : userRole === "admin"
+                                ? "/admin"
+                                : `/${userRole}`
+                          }
+                          className="flex items-center gap-3"
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-black uppercase text-xs tracking-widest p-3 focus:bg-[#0075CF] focus:text-white rounded-none border-2 border-transparent focus:border-black"
+                      >
+                        <Link
+                          to="/settings"
+                          className="flex items-center gap-3"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </div>
+                    <div className="border-t-2 border-black p-1">
+                      <DropdownMenuItem
+                        onClick={handleSignOut}
+                        className="cursor-pointer font-black uppercase text-xs tracking-widest p-3 text-[#FD5A1A] focus:bg-[#FD5A1A] focus:text-white rounded-none border-2 border-transparent focus:border-black"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             ) : (
-              <div className="hidden sm:flex items-center gap-2 md:gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`}
+                  className={`h-11 px-6 font-black uppercase tracking-widest text-xs border-2 border-transparent hover:border-black hover:bg-white hover:shadow-[4px_4px_0px_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all ${
+                    isScrolled || hasLightBg
+                      ? "text-black"
+                      : "text-white hover:text-black"
+                  }`}
                   asChild
                 >
                   <Link to="/auth" state={{ mode: "login" }}>
@@ -206,9 +247,7 @@ const Header = () => {
                   </Link>
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 animate-[pulse_3s_ease-in-out_infinite] hover:animate-none hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`}
+                  className="h-11 px-8 bg-[#FD5A1A] text-white border-2 border-black font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-1.5 active:translate-y-1.5 transition-all rounded-none"
                   asChild
                 >
                   <Link to="/auth" state={{ mode: "signup" }}>
@@ -224,37 +263,31 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`lg:hidden hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground" : "text-white"}`}
+                  className={`lg:hidden border-2 border-transparent hover:border-black hover:bg-white active:bg-white transition-all ${
+                    isScrolled || hasLightBg
+                      ? "text-black"
+                      : "text-white hover:text-black"
+                  }`}
                 >
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-[300px] sm:w-[350px] bg-background p-0"
+                className="w-[300px] bg-white border-l-4 border-black p-0 rounded-none shadow-none"
               >
-                <div className="flex flex-col h-full">
-                  {/* Mobile Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="bg-white rounded-xl px-4 py-2 shadow-sm border border-white/10">
-                      <img
-                        src={logo}
-                        alt="AOTMS Logo"
-                        className="h-12 sm:h-14 md:h-16"
-                      />
-                    </div>
+                <div className="flex flex-col h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+                  <div className="p-6 border-b-4 border-black bg-white">
+                    <img src={logo} alt="AOTMS Logo" className="h-10" />
                   </div>
-
-                  {/* Mobile Navigation */}
-                  <nav className="flex-1 p-4">
-                    <ul className="space-y-1">
+                  <nav className="flex-1 px-4 py-8">
+                    <ul className="space-y-4">
                       {navLinks.map((link) => (
                         <li key={link.name}>
                           <SheetClose asChild>
                             <button
                               onClick={() => handleNavClick(link.href)}
-                              className="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                              className="w-full text-left px-4 py-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest text-sm active:translate-x-1 active:translate-y-1 active:shadow-none transition-all"
                             >
                               {link.name}
                             </button>
@@ -263,19 +296,24 @@ const Header = () => {
                       ))}
                     </ul>
                   </nav>
-
-                  {/* Mobile Auth Buttons */}
                   {!user && (
-                    <div className="p-4 border-t border-border space-y-3">
+                    <div className="p-6 bg-white border-t-4 border-black space-y-4">
                       <SheetClose asChild>
-                        <Button variant="outline" className="w-full" asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full h-14 border-2 border-black font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all rounded-none"
+                          asChild
+                        >
                           <Link to="/auth" state={{ mode: "login" }}>
                             Login
                           </Link>
                         </Button>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Button variant="accent" className="w-full" asChild>
+                        <Button
+                          className="w-full h-14 bg-[#0075CF] text-white border-2 border-black font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all rounded-none"
+                          asChild
+                        >
                           <Link to="/auth" state={{ mode: "signup" }}>
                             Sign Up
                           </Link>
@@ -283,25 +321,19 @@ const Header = () => {
                       </SheetClose>
                     </div>
                   )}
-
-                  {/* Mobile User Info */}
                   {user && (
-                    <div className="p-4 border-t border-border space-y-3">
-                      <div className="flex items-center gap-3 pb-3 border-b border-border">
-                        <Avatar className="h-10 w-10 border-2 border-primary/20">
-                          <AvatarImage
-                            src={user.user_metadata?.avatar_url}
-                            alt="User avatar"
-                          />
-                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                    <div className="p-6 bg-white border-t-4 border-black space-y-4">
+                      <div className="flex items-center gap-4 mb-6">
+                        <Avatar className="h-12 w-12 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-[#0075CF]">
+                          <AvatarFallback className="bg-[#0075CF] text-white font-black">
                             {getUserInitials()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
+                          <p className="text-sm font-black uppercase text-black truncate">
                             {user.user_metadata?.full_name || "User"}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[10px] font-bold text-black/50 truncate">
                             {user.email}
                           </p>
                         </div>
@@ -309,33 +341,21 @@ const Header = () => {
                       <SheetClose asChild>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start"
+                          className="w-full h-12 justify-start border-2 border-transparent hover:border-black font-black uppercase tracking-widest text-[10px] rounded-none"
                           asChild
                         >
                           <Link to="/dashboard">
-                            <LayoutDashboard className="h-4 w-4 mr-2" />
+                            <LayoutDashboard className="h-4 w-4 mr-3" />
                             Dashboard
-                          </Link>
-                        </Button>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start"
-                          asChild
-                        >
-                          <Link to="/settings">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Settings
                           </Link>
                         </Button>
                       </SheetClose>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="w-full h-12 justify-start border-2 border-transparent hover:border-black font-black uppercase tracking-widest text-[10px] text-[#FD5A1A] rounded-none"
                         onClick={handleSignOut}
                       >
-                        <LogOut className="h-4 w-4 mr-2" />
+                        <LogOut className="h-4 w-4 mr-3" />
                         Log out
                       </Button>
                     </div>

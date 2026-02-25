@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import logo from "@/assets/logo.png";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 
 interface Tech {
   name: string;
@@ -168,36 +169,30 @@ const TechCard = ({ tech, size }: { tech: Tech; size: number }) => {
 const CARD_SIZE = 90; // px
 
 const TechnologyEcosystem = () => {
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1200,
-  );
   const sectionRef = useRef<HTMLElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const isMobile = windowWidth < 768;
-  const isTablet = windowWidth >= 768 && windowWidth < 1100;
-
-  // Calculate orbit radius and container
-  const orbitRadius = isTablet ? 210 : 265;
-  const padding = CARD_SIZE + 10;
-  const totalSize = (orbitRadius + padding) * 2;
+  const count = technologies.length;
+  const orbitRadius = isMobile ? 140 : 240;
+  const totalSize = (orbitRadius + CARD_SIZE) * 2 + 40;
   const center = totalSize / 2;
 
-  // trig positions for each tech
   const nodePositions = technologies.map((_, i) => {
-    // -90° so first item is at the top
-    const angleDeg = (360 / technologies.length) * i - 90;
-    const angleRad = (angleDeg * Math.PI) / 180;
+    const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+    const lx = center + orbitRadius * Math.cos(angle);
+    const ly = center + orbitRadius * Math.sin(angle);
     return {
-      left: center + orbitRadius * Math.cos(angleRad) - CARD_SIZE / 2,
-      top: center + orbitRadius * Math.sin(angleRad) - CARD_SIZE / 2,
-      lx: center + orbitRadius * Math.cos(angleRad),
-      ly: center + orbitRadius * Math.sin(angleRad),
+      left: lx - CARD_SIZE / 2,
+      top: ly - CARD_SIZE / 2,
+      lx,
+      ly,
     };
   });
 
@@ -205,102 +200,59 @@ const TechnologyEcosystem = () => {
     <section
       ref={sectionRef}
       id="technology-ecosystem"
-      className="relative py-20 overflow-hidden bg-white"
+      className="relative py-24 md:py-32 overflow-hidden bg-[#E9E9E9] border-t-4 border-black font-['Inter']"
     >
-      {/* ── Dynamic Tech-Inspired Background ── */}
-      {/* Dot Grid Overlay */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.3]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%230B5CFF' fill-opacity='0.15'/%3E%3C/svg%3E")`,
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      {/* Brand-Colored Animated Glowing Orbs */}
-      <div
-        className="absolute top-0 -left-32 w-[600px] h-[600px] rounded-full pointer-events-none mix-blend-multiply opacity-50 animate-blob"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(11, 92, 255, 0.12) 0%, transparent 70%)",
-        }}
-      />
-      <div
-        className="absolute bottom-0 -right-32 w-[600px] h-[600px] rounded-full pointer-events-none mix-blend-multiply opacity-50 animate-blob animation-delay-2000"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(242, 112, 6, 0.12) 0%, transparent 70%)",
-        }}
-      />
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none mix-blend-multiply opacity-30 animate-blob animation-delay-4000"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(11, 92, 255, 0.08) 0%, rgba(242, 112, 6, 0.08) 40%, transparent 70%)",
-        }}
-      />
+      {/* Background Patterns */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* ── Section Header ── */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">
-            Powered By
-          </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Our Technology{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: "linear-gradient(90deg, #F27006, #f59e0b)",
-              }}
-            >
-              Ecosystem
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#0075CF] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white mb-8">
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
+              Our Technology stack
             </span>
+          </div>
+          <h2 className="font-heading text-5xl md:text-6xl text-black mb-6 uppercase italic leading-[0.9]">
+            The <span className="text-[#FD5A1A]">Tech</span> <br />
+            <span className="text-[#0075CF]">Ecosystem</span>
           </h2>
-          <p className="text-gray-500 text-base sm:text-lg leading-relaxed">
-            A carefully chosen, modern stack — from UI to cloud — powering every
-            feature of AOTMS.
+          <p className="text-black font-bold uppercase tracking-widest text-sm opacity-50">
+            A carefully chosen, modern stack — from UI to cloud — powering
+            AOTMS.
           </p>
         </div>
 
-        {/* ── MOBILE: Staggered Clustered Layout ── */}
+        {/* MOBILE: Clustered Layout */}
         {isMobile && (
           <div className="relative flex flex-col items-center py-6">
-            {/* Center Logo integrated into the flow */}
-            <div className="relative z-20 mb-10 w-32 h-32 rounded-full bg-white flex flex-col items-center justify-center p-3 shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-gray-100">
-              <div
-                className="absolute inset-0 rounded-full opacity-10"
-                style={{
-                  background:
-                    "radial-gradient(circle, #F27006 0%, transparent 70%)",
-                }}
-              />
-              <img
-                src={logo}
-                alt="AOTMS"
-                className="w-24 h-auto relative z-10"
-              />
+            <div className="relative z-20 mb-12 w-32 h-32 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(253,90,26,1)] flex items-center justify-center p-4">
+              <img src={logo} alt="AOTMS" className="w-full h-auto" />
             </div>
 
-            {/* Seamless 3-column staggered layout */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-[340px] px-2 relative z-10">
-              {technologies.map((tech, i) => (
-                <div
-                  key={tech.name}
-                  className={`flex justify-center transform transition-transform duration-300 ${
-                    i % 2 === 0
-                      ? "translate-y-4"
-                      : "" /* Stagger odd/even cols */
-                  }`}
-                >
-                  <TechCard tech={tech} size={92} />
+            <div className="grid grid-cols-2 gap-6 w-full max-w-[400px]">
+              {technologies.map((tech) => (
+                <div key={tech.name} className="flex justify-center">
+                  <div className="bg-white border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-3 w-full">
+                    <img
+                      src={tech.icon}
+                      alt={tech.name}
+                      className="w-10 h-10 object-contain grayscale group-hover:grayscale-0"
+                    />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                      {tech.name}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ── TABLET / DESKTOP: Radial layout ── */}
+        {/* TABLET / DESKTOP: Radial Layout */}
         {!isMobile && (
           <div
             className="flex justify-center items-center"
@@ -310,34 +262,24 @@ const TechnologyEcosystem = () => {
               className="relative flex-shrink-0"
               style={{ width: totalSize, height: totalSize }}
             >
-              {/* SVG: orbit ring + connecting lines */}
               <svg
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0"
                 width={totalSize}
                 height={totalSize}
                 viewBox={`0 0 ${totalSize} ${totalSize}`}
-                xmlns="http://www.w3.org/2000/svg"
               >
-                {/* Outer orbit ring */}
+                {/* Neobrutalist Orbit Ring */}
                 <circle
                   cx={center}
                   cy={center}
                   r={orbitRadius}
                   fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="1"
-                  strokeDasharray="3 6"
+                  stroke="black"
+                  strokeWidth="4"
+                  strokeDasharray="16 16"
+                  className="opacity-20"
                 />
-                {/* Inner ring (decoration) */}
-                <circle
-                  cx={center}
-                  cy={center}
-                  r={90}
-                  fill="none"
-                  stroke="#f3f4f6"
-                  strokeWidth="1"
-                />
-                {/* Connecting lines */}
+                {/* Bold Connecting Lines */}
                 {nodePositions.map((pos, i) => (
                   <line
                     key={`line-${i}`}
@@ -345,42 +287,49 @@ const TechnologyEcosystem = () => {
                     y1={center}
                     x2={pos.lx}
                     y2={pos.ly}
-                    stroke={`${technologies[i].color}55`}
-                    strokeWidth="1.5"
+                    stroke="black"
+                    strokeWidth="2"
+                    className="opacity-10 group-hover:opacity-100 transition-opacity"
                   />
                 ))}
               </svg>
 
-              {/* ── Center Logo ── */}
+              {/* Center Box */}
               <div
-                className="absolute z-20 rounded-full bg-white flex items-center justify-center"
+                className="absolute z-20 bg-white border-8 border-black shadow-[16px_16px_0px_0px_rgba(0,117,207,1)] flex items-center justify-center rotate-[-2deg]"
                 style={{
-                  width: 160,
-                  height: 160,
-                  left: center - 80,
-                  top: center - 80,
-                  boxShadow:
-                    "0 0 0 16px rgba(255,255,255,0.55), 0 8px 48px rgba(0,0,0,0.12)",
-                  border: "2px solid rgba(229,231,235,0.9)",
+                  width: 180,
+                  height: 180,
+                  left: center - 90,
+                  top: center - 90,
                 }}
               >
-                <img src={logo} alt="AOTMS Logo" className="w-28 h-auto" />
+                <img src={logo} alt="AOTMS Logo" className="w-32 h-auto" />
               </div>
 
-              {/* ── Technology Node Cards ── */}
+              {/* Technology Node Boxes */}
               {technologies.map((tech, i) => (
                 <div
                   key={tech.name}
-                  className="absolute z-10 tech-node"
+                  className="absolute z-10 tech-node group"
                   style={{
                     width: CARD_SIZE,
                     height: CARD_SIZE,
                     left: nodePositions[i].left,
                     top: nodePositions[i].top,
-                    animationDelay: `${i * 0.28}s`,
+                    animationDelay: `${i * 0.2}s`,
                   }}
                 >
-                  <TechCard tech={tech} size={CARD_SIZE} />
+                  <div className="w-full h-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[10px_10px_0px_0px_rgba(253,90,26,1)] group-hover:bg-[#E9E9E9] group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] transition-all flex flex-col items-center justify-center p-2 rounded-none cursor-pointer">
+                    <img
+                      src={reliableIcons[tech.name] || tech.icon}
+                      alt={tech.name}
+                      className="w-10 h-10 mb-2 grayscale group-hover:grayscale-0 transition-all"
+                    />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-black text-center">
+                      {tech.name}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -389,32 +338,15 @@ const TechnologyEcosystem = () => {
       </div>
 
       <style>{`
-        @keyframes techFloat {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-8px); }
+        @keyframes techFloatNew {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50%       { transform: translateY(-12px) rotate(2deg); }
         }
         .tech-node {
-          animation: techFloat 5s ease-in-out infinite;
+          animation: techFloatNew 6s ease-in-out infinite;
         }
         .tech-node:hover {
           animation-play-state: paused;
-          z-index: 30 !important;
-        }
-        
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 8s infinite alternate ease-in-out;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
         }
       `}</style>
     </section>

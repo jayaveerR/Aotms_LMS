@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import {
   Video,
   Play,
@@ -12,6 +13,7 @@ import {
   Medal,
   FileText,
   LineChart,
+  ArrowRight,
 } from "lucide-react";
 
 const features = [
@@ -88,26 +90,12 @@ const KeyFeatures = () => {
   return (
     <section
       id="features"
-      className="py-16 md:py-24 lg:py-32 relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(170deg, #0a0f1e 0%, #0d1525 50%, #0f1a2e 100%)",
-      }}
+      className="py-24 md:py-32 relative overflow-hidden bg-black font-['Inter']"
     >
-      {/* Circuit-line grid overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0,117,207,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(0,117,207,0.4) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-      {/* Brand-colored ambient radials */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-[50%] h-[60%] bg-[#0075CF]/[0.08] rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-[50%] h-[60%] bg-[#FD5A1A]/[0.06] rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-[#0075CF]/[0.04] rounded-full blur-[80px]" />
+      {/* Background patterns */}
+      <div className="absolute inset-0 z-0">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
       </div>
 
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
@@ -117,97 +105,62 @@ const KeyFeatures = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-10 md:mb-16 lg:mb-20"
+          className="text-center mb-24"
         >
-          <div className="inline-flex items-center gap-3 mb-5">
-            <span className="h-[3px] w-8 bg-[#0075CF] rounded-full" />
-            <span className="text-sm font-semibold tracking-wider uppercase text-[#0075CF]">
+          <div className="inline-flex items-center gap-4 mb-8">
+            <span className="h-1.5 w-12 bg-[#0075CF]" />
+            <span className="text-sm font-black tracking-[0.3em] uppercase text-white">
               Platform Features
             </span>
-            <span className="h-[3px] w-8 bg-[#FD5A1A] rounded-full" />
+            <span className="h-1.5 w-12 bg-[#FD5A1A]" />
           </div>
-          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white mb-4 leading-tight">
-            LIVE CLASSES, EXAMS & MOCK TESTS ON{" "}
-            <br className="hidden md:block" />
-            <span className="gradient-text-brand">AOTMS LMS</span>
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl text-white mb-6 uppercase italic leading-[0.9]">
+            Advanced <span className="text-[#0075CF]">Learning</span> <br />
+            Powered By <span className="text-[#FD5A1A]">AOTMS</span>
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto text-sm sm:text-base md:text-lg">
-            Everything you need to succeed in your learning journey — from live
-            sessions to career tools
+          <p className="text-white font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto opacity-40">
+            Everything you need for a competitive edge — from live sessions to
+            AI resume analysis.
           </p>
         </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => {
             const style = themeStyles[feature.theme];
             return (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative"
               >
-                <div
-                  className={`relative bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 lg:p-8 transition-all duration-300 hover:bg-white/[0.10] hover:border-white/20 hover:-translate-y-1 shadow-lg hover:shadow-xl`}
-                >
-                  {/* Top accent bar */}
+                <div className="h-full bg-white border-4 border-black p-10 shadow-[8px_8px_0px_0px_rgba(255,107,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-[4px_4px_0px_0px_rgba(0,117,207,1)] transition-all group relative rounded-none">
+                  {/* Decorative corner tag */}
                   <div
-                    className={`absolute top-0 left-6 right-6 h-[3px] ${style.barBg} rounded-b-full`}
-                  />
-
-                  {/* Icon Container */}
-                  <div className="relative mb-6">
-                    <div
-                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl ${style.iconBg} flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-105 transition-transform duration-300`}
-                    >
-                      <feature.icon
-                        className="w-7 h-7 sm:w-8 sm:h-8 text-white"
-                        strokeWidth={2}
-                      />
-                    </div>
-                    {/* Secondary Icon */}
-                    <div
-                      className={`absolute -bottom-2 left-10 sm:left-12 w-8 h-8 rounded-lg bg-white/10 border border-white/20 shadow-lg flex items-center justify-center group-hover:-translate-y-1 transition-transform duration-300`}
-                    >
-                      <feature.secondaryIcon
-                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${style.secondaryText}`}
-                      />
-                    </div>
+                    className={`absolute top-0 right-0 p-3 border-l-4 border-b-4 border-black font-black text-[10px] tracking-widest uppercase ${feature.theme === "blue" ? "bg-[#0075CF] text-white" : "bg-[#FD5A1A] text-white"}`}
+                  >
+                    {feature.theme}
                   </div>
 
-                  {/* Content */}
-                  <h3
-                    className={`font-heading text-lg sm:text-xl md:text-2xl text-white mb-3 uppercase tracking-tight ${style.textHover} transition-colors duration-300`}
+                  <div
+                    className={`w-20 h-20 border-4 border-black flex items-center justify-center mb-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${style.iconBg} transition-colors`}
                   >
+                    <feature.icon className="w-10 h-10 text-white" />
+                  </div>
+
+                  <h3 className="text-2xl font-black text-black mb-4 uppercase tracking-tight italic">
                     {feature.title}
                   </h3>
-                  <p className="text-white/50 text-sm leading-relaxed">
+                  <p className="text-[13px] font-bold text-black/60 leading-relaxed uppercase tracking-wider mb-8">
                     {feature.description}
                   </p>
 
-                  {/* Hover Arrow */}
                   <div
-                    className={`mt-5 flex items-center gap-2 ${style.accentColor} opacity-0 group-hover:opacity-100 translate-x-[-8px] group-hover:translate-x-0 transition-all duration-300`}
+                    className={`flex items-center gap-3 font-black text-[10px] tracking-[0.2em] uppercase ${style.accentColor} group-hover:translate-x-2 transition-transform`}
                   >
-                    <span className="text-xs font-bold uppercase tracking-wider">
-                      Explore
-                    </span>
-                    <svg
-                      className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    Explore Feature <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
               </motion.div>
@@ -215,36 +168,29 @@ const KeyFeatures = () => {
           })}
         </div>
 
-        {/* Bottom Stats */}
+        {/* Bottom Metrics Bar */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-12 md:mt-16 lg:mt-20 bg-[#000000] rounded-2xl border-2 border-[#000000] p-6 md:p-8 lg:p-10"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-24 bg-[#E9E9E9] border-4 border-black p-10 shadow-[12px_12px_0px_0px_rgba(0,117,207,1)]"
         >
-          <div className="flex flex-wrap justify-center gap-8 sm:gap-10 md:gap-14 lg:gap-20">
+          <div className="flex flex-wrap justify-center gap-12 md:gap-24">
             {[
-              {
-                value: "24/7",
-                label: "Platform Access",
-                color: "text-[#0075CF]",
-              },
-              { value: "HD", label: "Video Quality", color: "text-[#FD5A1A]" },
-              { value: "100%", label: "Secure Exams", color: "text-[#0075CF]" },
-              {
-                value: "Real-time",
-                label: "Progress Updates",
-                color: "text-[#FD5A1A]",
-              },
+              { value: "24/7", label: "ACCESS", color: "#0075CF" },
+              { value: "4K", label: "VIDEO", color: "#FD5A1A" },
+              { value: "AI", label: "PROCTORED", color: "black" },
+              { value: "LIVE", label: "UPDATES", color: "#0075CF" },
             ].map((stat) => (
-              <div key={stat.label} className="text-center">
+              <div key={stat.label} className="text-center group">
                 <div
-                  className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-heading ${stat.color} mb-1`}
+                  className="text-4xl md:text-5xl font-black mb-2 italic transition-transform group-hover:scale-110"
+                  style={{ color: stat.color }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-xs sm:text-sm text-white/60 font-medium">
+                <div className="text-[10px] font-black uppercase tracking-[0.3em] text-black opacity-40">
                   {stat.label}
                 </div>
               </div>

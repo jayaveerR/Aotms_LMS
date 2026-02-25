@@ -2,6 +2,7 @@ import logo from "@/assets/logo.png";
 import { Linkedin, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -39,81 +40,66 @@ const Footer = () => {
   return (
     <footer
       id="contact"
-      className="relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(175deg, #005fa3 0%, #0075CF 50%, #004d87 100%)",
-      }}
+      className="relative overflow-hidden bg-black border-t-8 border-black font-['Inter']"
     >
-      {/* Subtle grid overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "50px 50px",
-        }}
-      />
-      {/* Orange accent top border */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{
-          background:
-            "linear-gradient(90deg, #0075CF 0%, #FD5A1A 50%, #0075CF 100%)",
-        }}
-      />
+      <div className="absolute inset-0 z-0">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none" />
+      </div>
 
       {/* Newsletter Section */}
-      <div className="container-width section-padding !py-12 border-b border-white/10 relative z-10">
-        <div className="text-center max-w-md mx-auto">
-          <h3 className="text-xl font-semibold text-white mb-2">
-            Join our newsletter
-          </h3>
-          <p className="text-sm text-white/80 mb-6">
-            We'll send you a newsletter once per week. No spam.
-          </p>
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="pl-10 h-11 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/30"
-              />
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
+      <div className="container-width py-16 border-b-4 border-white/10 relative z-10 px-4 md:px-8">
+        <div className="bg-white border-4 border-black p-8 sm:p-12 shadow-[12px_12px_0px_0px_rgba(0,117,207,1)] max-w-4xl mx-auto rotate-[-0.5deg]">
+          <div className="flex flex-col lg:flex-row items-center gap-10">
+            <div className="flex-1 text-center lg:text-left">
+              <h3 className="text-3xl font-black text-black uppercase tracking-tight mb-2 italic">
+                Get Weekly Updates.
+              </h3>
+              <p className="text-xs font-black uppercase tracking-widest text-black/40">
+                Course alerts, industry news, and success stories.
+              </p>
             </div>
-            <Button variant="accent" className="h-11 px-6">
-              Subscribe
-            </Button>
+            <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1 sm:w-80">
+                <Input
+                  type="email"
+                  placeholder="ENTER EMAIL"
+                  className="h-16 rounded-none bg-[#E9E9E9] border-4 border-black text-black placeholder:text-black/20 font-black uppercase tracking-widest px-6 focus:ring-0 focus:border-[#FD5A1A] transition-colors"
+                />
+              </div>
+              <Button className="h-16 px-10 bg-[#FD5A1A] text-white border-4 border-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all rounded-none">
+                Subscribe
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Footer Content */}
-      <div className="container-width section-padding !py-10 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-          {/* Explore Links */}
+      <div className="container-width py-20 relative z-10 px-4 md:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+          {/* Brand Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-white inline-block p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,117,207,1)] mb-8">
+              <img src={logo} alt="AOTMS" className="h-12 w-auto" />
+            </div>
+            <p className="text-white font-black uppercase tracking-widest text-[10px] leading-relaxed opacity-40">
+              Empowering the next generation of tech talent through immersive,
+              industry-led learning experiences.
+            </p>
+          </div>
+
+          {/* Links Columns */}
           <div>
-            <h4 className="font-medium text-white/70 text-sm mb-4 uppercase tracking-wider">
-              Explore
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-8 italic">
+              Platform
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-4">
               {footerLinks.explore.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-sm text-white/90 hover:text-[#FD5A1A] transition-colors"
+                    className="text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#FD5A1A] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#FD5A1A] underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -122,17 +108,16 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company Links */}
           <div>
-            <h4 className="font-medium text-white/70 text-sm mb-4 uppercase tracking-wider">
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-8 italic">
               Company
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-4">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-sm text-white/90 hover:text-[#FD5A1A] transition-colors"
+                    className="text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#0075CF] hover:translate-x-1 transition-all inline-block underline decoration-white/0 hover:decoration-[#0075CF] underline-offset-4"
                   >
                     {link.name}
                   </a>
@@ -141,93 +126,50 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Resources Links */}
           <div>
-            <h4 className="font-medium text-white/70 text-sm mb-4 uppercase tracking-wider">
-              Resources
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-8 italic">
+              Connect
             </h4>
-            <ul className="space-y-2.5">
-              {footerLinks.resources.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-white/90 hover:text-[#FD5A1A] transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="font-medium text-white/70 text-sm mb-4 uppercase tracking-wider">
-              Contact
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a
-                  href="tel:+918019952233"
-                  className="text-sm text-white/90 hover:text-[#FD5A1A] transition-colors"
-                >
-                  (+91) 8019952233
-                </a>
-              </li>
-              <li>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                  Email Us
+                </p>
                 <a
                   href="mailto:hello@aotms.com"
-                  className="text-sm text-white/90 hover:text-[#FD5A1A] transition-colors"
+                  className="text-sm font-black text-white hover:text-[#FD5A1A] transition-colors"
                 >
-                  hello@aotms.com
+                  HELLO@AOTMS.COM
                 </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Address */}
-          <div className="col-span-2">
-            <h4 className="font-medium text-white/70 text-sm mb-4 uppercase tracking-wider">
-              Address
-            </h4>
-            <p className="text-sm text-white/90 leading-relaxed">
-              Auram Creative Center, 19th Floor
-              <br />
-              Vijayawada, Andhra Pradesh
-              <br />
-              India - 520001
-            </p>
-            <p className="text-xs text-white/60 mt-2">
-              Serving students across Vijayawada and beyond
-            </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                  Visit Us
+                </p>
+                <p className="text-xs font-black text-white leading-relaxed uppercase tracking-tighter">
+                  Auram Creative Center, 19th Floor
+                  <br />
+                  Vijayawada, AP, India - 520001
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 pt-9 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 ">
-          <div className="flex items-center gap-2">
-            <div className="bg-white rounded-xl px-4 py-2 shadow-sm border border-white/10">
-              <img
-                src={logo}
-                alt="AOTMS Logo"
-                className="h-14 sm:h-18 md:h-24 px-2"
-              />
-            </div>
-          </div>
-
-          <p className="text-sm text-white/70">
-            © {currentYear} AOTMS. All rights reserved.
+        <div className="mt-20 pt-10 border-t-4 border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-[10px] font-black uppercase tracking-widest text-white/20">
+            © {currentYear} AOTMS PORTAL. BUILT FOR THE FUTURE.
           </p>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             {socialLinks.map((social) => (
               <a
                 key={social.label}
                 href={social.href}
-                aria-label={social.label}
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-[#FD5A1A] hover:border-[#FD5A1A] hover:text-white transition-all duration-300 text-white/80"
+                className="w-12 h-12 bg-white/5 border-2 border-white/10 flex items-center justify-center text-white hover:bg-[#0075CF] hover:border-black hover:text-white hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] transition-all rounded-none"
               >
-                <social.icon className="w-4 h-4" />
+                <social.icon className="w-5 h-5" />
               </a>
             ))}
           </div>

@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import {
   UserPlus,
   BookMarked,
   Video,
   ClipboardCheck,
   Trophy,
+  ArrowRight,
 } from "lucide-react";
 
 const steps = [
@@ -43,11 +45,10 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="py-16 md:py-24 lg:py-32 bg-[#E9E9E9] relative overflow-hidden">
-      {/* Orange gradient blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[50%] bg-[#FD5A1A]/[0.04] rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[35%] h-[45%] bg-[#FD5A1A]/[0.05] rounded-full blur-[80px]" />
+    <section className="py-24 md:py-32 bg-white relative overflow-hidden border-t-4 border-black font-['Inter']">
+      <div className="absolute inset-0 z-0">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
       </div>
 
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
@@ -57,85 +58,63 @@ const HowItWorks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12 md:mb-16 lg:mb-20"
+          className="text-center mb-24"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FD5A1A]/10 text-[#FD5A1A] mb-5">
-            <span className="text-sm font-semibold tracking-wide uppercase">
+          <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#FD5A1A] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white mb-8">
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
               Your Learning Journey
             </span>
           </div>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-4 leading-tight">
-            FROM ENROLLMENT TO{" "}
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl text-black mb-6 uppercase italic leading-[0.9]">
+            FROM ENROLLMENT TO <br />
             <span className="text-[#FD5A1A]">EMPLOYMENT</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
-            Your journey from enrollment to employment in 5 simple steps
+          <p className="text-black font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto opacity-50">
+            A simple 5-step process to transform your career.
           </p>
         </motion.div>
 
-        {/* Steps - Responsive layout */}
+        {/* Steps Grid */}
         <div className="relative">
-          {/* Connecting line - visible on md+ */}
-          <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-[3px] bg-[#FD5A1A]/20 z-0">
-            <motion.div
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              className="h-full bg-[#FD5A1A] origin-left"
-            />
-          </div>
+          {/* Thick Connecting Line */}
+          <div className="hidden lg:block absolute top-[40px] left-[10%] right-[10%] h-[4px] bg-black z-0" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {steps.map((step, index) => (
               <motion.div
                 key={step.step}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="relative group"
               >
                 <div className="flex flex-col items-center text-center">
-                  {/* Step number circle */}
-                  <div className="relative z-10 w-[72px] h-[72px] md:w-[80px] md:h-[80px] rounded-full bg-white border-[3px] border-[#000000] flex items-center justify-center mb-5 shadow-[3px_3px_0px_0px_rgba(253,90,26,1)] group-hover:shadow-[5px_5px_0px_0px_rgba(253,90,26,1)] group-hover:-translate-y-1 transition-all duration-300">
-                    <div className="w-[56px] h-[56px] md:w-[62px] md:h-[62px] rounded-full bg-[#FD5A1A] flex items-center justify-center">
-                      <step.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                    </div>
+                  {/* Step Number Box */}
+                  <div className="relative z-10 w-20 h-20 bg-white border-4 border-black flex items-center justify-center mb-8 shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] group-hover:bg-[#FD5A1A] group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all">
+                    <span className="text-2xl font-black text-black group-hover:text-white italic">
+                      {step.step}
+                    </span>
                   </div>
 
-                  {/* Step number label */}
-                  <span className="inline-block px-3 py-1 rounded-full bg-[#FD5A1A] text-white text-xs font-bold mb-3 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    STEP {step.step}
-                  </span>
-
-                  {/* Content card */}
-                  <div className="bg-white rounded-xl border-2 border-[#000000] p-4 md:p-5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[5px_5px_0px_0px_rgba(253,90,26,1)] group-hover:-translate-y-1 transition-all duration-300 w-full">
-                    <h3 className="font-heading text-base md:text-lg text-foreground mb-2 group-hover:text-[#FD5A1A] transition-colors duration-300">
+                  {/* Content Card */}
+                  <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all h-full rounded-none">
+                    <div className="w-10 h-10 bg-[#E9E9E9] border-2 border-black flex items-center justify-center mb-4 mx-auto group-hover:bg-[#FD5A1A] transition-colors">
+                      <step.icon className="w-5 h-5 text-black group-hover:text-white" />
+                    </div>
+                    <h3 className="text-sm font-black text-black mb-3 uppercase tracking-wider italic">
                       {step.title}
                     </h3>
-                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
+                    <p className="text-[11px] font-bold text-black/50 leading-relaxed uppercase tracking-widest">
                       {step.description}
                     </p>
                   </div>
                 </div>
 
-                {/* Mobile connecting arrow (between cards) */}
+                {/* Mobile Arrows */}
                 {index < steps.length - 1 && (
-                  <div className="flex justify-center my-2 sm:hidden">
-                    <svg
-                      className="w-5 h-5 text-[#FD5A1A]"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={3}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                      />
-                    </svg>
+                  <div className="lg:hidden flex justify-center py-4">
+                    <ArrowRight className="w-6 h-6 text-[#FD5A1A] rotate-90 sm:rotate-0" />
                   </div>
                 )}
               </motion.div>

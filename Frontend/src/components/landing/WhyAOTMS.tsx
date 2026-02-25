@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import {
   Users,
   Trophy,
@@ -54,25 +55,11 @@ const WhyAOTMS = () => {
   return (
     <section
       id="about"
-      className="py-16 md:py-24 lg:py-32 relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(170deg, #f0f7ff 0%, #ffffff 40%, #f5f9ff 100%)",
-      }}
+      className="py-24 md:py-32 relative overflow-hidden bg-[#E9E9E9] border-t-4 border-black font-['Inter']"
     >
-      {/* Micro dot-grid texture */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.25]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='0.8' fill='%230075CF' fill-opacity='0.18'/%3E%3C/svg%3E")`,
-          backgroundSize: "22px 22px",
-        }}
-      />
-      {/* Animated brand-color ambient blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[60%] bg-[#0075CF]/[0.06] rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[50%] bg-[#FD5A1A]/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute top-[40%] left-[30%] w-[30%] h-[30%] bg-[#0075CF]/[0.03] rounded-full blur-[80px]" />
+      {/* Ambient Background for consistency */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <AmbientBackground />
       </div>
 
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
@@ -82,21 +69,21 @@ const WhyAOTMS = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-16 lg:mb-20"
+          className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0075CF]/10 text-[#0075CF] mb-5">
+          <div className="inline-flex items-center gap-2 px-6 py-2 bg-[#0075CF] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white mb-8">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-semibold tracking-wide uppercase">
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
               Why Students Love Us
             </span>
           </div>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-4 leading-tight">
-            Online Courses & Professional Training{" "}
-            <span className="text-[#0075CF]">in Vijayawada</span>
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl text-black mb-6 uppercase italic leading-[0.9]">
+            Online Courses <br />
+            <span className="text-[#0075CF]">Professional Training</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
-            Transform your career with Vijayawada's most trusted LMS platform
-            for skill-based learning and placement support.
+          <p className="text-black font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto opacity-50">
+            Vijayawada's most trusted LMS platform for skill-based learning and
+            placement support.
           </p>
         </motion.div>
 
@@ -106,7 +93,7 @@ const WhyAOTMS = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 lg:gap-6 mb-12 md:mb-16 lg:mb-20"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24"
         >
           {stats.map((stat, index) => (
             <motion.div
@@ -115,20 +102,20 @@ const WhyAOTMS = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-              className="group relative bg-white rounded-2xl border-2 border-[#000000] p-4 md:p-6 text-center shadow-[3px_3px_0px_0px_rgba(0,117,207,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,117,207,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] transition-all duration-300"
+              className="bg-white border-4 border-black p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
             >
-              <div className="font-heading text-2xl md:text-3xl lg:text-4xl text-[#0075CF] mb-1">
+              <div className="text-4xl font-black text-[#FD5A1A] mb-1 italic">
                 {stat.value}
               </div>
-              <div className="text-muted-foreground text-xs md:text-sm font-medium">
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-black opacity-40">
                 {stat.label}
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Features Bento Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -136,28 +123,23 @@ const WhyAOTMS = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.15 + index * 0.08 }}
-              className="group"
             >
-              <div className="relative h-full bg-white rounded-2xl border-2 border-[#000000] p-5 md:p-7 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,117,207,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all duration-300">
-                {/* Top blue accent bar */}
-                <div className="absolute top-0 left-4 right-4 h-[3px] bg-[#0075CF] rounded-b-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#0075CF] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                  <feature.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+              <div className="h-full bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] transition-all group relative">
+                <div className="w-16 h-16 bg-[#0075CF] border-4 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#FD5A1A] transition-colors">
+                  <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-heading text-lg md:text-xl text-foreground mb-2 group-hover:text-[#0075CF] transition-colors duration-300">
+                <h3 className="text-xl font-black text-black mb-3 uppercase tracking-tight">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+                <p className="text-sm font-bold text-black/60 leading-relaxed">
                   {feature.description}
                 </p>
 
-                {/* Hover arrow */}
-                <div className="mt-4 flex items-center gap-1.5 text-[#0075CF] opacity-0 group-hover:opacity-100 translate-x-[-8px] group-hover:translate-x-0 transition-all duration-300">
-                  <span className="text-xs font-bold uppercase tracking-wider">
+                <div className="mt-8 flex items-center gap-2 text-[#0075CF] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] font-black uppercase tracking-widest">
                     Learn more
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </motion.div>

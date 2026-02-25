@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -7,102 +8,80 @@ const CTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
-      {/* Bold gradient background: Blue → Orange via Black */}
-      <div className="absolute inset-0 bg-[#000000]">
-        {/* Large blue glow left */}
-        <div className="absolute top-0 left-0 w-[60%] h-full bg-[#0075CF]/30 blur-[150px] rounded-full" />
-        {/* Large orange glow right */}
-        <div className="absolute bottom-0 right-0 w-[50%] h-[80%] bg-[#FD5A1A]/20 blur-[150px] rounded-full" />
-        {/* Center intersection glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[50%] bg-[#0075CF]/10 blur-[100px] rounded-full" />
+    <section className="py-24 md:py-32 relative overflow-hidden bg-black font-['Inter']">
+      {/* Background patterns */}
+      <div className="absolute inset-0 z-0">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
       </div>
-
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "50px 50px",
-        }}
-      />
 
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-4xl mx-auto"
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
-            <Sparkles className="w-4 h-4 text-[#FD5A1A]" />
-            <span className="text-sm font-semibold text-white/80 tracking-wide uppercase">
+          <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#FD5A1A] border-2 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] text-white mb-12 rotate-[-1deg]">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
               Start Your Journey Today
             </span>
           </div>
 
           {/* Heading */}
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white mb-6 leading-tight">
-            CAREER-FOCUSED LEARNING PLATFORM FOR{" "}
-            <br className="hidden md:block" />
-            <span className="text-[#0075CF]">STUDENTS</span> &{" "}
-            <span className="text-[#FD5A1A]">PROFESSIONALS</span> IN VIJAYAWADA
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl text-white mb-8 uppercase italic leading-[0.9]">
+            READY TO <span className="text-[#0075CF]">LEVEL UP</span> <br />
+            YOUR <span className="text-[#FD5A1A]">CAREER?</span>
           </h2>
 
-          {/* Subtitle */}
-          <p className="text-white/50 mb-10 text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
-            Join thousands of students across Vijayawada and beyond who are
-            mastering industry-relevant skills and building successful careers
-            with AOTMS LMS.
+          <p className="text-white font-bold uppercase tracking-widest text-sm mb-16 opacity-40 max-w-2xl mx-auto leading-relaxed">
+            Join thousands of students in Vijayawada mastering skills that
+            world-class companies actually want.
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-20">
             <Button
-              variant="accent"
-              size="xl"
-              className="gap-2 group text-base font-bold px-8 py-4 border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300"
+              className="h-20 px-12 bg-[#FD5A1A] text-white border-4 border-black text-xl font-black uppercase tracking-widest shadow-[8px_8px_0px_0px_rgba(0,117,207,1)] hover:bg-[#0075CF] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[8px] active:translate-y-[8px] active:shadow-none transition-all rounded-none group"
               onClick={() => navigate("/auth")}
             >
-              Register Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              Get Started Now
+              <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </Button>
             <Button
-              size="xl"
-              className="gap-2 text-base font-bold px-8 py-4 bg-white text-[#000000] border-2 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,117,207,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,117,207,1)] hover:-translate-y-1 hover:-translate-x-1 hover:bg-white transition-all duration-300"
+              className="h-20 px-12 bg-white text-black border-4 border-black text-xl font-black uppercase tracking-widest shadow-[8px_8px_0px_0px_rgba(253,90,26,1)] hover:bg-[#E9E9E9] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[8px] active:translate-y-[8px] active:shadow-none transition-all rounded-none gap-3"
               onClick={() => navigate("/courses")}
             >
-              <BookOpen className="w-5 h-5" />
-              Explore Courses
+              Browse Library
             </Button>
           </div>
 
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-wrap justify-center items-center gap-6 md:gap-10 pt-8 border-t border-white/10"
-          >
+          {/* Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 border-t-4 border-white/10">
             {[
-              { label: "Students Trained", value: "2000+" },
-              { label: "Placement Rate", value: "85%" },
-              { label: "Expert Instructors", value: "50+" },
+              { label: "Students Trained", value: "2000+", color: "#0075CF" },
+              { label: "Placement Rate", value: "85%", color: "#FD5A1A" },
+              { label: "Expert Instructors", value: "50+", color: "white" },
             ].map((item) => (
-              <div key={item.label} className="text-center">
-                <div className="font-heading text-xl md:text-2xl text-white mb-0.5">
+              <div
+                key={item.label}
+                className="bg-white/5 border-2 border-white/20 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:border-white transition-colors"
+              >
+                <div
+                  className="text-3xl font-black mb-1 italic"
+                  style={{ color: item.color }}
+                >
                   {item.value}
                 </div>
-                <div className="text-xs md:text-sm text-white/40 font-medium">
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
                   {item.label}
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

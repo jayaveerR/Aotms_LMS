@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import AmbientBackground from "../ui/AmbientBackground";
 
 const instructors = [
   {
@@ -33,11 +35,10 @@ const instructors = [
 
 const Instructors = () => {
   return (
-    <section className="py-16 md:py-24 lg:py-32 bg-[#E9E9E9] relative overflow-hidden">
-      {/* Orange ambient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-15%] right-[10%] w-[40%] h-[50%] bg-[#FD5A1A]/[0.04] rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[20%] w-[30%] h-[40%] bg-[#FD5A1A]/[0.05] rounded-full blur-[80px]" />
+    <section className="py-24 md:py-32 bg-[#E9E9E9] relative overflow-hidden border-t-4 border-black font-['Inter']">
+      <div className="absolute inset-0 z-0 opacity-40">
+        <AmbientBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
       </div>
 
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
@@ -47,63 +48,60 @@ const Instructors = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12 md:mb-16 lg:mb-20"
+          className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FD5A1A]/10 text-[#FD5A1A] mb-5">
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              Our Instructors
+          <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#FD5A1A] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white mb-8">
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
+              Expert Mentors
             </span>
           </div>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-4 leading-tight">
-            LEARN FROM <span className="text-[#FD5A1A]">THE BEST</span>
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl text-black mb-6 uppercase italic leading-[0.9]">
+            LEARN FROM <br />
+            <span className="text-[#0075CF]">THE BEST</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
-            Our instructors bring real-world experience from top tech companies
+          <p className="text-black font-bold uppercase tracking-widest text-sm max-w-2xl mx-auto opacity-50">
+            Industry professionals with 10+ years of experience in top tech
+            firms.
           </p>
         </motion.div>
 
         {/* Instructors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {instructors.map((instructor, index) => (
             <motion.div
               key={instructor.name}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.12 }}
-              className="group"
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="bg-white rounded-2xl border-2 border-[#000000] overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300">
+              <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all group overflow-hidden rounded-none">
                 {/* Image */}
-                <div className="relative h-56 sm:h-52 md:h-56 lg:h-60 overflow-hidden">
+                <div className="relative h-64 border-b-4 border-black overflow-hidden bg-black/5">
                   <img
                     src={instructor.image}
                     alt={instructor.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500"
                   />
-                  {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Experience badge */}
-                  <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-[#FD5A1A] text-white text-xs font-bold border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    {instructor.experience}
+                  <div className="absolute top-0 right-0 px-4 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest border-l-4 border-b-4 border-white shadow-none">
+                    {instructor.experience} EXP
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 md:p-5">
-                  {/* Orange top accent */}
-                  <div className="w-10 h-[3px] bg-[#FD5A1A] rounded-full mb-3 group-hover:w-full transition-all duration-500" />
-
-                  <h3 className="font-heading text-lg md:text-xl text-foreground mb-1 group-hover:text-[#FD5A1A] transition-colors duration-300">
+                <div className="p-6">
+                  <h3 className="text-xl font-black text-black mb-2 uppercase tracking-tight italic">
                     {instructor.name}
                   </h3>
-                  <p className="text-[#FD5A1A] font-semibold text-sm mb-1">
+                  <div className="inline-block px-3 py-1 bg-[#E9E9E9] border-2 border-black font-black text-[9px] uppercase tracking-widest mb-4">
                     {instructor.expertise}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {instructor.experience} Experience
-                  </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#0075CF] group-hover:translate-x-2 transition-transform">
+                    View Profile <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             </motion.div>
