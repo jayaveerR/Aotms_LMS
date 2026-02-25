@@ -16,7 +16,7 @@ const ScrollToTop = () => {
     <button
       onClick={scrollUp}
       aria-label="Scroll to top"
-      className={`fixed bottom-6 right-6 z-50 group flex items-center justify-center
+      className={`fixed bottom-6 left-6 z-50 group flex items-center justify-center
         w-12 h-12 rounded-xl bg-gradient-to-br from-[#0075CF] to-[#005fa3]
         border border-white/20 shadow-[0_8px_20px_rgba(0,117,207,0.4)]
         hover:shadow-[0_8px_30px_rgba(0,117,207,0.7)] hover:scale-110 active:scale-95
