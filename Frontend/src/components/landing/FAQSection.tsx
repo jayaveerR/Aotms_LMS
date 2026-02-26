@@ -225,7 +225,7 @@ const FAQSection = () => {
   return (
     <section
       id="faq"
-      className="py-24 md:py-32 bg-white relative overflow-hidden border-t-4 border-black font-['Inter']"
+      className="py-24 md:py-32 bg-white relative overflow-hidden font-['Inter']"
     >
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 

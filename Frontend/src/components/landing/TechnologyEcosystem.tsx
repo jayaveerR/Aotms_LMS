@@ -199,7 +199,7 @@ const TechnologyEcosystem = () => {
     <section
       ref={sectionRef}
       id="technology-ecosystem"
-      className="relative py-24 md:py-32 overflow-hidden bg-[#E9E9E9] border-t-4 border-black font-['Inter']"
+      className="relative py-24 md:py-32 overflow-hidden bg-[#E9E9E9] font-['Inter']"
     >
       {/* Background Patterns */}
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
