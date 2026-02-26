@@ -167,7 +167,7 @@ const ChatbotWidget = () => {
         {/* Header */}
         <div className="bg-black p-4 text-white relative flex items-center gap-3 shrink-0 border-b-4 border-black rounded-3xl">
           <div className="relative">
-            <div className="w-10 h-10 bg-white border-2 border-white flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(253,90,26,1)] rounded-3xl">
+            <div className="w-10 h-10 bg-white border-2 border-white flex items-center justify-center rounded-3xl">
               <Bot className="w-6 h-6 text-black rounded-3xl" />
             </div>
           </div>
@@ -203,7 +203,7 @@ const ChatbotWidget = () => {
               }`}
             >
               <div
-                className={`w-8 h-8 shrink-0 border-2 border-black flex items-center justify-center text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                className={`w-8 h-8 shrink-0 border-2 border-black flex items-center justify-center text-xs ${
                   msg.type === "user"
                     ? "bg-[#FD5A1A] text-white"
                     : "bg-[#0075CF] text-white"
@@ -217,7 +217,7 @@ const ChatbotWidget = () => {
               </div>
 
               <div
-                className={`p-3 text-[12px] font-bold leading-relaxed shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide min-w-0 ${
+                className={`p-3 text-[12px] font-bold leading-relaxed uppercase tracking-wide min-w-0 ${
                   msg.type === "user"
                     ? "bg-[#FD5A1A] text-white border-2 border-black"
                     : "bg-white text-black border-2 border-black"
@@ -234,7 +234,7 @@ const ChatbotWidget = () => {
             {showScrollBottom && (
               <button
                 onClick={scrollToBottom}
-                className="pointer-events-auto p-2 bg-black text-white border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A] transition-all rounded-3xl animate-bounce"
+                className="pointer-events-auto p-2 bg-black text-white border-2 border-white hover:bg-[#FD5A1A] transition-all rounded-3xl animate-bounce"
                 title="Scroll to Bottom"
               >
                 <ArrowDown className="w-4 h-4" />
@@ -243,7 +243,7 @@ const ChatbotWidget = () => {
             {showScrollTop && !showScrollBottom && (
               <button
                 onClick={scrollToTop}
-                className="pointer-events-auto p-2 bg-black text-white border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF] transition-all rounded-3xl"
+                className="pointer-events-auto p-2 bg-black text-white border-2 border-white hover:bg-[#0075CF] transition-all rounded-3xl"
                 title="Scroll to Top"
               >
                 <ArrowUp className="w-4 h-4" />
@@ -266,7 +266,7 @@ const ChatbotWidget = () => {
                     setInputValue(reply);
                     setTimeout(() => handleSend(), 50);
                   }}
-                  className="shrink-0 px-3 py-2 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all rounded-3xl"
+                  className="shrink-0 px-3 py-2 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest hover:translate-x-[1px] hover:translate-y-[1px] transition-all rounded-3xl"
                 >
                   {reply}
                 </button>
@@ -290,7 +290,7 @@ const ChatbotWidget = () => {
               disabled={!inputValue.trim()}
               className={`w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 transition-all ${
                 inputValue.trim()
-                  ? "bg-[#FD5A1A] text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none cursor-pointer"
+                  ? "bg-[#FD5A1A] text-white hover:translate-x-[1px] hover:translate-y-[1px] cursor-pointer"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >

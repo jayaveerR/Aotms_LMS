@@ -218,7 +218,7 @@ const HeroSection = () => {
             ].map((stat, idx) => (
               <div
                 key={stat.label}
-                className={`bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"} hover:rotate-0 transition-transform rounded-3xl`}
+                className={`bg-white p-6 border-4 border-black ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"} hover:rotate-0 transition-transform rounded-3xl`}
               >
                 <p
                   className="text-4xl font-black mb-1 italic"
