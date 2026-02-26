@@ -4,6 +4,56 @@ import { ArrowRight, Play, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+const TechBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    {/* Tech grid */}
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
+
+    {/* Floating tech nodes */}
+    {Array.from({ length: 8 }).map((_, i) => (
+      <motion.div
+        key={i}
+        animate={{
+          y: [0, -30, 0],
+          opacity: [0.1, 0.4, 0.1],
+        }}
+        transition={{
+          duration: 3 + i,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: i * 0.4,
+        }}
+        className={`absolute w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? "bg-[#0075CF]" : "bg-[#FD5A1A]"}`}
+        style={{
+          left: `${10 + i * 11}%`,
+          top: `${15 + ((i * 17) % 60)}%`,
+        }}
+      />
+    ))}
+
+    {/* Moving data lines */}
+    <motion.div
+      animate={{ y: [-200, 1000], opacity: [0, 0.5, 0] }}
+      transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+      className="absolute left-[25%] top-0 w-[1px] h-[200px] bg-gradient-to-b from-transparent via-[#0075CF] to-transparent"
+    />
+    <motion.div
+      animate={{ y: [-200, 1000], opacity: [0, 0.5, 0] }}
+      transition={{ duration: 7, repeat: Infinity, ease: "linear", delay: 2.5 }}
+      className="absolute left-[75%] top-0 w-[1px] h-[250px] bg-gradient-to-b from-transparent via-[#FD5A1A] to-transparent"
+    />
+    <motion.div
+      animate={{ x: [-200, 1000], opacity: [0, 0.3, 0] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "linear", delay: 1 }}
+      className="absolute top-[30%] left-0 h-[1px] w-[200px] bg-gradient-to-r from-transparent via-[#0075CF] to-transparent"
+    />
+
+    {/* Soft glows */}
+    <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-[#0075CF]/5 rounded-full blur-[100px]" />
+    <div className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] bg-[#FD5A1A]/5 rounded-full blur-[120px]" />
+  </div>
+);
+
 const HeroSection = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
@@ -17,8 +67,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-24 bg-white font-['Inter']">
-      {/* Subtle grid pattern overlay */}
-      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none" />
+      <TechBackground />
 
       <div className="container-width section-padding relative z-10 w-full">
         <div className="max-w-5xl mx-auto text-center">
@@ -26,7 +75,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-3 px-6 py-3 bg-[#FD5A1A] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white font-black uppercase tracking-[0.2em] text-xs mb-10 rotate-[-1deg]"
+            className="inline-flex items-center gap-3 px-6 py-3 bg-[#FD5A1A]/10 border border-[#FD5A1A]/20 text-[#FD5A1A] font-black uppercase tracking-[0.2em] text-xs mb-10 rounded-full"
           >
             <Trophy className="w-4 h-4" />
             Vijayawada's #1 Learning Platform
