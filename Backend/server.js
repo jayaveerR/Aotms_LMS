@@ -341,10 +341,19 @@ const createCourseResourceRoutes = (resourceName, tableName) => {
           { ascending: tableName !== "course_announcements" },
         );
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === "PGRST205") {
+          return res.json([]);
+        }
+        throw error;
+      }
       res.json(data);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      if (err.code !== "PGRST205") {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.json([]);
+      }
     }
   });
 
@@ -453,7 +462,85 @@ const ALLOWED_TABLES = [
   "live_exams",
   "live_exam_attempts",
   "announcements",
+  "attendance",
+  "suspended_users",
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ATTENDANCE & SUSPENSION LOGIC
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Specialized route to log daily attendance
+app.post("/api/attendance/log", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Missing token" });
+
+  try {
+    const authClient = getAuthClient(token);
+    const {
+      data: { user },
+    } = await authClient.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // Check if already logged for today
+    const { data: existing } = await authClient
+      .from("attendance")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("date", today)
+      .single();
+
+    if (existing) {
+      return res.json({
+        message: "Attendance already logged for today",
+        alreadyLogged: true,
+      });
+    }
+
+    // Log new attendance
+    const { data, error } = await authClient
+      .from("attendance")
+      .insert({
+        user_id: user.id,
+        date: today,
+        status: "present",
+        role: req.body.role || "student",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    // If table doesn't exist, we fallback but don't crash
+    if (err.code === "PGRST205")
+      return res.json({ status: "skipped", reason: "Table not ready" });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Specialized route to check suspension
+app.get("/api/attendance/check-suspension/:userId", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("suspended_users")
+      .select("*")
+      .eq("user_id", req.params.userId)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      if (error.code === "PGRST205") return res.json({ suspended: false });
+      throw error;
+    }
+
+    res.json({ suspended: !!data, details: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/data/:table", async (req, res) => {
   const { table } = req.params;
   if (!ALLOWED_TABLES.includes(table))

@@ -14,6 +14,7 @@ import { ExamMonitoring } from "@/components/manager/ExamMonitoring";
 import { AccessControlManager } from "@/components/manager/AccessControlManager";
 import { CourseMonitoring } from "@/components/manager/CourseMonitoring";
 import { ExamRulesManager } from "@/components/manager/ExamRulesManager";
+import { ManagerAttendance } from "@/components/manager/ManagerAttendance";
 import {
   Card,
   CardContent,
@@ -612,6 +613,8 @@ export default function ManagerDashboard() {
         return <CourseMonitoring />;
       case "exam-rules":
         return <ExamRulesManager />;
+      case "attendance":
+        return <ManagerAttendance />;
       default:
         return renderOverview();
     }

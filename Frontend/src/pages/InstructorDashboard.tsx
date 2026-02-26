@@ -13,6 +13,7 @@ import { VideoUploader } from "@/components/instructor/VideoUploader";
 import { ResourceUploader } from "@/components/instructor/ResourceUploader";
 import { TimelineManager } from "@/components/instructor/TimelineManager";
 import { AnnouncementManager } from "@/components/instructor/AnnouncementManager";
+import { ManagerAttendance } from "@/components/manager/ManagerAttendance";
 import { useInstructorCourses, Course } from "@/hooks/useInstructorData";
 import {
   BookOpen,
@@ -183,6 +184,8 @@ export default function InstructorDashboard() {
               BarChart3,
               "View detailed performance metrics",
             )}
+
+          {currentPath === "/instructor/attendance" && <ManagerAttendance />}
 
           {(currentPath === "/instructor" ||
             currentPath === "/instructor/") && (

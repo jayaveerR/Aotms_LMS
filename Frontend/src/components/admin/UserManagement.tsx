@@ -37,6 +37,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { Profile } from "@/hooks/useAdminData";
+import { reactivateUser, suspendUser } from "@/lib/attendanceService";
 
 interface UserManagementProps {
   users: Profile[];
@@ -242,7 +243,10 @@ export function UserManagement({
                       variant="ghost"
                       size="icon"
                       title="Suspend"
-                      onClick={() => onUpdateStatus(user.id, "suspended")}
+                      onClick={() => {
+                        onUpdateStatus(user.id, "suspended");
+                        suspendUser(user.id);
+                      }}
                     >
                       <Lock className="h-4 w-4 text-destructive" />
                     </Button>
@@ -251,7 +255,10 @@ export function UserManagement({
                       variant="ghost"
                       size="icon"
                       title="Activate"
-                      onClick={() => onUpdateStatus(user.id, "active")}
+                      onClick={() => {
+                        onUpdateStatus(user.id, "active");
+                        reactivateUser(user.id);
+                      }}
                     >
                       <Unlock className="h-4 w-4 text-green-600" />
                     </Button>

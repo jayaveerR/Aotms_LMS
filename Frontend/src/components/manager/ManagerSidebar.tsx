@@ -25,6 +25,7 @@ import {
   BarChart3,
   Gavel,
   MonitorPlay,
+  CheckSquare,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +52,7 @@ const managementItems = [
 const monitoringItems = [
   { id: "monitoring", title: "Live Monitoring", icon: MonitorPlay },
   { id: "course-monitoring", title: "Course Progress", icon: BarChart3 },
+  { id: "attendance", title: "Attendance", icon: CheckSquare },
 ];
 
 export function ManagerSidebar({

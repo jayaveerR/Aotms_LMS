@@ -26,6 +26,7 @@ import {
   GraduationCap,
   Upload,
   ClipboardList,
+  CheckSquare,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,6 +38,7 @@ const mainNavItems = [
   { title: "Upload Content", url: "/instructor/upload", icon: Upload },
   { title: "Students", url: "/instructor/students", icon: Users },
   { title: "Assessments", url: "/instructor/assessments", icon: ClipboardList },
+  { title: "Attendance", url: "/instructor/attendance", icon: CheckSquare },
   { title: "Analytics", url: "/instructor/analytics", icon: BarChart3 },
 ];
 
