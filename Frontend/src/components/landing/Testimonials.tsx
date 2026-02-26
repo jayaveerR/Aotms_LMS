@@ -80,52 +80,116 @@ const Testimonials = () => {
           </p>
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
+        {/* Horizontal Autoplay Marquee */}
+        <div className="relative w-full overflow-hidden pb-12 pt-4 -mx-4 px-4 md:-mx-8 md:px-8 lg:-mx-16 lg:px-16 max-w-[100vw]">
+          {/* Fade overlays for smooth edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+          <div className="flex w-max">
+            {/* First Set */}
             <motion.div
-              key={testimonial.name}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="flex gap-8 pr-8"
+              animate={{ x: ["0%", "-100%"] }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
             >
-              <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,117,207,1)] hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none relative h-full flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 bg-[#0075CF] border-2 border-black flex items-center justify-center mb-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    <Quote className="w-6 h-6 text-white" />
-                  </div>
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={`${testimonial.name}-1`}
+                  className="w-[320px] md:w-[400px] flex-shrink-0"
+                >
+                  <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,117,207,1)] hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none relative h-full flex flex-col justify-between">
+                    <div>
+                      <div className="w-12 h-12 bg-[#0075CF] border-2 border-black flex items-center justify-center mb-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                        <Quote className="w-6 h-6 text-white" />
+                      </div>
 
-                  <div className="flex gap-1 mb-6">
-                    {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-4 h-4 bg-[#FD5A1A] border border-black rotate-45"
-                      />
-                    ))}
-                  </div>
+                      <div className="flex gap-1 mb-6">
+                        {Array.from({ length: testimonial.rating }).map(
+                          (_, i) => (
+                            <div
+                              key={i}
+                              className="w-4 h-4 bg-[#FD5A1A] border border-black rotate-45"
+                            />
+                          ),
+                        )}
+                      </div>
 
-                  <p className="text-[13px] font-bold text-black/70 leading-relaxed uppercase tracking-wide mb-8 italic">
-                    "{testimonial.feedback}"
-                  </p>
+                      <p className="text-[13px] font-bold text-black/70 leading-relaxed uppercase tracking-wide mb-8 italic">
+                        "{testimonial.feedback}"
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4 pt-6 border-t-4 border-black/10">
+                      <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center text-sm font-black italic shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                        {testimonial.avatar}
+                      </div>
+                      <div className="overflow-hidden">
+                        <h4 className="text-[11px] font-black uppercase tracking-widest text-black mb-1 italic truncate">
+                          {testimonial.name}
+                        </h4>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-[#0075CF] truncate">
+                          {testimonial.course}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-4 pt-6 border-t-4 border-black/10">
-                  <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center text-sm font-black italic shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-black mb-1 italic">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-[#0075CF]">
-                      {testimonial.course}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              ))}
             </motion.div>
-          ))}
+
+            {/* Second Set (Duplicate for seamless loop) */}
+            <motion.div
+              className="flex gap-8 pr-8"
+              animate={{ x: ["0%", "-100%"] }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              aria-hidden="true"
+            >
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={`${testimonial.name}-2`}
+                  className="w-[320px] md:w-[400px] flex-shrink-0"
+                >
+                  <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,117,207,1)] hover:shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none relative h-full flex flex-col justify-between">
+                    <div>
+                      <div className="w-12 h-12 bg-[#0075CF] border-2 border-black flex items-center justify-center mb-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                        <Quote className="w-6 h-6 text-white" />
+                      </div>
+
+                      <div className="flex gap-1 mb-6">
+                        {Array.from({ length: testimonial.rating }).map(
+                          (_, i) => (
+                            <div
+                              key={i}
+                              className="w-4 h-4 bg-[#FD5A1A] border border-black rotate-45"
+                            />
+                          ),
+                        )}
+                      </div>
+
+                      <p className="text-[13px] font-bold text-black/70 leading-relaxed uppercase tracking-wide mb-8 italic">
+                        "{testimonial.feedback}"
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4 pt-6 border-t-4 border-black/10">
+                      <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center text-sm font-black italic shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                        {testimonial.avatar}
+                      </div>
+                      <div className="overflow-hidden">
+                        <h4 className="text-[11px] font-black uppercase tracking-widest text-black mb-1 italic truncate">
+                          {testimonial.name}
+                        </h4>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-[#0075CF] truncate">
+                          {testimonial.course}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
