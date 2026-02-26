@@ -218,11 +218,9 @@ const faqCategories = [
 ];
 
 const FAQSection = () => {
-  const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
-
-  const handleAccordionChange = (value: string) => {
-    setActiveValue(value);
-  };
+  const [activeCategory, setActiveCategory] = useState<string | undefined>(
+    undefined,
+  );
 
   return (
     <section
@@ -254,55 +252,66 @@ const FAQSection = () => {
         </motion.div>
 
         <div className="max-w-4xl mx-auto">
-          {/* FAQ Content */}
-          <div className="space-y-16">
+          {/* Main Categories Accordion */}
+          <Accordion
+            type="single"
+            collapsible
+            value={activeCategory}
+            onValueChange={setActiveCategory}
+            className="space-y-6"
+          >
             {faqCategories.map((category, categoryIndex) => (
               <motion.div
                 key={category.title}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: categoryIndex * 0.1 }}
-                className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-none"
+                className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-none"
               >
-                <div className="flex items-center gap-4 mb-8 pb-4 border-b-2 border-black/10">
-                  <div className="w-12 h-12 bg-[#FD5A1A] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                    <category.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-black text-black uppercase tracking-tight italic">
-                    {category.title}
-                  </h3>
-                </div>
-
-                <Accordion
-                  type="single"
-                  collapsible
-                  value={activeValue}
-                  onValueChange={handleAccordionChange}
-                  className="space-y-4"
+                <AccordionItem
+                  value={`category-${categoryIndex}`}
+                  className="border-none rounded-none w-full"
                 >
-                  {category.questions.map((item, index) => {
-                    const itemValue = `${categoryIndex}-${index}`;
+                  {/* Category Trigger (Main Heading) */}
+                  <AccordionTrigger className="w-full justify-between items-center p-6 md:p-8 hover:no-underline group">
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="w-12 h-12 shrink-0 bg-[#FD5A1A] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-data-[state=open]:bg-[#0075CF] transition-colors">
+                        <category.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight italic">
+                        {category.title}
+                      </h3>
+                    </div>
+                  </AccordionTrigger>
 
-                    return (
-                      <AccordionItem
-                        key={index}
-                        value={itemValue}
-                        className="border-2 border-black px-6 py-1 data-[state=open]:bg-[#E9E9E9] transition-colors rounded-none relative overflow-hidden"
-                      >
-                        <AccordionTrigger className="text-left text-sm font-black uppercase tracking-wider hover:no-underline py-4">
-                          {item.q}
-                        </AccordionTrigger>
-                        <AccordionContent className="text-[13px] font-bold text-black/60 leading-relaxed uppercase tracking-wide pb-6">
-                          {item.a}
-                        </AccordionContent>
-                      </AccordionItem>
-                    );
-                  })}
-                </Accordion>
+                  {/* Category Content (Inner Questions Accordion) */}
+                  <AccordionContent className="px-6 md:px-8 pb-8 pt-2">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="space-y-4 border-t-2 border-black/10 pt-6"
+                    >
+                      {category.questions.map((item, index) => (
+                        <AccordionItem
+                          key={index}
+                          value={`question-${categoryIndex}-${index}`}
+                          className="border-2 border-black px-6 py-1 data-[state=open]:bg-[#E9E9E9] transition-colors rounded-none relative overflow-hidden"
+                        >
+                          <AccordionTrigger className="text-left text-sm font-black uppercase tracking-wider hover:no-underline py-4">
+                            {item.q}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-[13px] font-bold text-black/60 leading-relaxed uppercase tracking-wide pb-6">
+                            {item.a}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </AccordionContent>
+                </AccordionItem>
               </motion.div>
             ))}
-          </div>
+          </Accordion>
         </div>
       </div>
     </section>
