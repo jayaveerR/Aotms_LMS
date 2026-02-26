@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import logo from "@/assets/logo.png";
+import { ArrowRight } from "lucide-react";
 
 interface Tech {
   name: string;
@@ -199,7 +200,7 @@ const TechnologyEcosystem = () => {
     <section
       ref={sectionRef}
       id="technology-ecosystem"
-      className="relative py-24 md:py-32 overflow-hidden bg-[#E9E9E9] font-['Inter']"
+      className="relative py-16 md:py-32 overflow-hidden bg-[#E9E9E9] font-['Inter']"
     >
       {/* Background Patterns */}
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
@@ -222,28 +223,36 @@ const TechnologyEcosystem = () => {
           </p>
         </div>
 
-        {/* MOBILE: Clustered Layout */}
+        {/* MOBILE: Swipeable Carousel */}
         {isMobile && (
           <div className="relative flex flex-col items-center py-6">
-            <div className="relative z-20 mb-12 w-32 h-32 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(253,90,26,1)] flex items-center justify-center p-4">
+            <div className="relative z-20 mb-8 w-24 h-24 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] flex items-center justify-center p-3 animate-pulse">
               <img src={logo} alt="AOTMS" className="w-full h-auto" />
             </div>
 
-            <div className="grid grid-cols-2 gap-6 w-full max-w-[400px]">
+            <div className="flex overflow-x-auto w-full pb-8 -mx-4 px-4 gap-4 snap-x snap-mandatory hide-scrollbar">
               {technologies.map((tech) => (
-                <div key={tech.name} className="flex justify-center">
-                  <div className="bg-white border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-3 w-full">
+                <div
+                  key={tech.name}
+                  className="flex justify-center shrink-0 snap-center w-[40vw]"
+                >
+                  <div className="bg-white border-4 border-black p-4 md:p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-3 w-full h-[120px]">
                     <img
                       src={tech.icon}
                       alt={tech.name}
                       className="w-10 h-10 object-contain"
                     />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black text-center leading-tight">
                       {tech.name}
                     </span>
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-2 text-[10px] uppercase font-black tracking-[0.2em] text-black/40 animate-pulse">
+              Swipe to explore stack{" "}
+              <ArrowRight className="inline w-3 h-3 ml-1" />
             </div>
           </div>
         )}

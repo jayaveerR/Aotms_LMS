@@ -54,7 +54,7 @@ const WhyAOTMS = () => {
   return (
     <section
       id="about"
-      className="py-24 md:py-32 relative overflow-hidden bg-[#E9E9E9] font-['Inter']"
+      className="py-16 md:py-32 relative overflow-hidden bg-[#E9E9E9] font-['Inter']"
     >
       <div className="container-width px-4 md:px-8 lg:px-16 relative z-10">
         {/* Section Header */}

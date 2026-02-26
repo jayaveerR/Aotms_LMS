@@ -7,7 +7,7 @@ const CTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 md:py-32 relative overflow-hidden bg-[#FD5A1A] font-['Inter']">
+    <section className="py-16 md:py-32 relative overflow-hidden bg-[#FD5A1A] font-['Inter']">
       {/* Background patterns */}
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 

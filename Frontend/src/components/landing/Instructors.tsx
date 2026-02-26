@@ -36,7 +36,7 @@ const Instructors = () => {
   return (
     <section
       id="instructors"
-      className="py-24 md:py-32 bg-[#E9E9E9] relative overflow-hidden font-['Inter']"
+      className="py-16 md:py-32 bg-[#E9E9E9] relative overflow-hidden font-['Inter']"
     >
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
@@ -64,8 +64,8 @@ const Instructors = () => {
           </p>
         </motion.div>
 
-        {/* Instructors Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Instructors Grid - Horizontal Scroll on Mobile */}
+        <div className="flex overflow-x-auto pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 snap-x snap-mandatory hide-scrollbar">
           {instructors.map((instructor, index) => (
             <motion.div
               key={instructor.name}
@@ -73,10 +73,11 @@ const Instructors = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="w-[80vw] sm:w-auto shrink-0 snap-center"
             >
-              <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all group overflow-hidden rounded-none">
+              <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(253,90,26,1)] md:hover:shadow-[12px_12px_0px_0px_rgba(253,90,26,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] md:hover:translate-x-[-4px] md:hover:translate-y-[-4px] transition-all group overflow-hidden rounded-none h-full flex flex-col">
                 {/* Image */}
-                <div className="relative h-64 border-b-4 border-black overflow-hidden bg-black/5">
+                <div className="relative h-48 md:h-64 border-b-4 border-black overflow-hidden bg-black/5 shrink-0">
                   <img
                     src={instructor.image}
                     alt={instructor.name}
@@ -84,22 +85,23 @@ const Instructors = () => {
                   />
 
                   {/* Experience badge */}
-                  <div className="absolute top-0 right-0 px-4 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest border-l-4 border-b-4 border-white shadow-none">
+                  <div className="absolute top-0 right-0 px-3 md:px-4 py-1.5 md:py-2 bg-black text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest border-l-4 border-b-4 border-white shadow-none">
                     {instructor.experience} EXP
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-black text-black mb-2 uppercase tracking-tight italic">
+                <div className="p-5 md:p-6 flex-1 flex flex-col">
+                  <h3 className="text-lg md:text-xl font-black text-black mb-2 uppercase tracking-tight italic">
                     {instructor.name}
                   </h3>
-                  <div className="inline-block px-3 py-1 bg-[#E9E9E9] border-2 border-black font-black text-[9px] uppercase tracking-widest mb-4">
+                  <div className="inline-block px-2 md:px-3 py-1 bg-[#E9E9E9] border-2 border-black font-black text-[8px] md:text-[9px] uppercase tracking-widest mb-4 self-start">
                     {instructor.expertise}
                   </div>
 
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#0075CF] group-hover:translate-x-2 transition-transform">
-                    View Profile <ArrowRight className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0075CF] group-hover:translate-x-2 transition-transform mt-auto">
+                    View Profile{" "}
+                    <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                   </div>
                 </div>
               </div>

@@ -143,7 +143,7 @@ const HeroSection = () => {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-24 bg-white font-['Inter']"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-16 md:pb-24 bg-white font-['Inter']"
     >
       <TechBackground />
 
