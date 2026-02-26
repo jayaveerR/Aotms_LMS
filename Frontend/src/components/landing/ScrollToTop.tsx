@@ -41,7 +41,7 @@ const ScrollToTop = () => {
         ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}`}
     >
       <ArrowUp
-        className="w-6 h-6 group-hover:-translate-y-1 transition-transform duration-300"
+        className="w-6 h-6 group-hover:-translate-y-1 transition-transform duration-300 rounded-3xl"
         strokeWidth={3}
       />
     </button>
@@ -49,5 +49,6 @@ const ScrollToTop = () => {
 };
 
 export default ScrollToTop;
+
 
 

@@ -36,7 +36,7 @@ const Instructors = () => {
   return (
     <section
       id="instructors"
-      className="py-16 md:py-32 bg-[#E9E9E9] relative overflow-hidden font-['Inter']"
+      className="py-16 md:py-32 relative overflow-hidden bg-white font-['Inter']"
     >
       <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
@@ -114,5 +114,3 @@ const Instructors = () => {
 };
 
 export default Instructors;
-
-

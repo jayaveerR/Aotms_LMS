@@ -218,7 +218,7 @@ const HeroSection = () => {
             ].map((stat, idx) => (
               <div
                 key={stat.label}
-                className={`bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"} hover:rotate-0 transition-transform`}
+                className={`bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${idx % 2 === 0 ? "rotate-[-1deg]" : "rotate-[1deg]"} hover:rotate-0 transition-transform rounded-3xl`}
               >
                 <p
                   className="text-4xl font-black mb-1 italic"
@@ -249,7 +249,7 @@ const HeroSection = () => {
                 }`}
               >
                 <div
-                  className={`w-10 h-10 border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 shrink-0
+                  className={`w-10 h-10 border-2 border-black flex items-center justify-center transition-all duration-300 shrink-0 rounded-3xl
                   ${
                     isActive
                       ? "bg-[#0075CF] text-white"
@@ -259,7 +259,7 @@ const HeroSection = () => {
                   <span className="font-black italic text-sm">{index + 1}</span>
                 </div>
                 <div
-                  className={`bg-white border-2 border-black font-black uppercase tracking-widest text-[10px] py-1 px-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 origin-left whitespace-nowrap
+                  className={`bg-white border-2 border-black font-black uppercase tracking-widest text-[10px] py-1 px-3 transition-all duration-300 origin-left whitespace-nowrap rounded-3xl
                   ${
                     isActive
                       ? "scale-100 translate-x-0"
@@ -277,5 +277,3 @@ const HeroSection = () => {
   );
 };
 export default HeroSection;
-
-

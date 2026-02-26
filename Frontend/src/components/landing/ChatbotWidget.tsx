@@ -1,5 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Send, X, Bot, User, Sparkles } from "lucide-react";
+import {
+  MessageSquare,
+  Send,
+  X,
+  Bot,
+  User,
+  Sparkles,
+  ArrowDown,
+  ArrowUp,
+} from "lucide-react";
 
 interface Message {
   id: string;
@@ -20,6 +29,9 @@ const ChatbotWidget = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatAreaRef = useRef<HTMLDivElement>(null);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Track mobile breakpoint
   useEffect(() => {
@@ -35,6 +47,18 @@ const ChatbotWidget = () => {
   useEffect(() => {
     if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
+
+  const handleScroll = () => {
+    if (chatAreaRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatAreaRef.current;
+      setShowScrollBottom(scrollHeight - scrollTop - clientHeight > 100);
+      setShowScrollTop(scrollTop > 200);
+    }
+  };
+
+  const scrollToTop = () => {
+    chatAreaRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Hide widget when footer enters viewport
   useEffect(() => {
@@ -134,7 +158,7 @@ const ChatbotWidget = () => {
       {/* Chatbot Window */}
       <div
         style={chatWindowStyle}
-        className={`bg-white border-4 border-black transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden ${
+        className={`bg-white border-4 border-black transition-all duration-300 origin-bottom-right flex flex-col overflow-hidden rounded-3xl ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 translate-x-0"
             : "scale-50 opacity-0 translate-y-10 translate-x-10 pointer-events-none"
@@ -144,12 +168,13 @@ const ChatbotWidget = () => {
         <div className="bg-black p-4 text-white relative flex items-center gap-3 shrink-0 border-b-4 border-black rounded-3xl">
           <div className="relative">
             <div className="w-10 h-10 bg-white border-2 border-white flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(253,90,26,1)] rounded-3xl">
-              <Bot className="w-6 h-6 text-black" />
+              <Bot className="w-6 h-6 text-black rounded-3xl" />
             </div>
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 rounded-3xl">
             <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2 italic">
-              AOTMS AI <Sparkles className="w-4 h-4 text-[#FD5A1A] shrink-0" />
+              AOTMS AI{" "}
+              <Sparkles className="w-4 h-4 text-[#FD5A1A] shrink-0 rounded-3xl" />
             </h3>
             <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em]">
               NEURAL_LINK: ACTIVE
@@ -160,12 +185,16 @@ const ChatbotWidget = () => {
             onClick={() => setIsOpen(false)}
             className="w-10 h-10 shrink-0 border-2 border-white/20 hover:border-white hover:bg-white hover:text-black flex items-center justify-center transition-all bg-transparent rounded-3xl"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 rounded-3xl" />
           </button>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#E9E9E9]">
+        <div
+          ref={chatAreaRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#E9E9E9] rounded-3xl relative transition-all"
+        >
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -178,7 +207,7 @@ const ChatbotWidget = () => {
                   msg.type === "user"
                     ? "bg-[#FD5A1A] text-white"
                     : "bg-[#0075CF] text-white"
-                }`}
+                } rounded-3xl`}
               >
                 {msg.type === "user" ? (
                   <User className="w-4 h-4" />
@@ -192,13 +221,35 @@ const ChatbotWidget = () => {
                   msg.type === "user"
                     ? "bg-[#FD5A1A] text-white border-2 border-black"
                     : "bg-white text-black border-2 border-black"
-                }`}
+                } rounded-3xl`}
               >
                 {msg.text}
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
+
+          {/* Internal Scroll Buttons */}
+          <div className="sticky bottom-2 left-0 right-0 flex flex-col items-center gap-2 pointer-events-none pb-2">
+            {showScrollBottom && (
+              <button
+                onClick={scrollToBottom}
+                className="pointer-events-auto p-2 bg-black text-white border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A] transition-all rounded-3xl animate-bounce"
+                title="Scroll to Bottom"
+              >
+                <ArrowDown className="w-4 h-4" />
+              </button>
+            )}
+            {showScrollTop && !showScrollBottom && (
+              <button
+                onClick={scrollToTop}
+                className="pointer-events-auto p-2 bg-black text-white border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF] transition-all rounded-3xl"
+                title="Scroll to Top"
+              >
+                <ArrowUp className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Quick Replies */}
@@ -269,17 +320,17 @@ const ChatbotWidget = () => {
           pointerEvents: footerVisible ? "none" : "auto",
           transform: footerVisible ? "translateY(32px)" : "translateY(0)",
         }}
-        className={`flex items-center justify-center transition-all duration-300 ease-out overflow-hidden border-4 border-black ${
+        className={`flex items-center justify-center transition-all duration-300 ease-out overflow-hidden border-4 border-black rounded-3xl ${
           isOpen
             ? "bg-white text-black rotate-90"
             : "bg-black text-white shadow-[6px_6px_0px_0px_rgba(253,90,26,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,117,207,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none"
         }`}
       >
         {isOpen ? (
-          <X className="w-8 h-8 -rotate-90" strokeWidth={3} />
+          <X className="w-8 h-8 -rotate-90 rounded-3xl" strokeWidth={3} />
         ) : (
-          <div className="flex items-center gap-3 px-3 w-full h-full justify-center">
-            <MessageSquare className="w-6 h-6 fill-[#FD5A1A] stroke-black shrink-0" />
+          <div className="flex items-center gap-3 px-3 w-full h-full justify-center rounded-3xl">
+            <MessageSquare className="w-6 h-6 fill-[#FD5A1A] stroke-black shrink-0 rounded-3xl" />
             {!isMobile && (
               <span className="font-black text-xs tracking-widest uppercase italic whitespace-nowrap">
                 ASK AI
@@ -293,5 +344,3 @@ const ChatbotWidget = () => {
 };
 
 export default ChatbotWidget;
-
-
