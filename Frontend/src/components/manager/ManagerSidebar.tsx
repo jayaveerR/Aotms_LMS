@@ -35,24 +35,24 @@ interface ManagerSidebarProps {
   onSectionChange: (section: string) => void;
 }
 
-const examManagementItems = [
+const overviewItems = [
   { id: "overview", title: "Dashboard", icon: LayoutDashboard },
+  { id: "monitoring", title: "Live Monitoring", icon: MonitorPlay },
+  { id: "course-monitoring", title: "Course Progress", icon: BarChart3 },
+];
+
+const examManagementItems = [
   { id: "exams", title: "Exam Scheduling", icon: Calendar },
   { id: "questions", title: "Question Bank", icon: FileQuestion },
   { id: "mock-tests", title: "Mock Tests", icon: ClipboardList },
   { id: "exam-rules", title: "Exam Rules", icon: Gavel },
 ];
 
-const managementItems = [
-  { id: "leaderboard", title: "Leaderboard", icon: Trophy },
+const userManagementItems = [
   { id: "guests", title: "Guest Accounts", icon: UserPlus },
   { id: "access-control", title: "Access Control", icon: Shield },
-];
-
-const monitoringItems = [
-  { id: "monitoring", title: "Live Monitoring", icon: MonitorPlay },
-  { id: "course-monitoring", title: "Course Progress", icon: BarChart3 },
   { id: "attendance", title: "Attendance", icon: CheckSquare },
+  { id: "leaderboard", title: "Leaderboard", icon: Trophy },
 ];
 
 export function ManagerSidebar({
@@ -68,7 +68,7 @@ export function ManagerSidebar({
         <SidebarMenuItem key={item.id}>
           <SidebarMenuButton
             onClick={() => onSectionChange(item.id)}
-            className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all cursor-pointer ${
+            className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all cursor-pointer rounded-3xl ${
               isActive
                 ? "bg-[#FD5A1A] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A]/90 hover:text-white"
                 : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
@@ -93,9 +93,22 @@ export function ManagerSidebar({
       </SidebarHeader>
 
       <SidebarContent className="bg-white scrollbar-hide">
+        {/* Overview Category */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-4">
-            Exam Management
+            Overview
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2 px-2 mt-2">
+              {renderNavSection(overviewItems)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Exam Management Category */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Exam Operations
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 px-2 mt-2">
@@ -104,24 +117,14 @@ export function ManagerSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* User Management Category */}
         <SidebarGroup>
-          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2">
-            Management
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Users & Access
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 px-2 mt-2">
-              {renderNavSection(managementItems)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2">
-            Monitoring
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2 px-2 mt-2">
-              {renderNavSection(monitoringItems)}
+              {renderNavSection(userManagementItems)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -162,4 +165,3 @@ export function ManagerSidebar({
     </Sidebar>
   );
 }
-

@@ -77,9 +77,11 @@ export function DashboardSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="bg-white scrollbar-hide">
-        {menuGroups.map((group) => (
+        {menuGroups.map((group, index) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-4">
+            <SidebarGroupLabel
+              className={`font-black text-[#000000] uppercase tracking-widest text-[10px] mt-4 ${index !== 0 ? "border-t-2 border-black/10 pt-4" : ""}`}
+            >
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -94,7 +96,7 @@ export function DashboardSidebar() {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild
-                        className={`font-black uppercase tracking-widest text-xs h-10 border-2 transition-all cursor-pointer rounded-xl ${
+                        className={`font-black uppercase tracking-widest text-xs h-10 border-2 transition-all cursor-pointer rounded-3xl ${
                           isActive
                             ? "bg-[#FD5A1A] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FD5A1A]/90 hover:text-white"
                             : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
@@ -132,4 +134,3 @@ export function DashboardSidebar() {
     </Sidebar>
   );
 }
-

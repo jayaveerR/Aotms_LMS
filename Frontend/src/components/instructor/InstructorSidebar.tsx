@@ -32,12 +32,18 @@ import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
-const mainNavItems = [
+const overviewItems = [
   { title: "Dashboard", url: "/instructor", icon: LayoutDashboard },
+];
+
+const contentItems = [
   { title: "My Courses", url: "/instructor/courses", icon: BookOpen },
   { title: "Upload Content", url: "/instructor/upload", icon: Upload },
-  { title: "Students", url: "/instructor/students", icon: Users },
   { title: "Assessments", url: "/instructor/assessments", icon: ClipboardList },
+];
+
+const studentManagementItems = [
+  { title: "Students", url: "/instructor/students", icon: Users },
   { title: "Attendance", url: "/instructor/attendance", icon: CheckSquare },
   { title: "Analytics", url: "/instructor/analytics", icon: BarChart3 },
 ];
@@ -63,18 +69,77 @@ export function InstructorSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="bg-white">
+        {/* Overview Category */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-4">
-            Instructor Portal
+            Overview
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 px-2 mt-2">
-              {mainNavItems.map((item) => (
+              {overviewItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
-                    className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all ${
+                    className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all rounded-3xl ${
+                      isActive(item.url)
+                        ? "bg-[#0075CF] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:text-white"
+                        : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
+                    }`}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Content Management Category */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Teaching & Content
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2 px-2 mt-2">
+              {contentItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.url)}
+                    className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all rounded-3xl ${
+                      isActive(item.url)
+                        ? "bg-[#0075CF] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:text-white"
+                        : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
+                    }`}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Student Management Category */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Student Management
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2 px-2 mt-2">
+              {studentManagementItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.url)}
+                    className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all rounded-3xl ${
                       isActive(item.url)
                         ? "bg-[#0075CF] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:text-white"
                         : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
@@ -105,4 +170,3 @@ export function InstructorSidebar() {
     </Sidebar>
   );
 }
-

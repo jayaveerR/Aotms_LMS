@@ -29,11 +29,17 @@ interface AdminSidebarProps {
   onSectionChange?: (section: string) => void;
 }
 
-const mainNavItems = [
+const overviewItems = [
+  { id: "analytics", title: "Analytics", icon: BarChart3 },
+];
+
+const contentUserItems = [
   { id: "users", title: "User Management", icon: Users },
   { id: "courses", title: "Course Approval", icon: BookOpen },
+];
+
+const securitySettingsItems = [
   { id: "security", title: "Security", icon: Shield },
-  { id: "analytics", title: "Analytics", icon: BarChart3 },
   { id: "settings", title: "Settings", icon: Settings },
 ];
 
@@ -43,14 +49,14 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const { signOut } = useAuth();
 
-  const renderNavSection = (items: typeof mainNavItems) =>
+  const renderNavSection = (items: typeof overviewItems) =>
     items.map((item) => {
       const isActive = activeSection === item.id;
       return (
         <SidebarMenuItem key={item.id}>
           <SidebarMenuButton
             onClick={() => onSectionChange(item.id)}
-            className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all cursor-pointer ${
+            className={`font-black uppercase tracking-widest text-xs h-12 border-2 transition-all cursor-pointer rounded-3xl ${
               isActive
                 ? "bg-[#0075CF] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:text-white"
                 : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[1px]"
@@ -75,13 +81,38 @@ export function AdminSidebar({
       </SidebarHeader>
 
       <SidebarContent className="bg-white scrollbar-hide">
+        {/* System Overview Category */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-4">
-            Administrator
+            System Overview
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 px-2 mt-2">
-              {renderNavSection(mainNavItems)}
+              {renderNavSection(overviewItems)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Content & User Category */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Content & Users
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2 px-2 mt-2">
+              {renderNavSection(contentUserItems)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Security & System Category */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-black text-[#000000] uppercase tracking-widest text-[10px] mt-2 border-t-2 border-black/10 pt-4">
+            Security & System
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2 px-2 mt-2">
+              {renderNavSection(securitySettingsItems)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -115,4 +146,3 @@ export function AdminSidebar({
     </Sidebar>
   );
 }
-

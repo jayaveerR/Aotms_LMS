@@ -30,6 +30,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import InteractiveLeftPanel from "@/components/ui/InteractiveLeftPanel";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -209,8 +210,8 @@ export default function Auth() {
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#E9E9E9] font-['Inter'] relative overflow-hidden">
       <AmbientBackground />
 
-      {/* Left Panel - Brand Showcase */}
-      <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between relative z-10 border-r-4 border-black">
+      {/* Left Panel - Brand Showcase with Interactive Cursor */}
+      <InteractiveLeftPanel>
         <div className="space-y-12">
           <Link
             to="/"
@@ -239,7 +240,7 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="bg-[#FD5A1A] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-1 flex items-center justify-between rounded-3xl">
+        <div className="bg-[#FD5A1A] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-1 flex items-center justify-between rounded-3xl mt-12 lg:mt-0">
           <div className="flex items-center gap-6">
             <div className="flex -space-x-4">
               {[1, 2, 3, 4].map((i) => (
@@ -268,7 +269,7 @@ export default function Auth() {
             <Trophy className="h-6 w-6 text-black" />
           </div>
         </div>
-      </div>
+      </InteractiveLeftPanel>
 
       {/* Right Panel - Auth Form */}
       <div className="flex-1 p-4 sm:p-8 lg:p-12 flex items-center justify-center relative z-20 overflow-y-auto">
@@ -674,4 +675,3 @@ export default function Auth() {
     </div>
   );
 }
-
