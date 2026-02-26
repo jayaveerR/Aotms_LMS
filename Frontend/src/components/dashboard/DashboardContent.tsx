@@ -72,202 +72,208 @@ function DashboardHome() {
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat) => (
-          <Card
-            key={stat.title}
-            className="bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default"
-          >
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#000000]/60">
-                {stat.title}
-              </CardTitle>
-              <div className="h-8 w-8 bg-[#E9E9E9] rounded flex items-center justify-center border-2 border-[#000000]">
-                <stat.icon
-                  className={`h-4 w-4 ${stat.color === "text-primary" ? "text-[#0075CF]" : stat.color === "text-accent" ? "text-[#FD5A1A]" : "text-[#000000]"}`}
-                />
+      {/* MISSION TELEMETRY */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-4 w-1 bg-[#FD5A1A]" />
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-black">
+            Mission Telemetry
+          </h2>
+        </div>
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+          {statsCards.map((stat) => (
+            <Card
+              key={stat.title}
+              className="bg-white rounded-xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-default"
+            >
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-[9px] font-black uppercase tracking-widest text-[#000000]/60">
+                  {stat.title}
+                </CardTitle>
+                <div className="h-8 w-8 bg-[#E9E9E9] rounded border-2 border-[#000000] flex items-center justify-center">
+                  <stat.icon
+                    className={`h-4 w-4 ${stat.color === "text-primary" ? "text-[#0075CF]" : stat.color === "text-accent" ? "text-[#FD5A1A]" : "text-[#000000]"}`}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="text-2xl sm:text-3xl font-black text-[#000000]">
+                  {stat.value}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* OPERATIONAL STATUS */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-4 w-1 bg-[#0075CF]" />
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-black">
+            Operational Status
+          </h2>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Enrolled Courses */}
+          <Card className="lg:col-span-2 bg-white rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <CardHeader className="border-b-4 border-[#000000] bg-[#E9E9E9] rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-widest text-[#000000]">
+                    <BookOpen className="h-6 w-6 text-[#0075CF]" /> Active
+                    Training
+                  </CardTitle>
+                </div>
+                <Badge className="bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest pointer-events-none">
+                  {enrollments.length} Units
+                </Badge>
               </div>
             </CardHeader>
-            <CardContent className="pb-3 sm:pb-4">
-              <div className="text-2xl sm:text-3xl font-black text-[#000000]">
-                {stat.value}
-              </div>
+            <CardContent className="space-y-4 p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-white">
+              {enrollLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="h-20 bg-[#E9E9E9] border-2 border-[#000000] rounded-lg animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : enrollments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center border-4 border-dashed border-[#000000] rounded-xl">
+                  <BookOpen className="h-10 w-10 text-[#000000]/20 mb-4" />
+                  <p className="text-sm font-bold text-[#000000]/60 uppercase tracking-wider mb-4">
+                    No active deployments found.
+                  </p>
+                  <Button
+                    className="bg-[#0075CF] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_white] hover:translate-x-1 hover:translate-y-1 transition-all font-black uppercase tracking-widest text-xs"
+                    onClick={() => navigate("/courses")}
+                  >
+                    Enroll Now
+                  </Button>
+                </div>
+              ) : (
+                enrollments.slice(0, 3).map((enrollment) => (
+                  <div
+                    key={enrollment.id}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-white border-2 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all cursor-pointer group"
+                    onClick={() =>
+                      navigate(`/course/${enrollment.course_id}/play`)
+                    }
+                  >
+                    <div className="h-12 w-12 rounded bg-[#0075CF] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                      <Play className="h-5 w-5 text-white ml-1" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-black text-[#000000] uppercase tracking-wider truncate text-sm">
+                        {enrollment.course?.title ??
+                          `UNIT_${enrollment.course_id.slice(0, 8)}`}
+                      </h4>
+                      <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest">
+                        Protocol Active
+                      </p>
+                    </div>
+                    <div className="w-20 sm:w-24 shrink-0">
+                      <div className="h-3 border-2 border-[#000000] bg-[#E9E9E9] overflow-hidden">
+                        <div
+                          className="h-full bg-[#0075CF]"
+                          style={{
+                            width: `${enrollment.progress_percent ?? 0}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-[9px] font-black text-[#000000] mt-1 text-right">
+                        {enrollment.progress_percent ?? 0}%
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Enrolled Courses */}
-        <Card className="lg:col-span-2 bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <CardHeader className="border-b-4 border-[#000000] bg-[#E9E9E9] rounded-t-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <CardTitle className="flex items-center gap-2 text-base sm:text-xl font-black uppercase tracking-wider sm:tracking-widest text-[#000000]">
-                  <BookOpen className="h-6 w-6 text-[#0075CF]" />
-                  Continue Learning
-                </CardTitle>
-                <CardDescription className="text-[#000000]/60 font-bold uppercase tracking-wider text-[10px] mt-1">
-                  Pick up where you left off
-                </CardDescription>
+          {/* Schedule */}
+          <Card className="bg-[#0075CF] rounded-xl border-4 border-[#000000] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden group">
+            <CardHeader className="p-6 pb-2 relative z-10">
+              <CardTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-widest">
+                <Calendar className="h-6 w-6" /> Deployment
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center text-center mt-6">
+              <div className="h-16 w-16 bg-white rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_black] flex items-center justify-center mb-6 group-hover:-rotate-3 transition-transform">
+                <Clock className="h-8 w-8 text-[#0075CF]" />
               </div>
-              <Badge className="bg-[#FD5A1A] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black uppercase tracking-widest pointer-events-none self-start sm:self-auto">
-                {enrollments.length} Active
-              </Badge>
+              <p className="text-sm font-bold opacity-90 leading-relaxed max-w-[200px] uppercase tracking-widest">
+                No missions scheduled for today.
+              </p>
+            </CardContent>
+            <div className="absolute -bottom-8 -right-8 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Calendar className="h-48 w-48" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4 p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-white">
-            {enrollLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-20 bg-[#E9E9E9] border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] rounded-lg animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : enrollments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center bg-white border-4 border-dashed border-[#000000] rounded-lg">
-                <div className="h-16 w-16 bg-[#E9E9E9] rounded flex items-center justify-center border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                  <BookOpen className="h-8 w-8 text-[#000000]" />
+          </Card>
+        </div>
+      </section>
+
+      {/* PROTOCOL ACCESS */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-4 w-1 bg-black" />
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-black">
+            Protocol Access
+          </h2>
+        </div>
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              label: "Course Intel",
+              sub: "Browse Catalogue",
+              icon: Compass,
+              color: "hover:bg-[#0075CF] hover:text-white",
+              path: "/courses",
+            },
+            {
+              label: "Field Probe",
+              sub: "Take Mock Test",
+              icon: FileText,
+              color: "hover:bg-[#FD5A1A] hover:text-white",
+              path: "/dashboard/mock-papers",
+            },
+            {
+              label: "Credentials",
+              sub: "View Certificates",
+              icon: Award,
+              color: "hover:bg-black hover:text-white",
+              path: "/dashboard/history",
+            },
+            {
+              label: "Hierarchy",
+              sub: "Global Leaderboard",
+              icon: Trophy,
+              color: "hover:bg-[#0075CF] hover:text-white",
+              path: "/dashboard/leaderboard",
+            },
+          ].map((action, i) => (
+            <Card
+              key={i}
+              className={`bg-white rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer group ${action.color}`}
+              onClick={() => navigate(action.path)}
+            >
+              <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
+                <div className="h-12 w-12 bg-[#E9E9E9] rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_black] flex items-center justify-center mb-4 group-hover:bg-white group-hover:text-inherit transition-colors">
+                  <action.icon className="h-6 w-6" />
                 </div>
-                <p className="text-sm font-bold text-[#000000]/60 mb-4 uppercase tracking-wider">
-                  You haven't enrolled in any courses yet.
+                <h4 className="font-black uppercase tracking-wider text-xs">
+                  {action.label}
+                </h4>
+                <p className="text-[8px] font-bold opacity-60 mt-1 uppercase tracking-widest">
+                  {action.sub}
                 </p>
-                <Button
-                  className="bg-[#0075CF] text-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:bg-[#0075CF]/90 hover:translate-y-[1px] hover:translate-x-[1px] transition-all font-black uppercase tracking-widest text-xs"
-                  onClick={() => navigate("/courses")}
-                >
-                  Browse Courses
-                </Button>
-              </div>
-            ) : (
-              enrollments.slice(0, 3).map((enrollment) => (
-                <div
-                  key={enrollment.id}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-white border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#E9E9E9] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer group"
-                  onClick={() =>
-                    navigate(`/course/${enrollment.course_id}/play`)
-                  }
-                >
-                  <div className="h-12 w-12 rounded bg-[#0075CF] border-2 border-[#000000] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Play className="h-5 w-5 text-white ml-1" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-black text-[#000000] uppercase tracking-wider truncate text-sm">
-                      {enrollment.course?.title ??
-                        `Course ${enrollment.course_id.slice(0, 8)}`}
-                    </h4>
-                    <p className="text-[10px] font-bold text-[#000000]/60 uppercase tracking-widest">
-                      Enrolled
-                    </p>
-                  </div>
-                  <div className="w-24">
-                    <Progress
-                      value={enrollment.progress_percent ?? 0}
-                      className="h-3 border-2 border-[#000000] rounded-none bg-[#E9E9E9]"
-                    />
-                    <p className="text-[10px] font-black text-[#000000] mt-1 text-right">
-                      {enrollment.progress_percent ?? 0}%
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Classes placeholder */}
-        <Card className="bg-[#0075CF] rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden group">
-          <CardHeader className="p-5 pb-2 relative z-10">
-            <CardTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-widest">
-              <Calendar className="h-6 w-6" />
-              Upcoming Classes
-            </CardTitle>
-            <CardDescription className="text-white/70 font-bold uppercase tracking-wider text-[10px] mt-1">
-              Your scheduled sessions
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center text-center mt-4">
-            <div className="h-16 w-16 bg-white rounded flex items-center justify-center border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4 group-hover:-translate-y-2 transition-transform">
-              <Calendar className="h-8 w-8 text-[#0075CF]" />
-            </div>
-            <p className="text-sm font-bold opacity-90 leading-relaxed max-w-[200px]">
-              No upcoming classes scheduled yet.
-            </p>
-          </CardContent>
-          <div className="absolute -bottom-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-            <Calendar className="h-40 w-40" />
-          </div>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
-        <Card
-          className="bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] sm:hover:translate-x-[6px] sm:hover:translate-y-[6px] transition-all cursor-pointer group"
-          onClick={() => navigate("/courses")}
-        >
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#0075CF] group-hover:text-white transition-colors">
-              <Compass className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
-            </div>
-            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
-              Browse Courses
-            </h4>
-            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
-              Explore catalogue
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] sm:hover:translate-x-[6px] sm:hover:translate-y-[6px] transition-all cursor-pointer group"
-          onClick={() => navigate("/exam?type=mock")}
-        >
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#FD5A1A] group-hover:text-white transition-colors">
-              <FileText className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
-            </div>
-            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
-              Take Mock Test
-            </h4>
-            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
-              Practice exams
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] sm:hover:translate-x-[6px] sm:hover:translate-y-[6px] transition-all cursor-pointer group">
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#000000] group-hover:text-white transition-colors">
-              <Award className="h-6 w-6 sm:h-8 sm:w-8 text-[#000000] group-hover:text-white transition-colors" />
-            </div>
-            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
-              View Certificates
-            </h4>
-            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
-              Your achievements
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-lg sm:rounded-xl border-2 sm:border-4 border-[#000000] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] sm:hover:translate-x-[6px] sm:hover:translate-y-[6px] transition-all cursor-pointer group">
-          <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
-            <div className="h-12 w-12 sm:h-16 sm:w-16 bg-[#E9E9E9] rounded border-2 border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#0075CF] group-hover:text-white transition-colors">
-              <Trophy className="h-8 w-8 text-[#000000] group-hover:text-white transition-colors" />
-            </div>
-            <h4 className="font-black text-[#000000] uppercase tracking-wider text-sm">
-              Leaderboard
-            </h4>
-            <p className="text-[10px] font-bold text-[#000000]/60 mt-2 uppercase tracking-widest">
-              See rankings
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

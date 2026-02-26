@@ -14,6 +14,9 @@ import { ResourceUploader } from "@/components/instructor/ResourceUploader";
 import { TimelineManager } from "@/components/instructor/TimelineManager";
 import { AnnouncementManager } from "@/components/instructor/AnnouncementManager";
 import { ManagerAttendance } from "@/components/manager/ManagerAttendance";
+import { InstructorAnalytics } from "@/components/instructor/InstructorAnalytics";
+import { StudentManager } from "@/components/instructor/StudentManager";
+import { AssessmentManager } from "@/components/instructor/AssessmentManager";
 import { useInstructorCourses, Course } from "@/hooks/useInstructorData";
 import {
   BookOpen,
@@ -160,30 +163,48 @@ export default function InstructorDashboard() {
               BookOpen,
               "Manage your course catalogue",
             )}
-          {currentPath === "/instructor/upload" &&
-            renderModulePlaceholder(
-              "Upload Content",
-              Upload,
-              "Upload videos and materials",
-            )}
-          {currentPath === "/instructor/students" &&
-            renderModulePlaceholder(
-              "Students",
-              Users,
-              "Manage enrolled students",
-            )}
-          {currentPath === "/instructor/assessments" &&
-            renderModulePlaceholder(
-              "Assessments",
-              ClipboardList,
-              "Manage quizzes and exams",
-            )}
-          {currentPath === "/instructor/analytics" &&
-            renderModulePlaceholder(
-              "Analytics",
-              BarChart3,
-              "View detailed performance metrics",
-            )}
+          {currentPath === "/instructor/upload" && (
+            <div className="space-y-12">
+              <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_black] rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-[#E9E9E9] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_black] rounded-lg">
+                    <Upload className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black uppercase italic tracking-wider">
+                      Content Studio
+                    </h2>
+                    <p className="text-xs font-bold text-black/50 uppercase tracking-widest">
+                      Select a course to begin the upload protocol
+                    </p>
+                  </div>
+                </div>
+                <div className="w-full sm:w-80 shrink-0">
+                  <CourseSelector
+                    selectedCourse={selectedCourse}
+                    onSelectCourse={setSelectedCourse}
+                  />
+                </div>
+              </div>
+
+              {selectedCourse ? (
+                <div className="grid lg:grid-cols-2 gap-8 animate-in slide-in-from-bottom-4 duration-500">
+                  <VideoUploader courseId={selectedCourse.id} />
+                  <ResourceUploader courseId={selectedCourse.id} />
+                </div>
+              ) : (
+                <div className="bg-[#E9E9E9] border-4 border-dashed border-black/20 p-20 rounded-xl text-center">
+                  <Upload className="h-16 w-16 text-black/10 mx-auto mb-4" />
+                  <p className="font-black uppercase tracking-widest text-black/20">
+                    Awaiting Course Selection...
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          {currentPath === "/instructor/students" && <StudentManager />}
+          {currentPath === "/instructor/assessments" && <AssessmentManager />}
+          {currentPath === "/instructor/analytics" && <InstructorAnalytics />}
 
           {currentPath === "/instructor/attendance" && <ManagerAttendance />}
 

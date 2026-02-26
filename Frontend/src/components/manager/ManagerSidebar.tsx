@@ -136,7 +136,14 @@ export function ManagerSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton className="font-black uppercase tracking-widest text-[10px] h-10 border-2 border-transparent hover:border-[#000000] bg-white text-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer transition-all">
+            <SidebarMenuButton
+              onClick={() => onSectionChange("help")}
+              className={`font-black uppercase tracking-widest text-[10px] h-10 border-2 transition-all cursor-pointer ${
+                activeSection === "help"
+                  ? "bg-[#FD5A1A] text-white border-[#000000] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  : "bg-white text-[#000000] border-transparent hover:border-[#000000] hover:bg-[#E9E9E9] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              }`}
+            >
               <HelpCircle className="h-4 w-4 shrink-0" />
               <span>Help</span>
             </SidebarMenuButton>
