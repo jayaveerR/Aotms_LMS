@@ -1,13 +1,19 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Shield, 
-  ShieldAlert, 
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Shield,
+  ShieldAlert,
   ShieldCheck,
   AlertTriangle,
   CheckCircle,
@@ -15,9 +21,9 @@ import {
   Clock,
   Info,
   AlertCircle,
-  XCircle
-} from 'lucide-react';
-import type { SecurityEvent, SystemLog } from '@/hooks/useAdminData';
+  XCircle,
+} from "lucide-react";
+import type { SecurityEvent, SystemLog } from "@/hooks/useAdminData";
 
 interface SecurityMonitorProps {
   securityEvents: SecurityEvent[];
@@ -27,12 +33,12 @@ interface SecurityMonitorProps {
   onResolveEvent: (eventId: string) => Promise<boolean>;
 }
 
-export function SecurityMonitor({ 
-  securityEvents, 
+export function SecurityMonitor({
+  securityEvents,
   systemLogs,
   loading,
   highPriorityCount,
-  onResolveEvent 
+  onResolveEvent,
 }: SecurityMonitorProps) {
   const [processing, setProcessing] = useState<string | null>(null);
 
@@ -47,8 +53,8 @@ export function SecurityMonitor({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
+
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins} min ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
     return `${Math.floor(diffMins / 1440)} days ago`;
@@ -56,28 +62,47 @@ export function SecurityMonitor({
 
   const getRiskBadge = (risk: string) => {
     switch (risk) {
-      case 'critical':
-        return <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Critical</Badge>;
-      case 'high':
-        return <Badge variant="destructive" className="gap-1"><ShieldAlert className="h-3 w-3" /> High</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="gap-1 bg-yellow-500/20 text-yellow-700"><AlertCircle className="h-3 w-3" /> Medium</Badge>;
+      case "critical":
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <AlertTriangle className="h-3 w-3" /> Critical
+          </Badge>
+        );
+      case "high":
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <ShieldAlert className="h-3 w-3" /> High
+          </Badge>
+        );
+      case "medium":
+        return (
+          <Badge
+            variant="secondary"
+            className="gap-1 bg-yellow-500/20 text-yellow-700"
+          >
+            <AlertCircle className="h-3 w-3" /> Medium
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" className="gap-1"><Info className="h-3 w-3" /> Low</Badge>;
+        return (
+          <Badge variant="outline" className="gap-1">
+            <Info className="h-3 w-3" /> Low
+          </Badge>
+        );
     }
   };
 
   const getEventIcon = (type: string) => {
     switch (type) {
-      case 'login_failure':
+      case "login_failure":
         return <XCircle className="h-4 w-4 text-destructive" />;
-      case 'suspicious_activity':
+      case "suspicious_activity":
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'permission_denied':
+      case "permission_denied":
         return <Shield className="h-4 w-4 text-orange-500" />;
-      case 'password_change':
+      case "password_change":
         return <ShieldCheck className="h-4 w-4 text-green-500" />;
-      case 'account_locked':
+      case "account_locked":
         return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
         return <Info className="h-4 w-4 text-muted-foreground" />;
@@ -86,13 +111,13 @@ export function SecurityMonitor({
 
   const getLogIcon = (type: string) => {
     switch (type) {
-      case 'error':
+      case "error":
         return <XCircle className="h-4 w-4 text-destructive" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'audit':
+      case "audit":
         return <FileText className="h-4 w-4 text-primary" />;
-      case 'system':
+      case "system":
         return <Shield className="h-4 w-4 text-muted-foreground" />;
       default:
         return <Info className="h-4 w-4 text-blue-500" />;
@@ -100,7 +125,10 @@ export function SecurityMonitor({
   };
 
   const formatEventType = (type: string) => {
-    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return type
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   if (loading) {
@@ -128,20 +156,22 @@ export function SecurityMonitor({
     );
   }
 
-  const unresolvedEvents = securityEvents.filter(e => !e.resolved);
-  const resolvedEvents = securityEvents.filter(e => e.resolved);
+  const unresolvedEvents = securityEvents.filter((e) => !e.resolved);
+  const resolvedEvents = securityEvents.filter((e) => e.resolved);
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-2">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
                 Security Events
               </CardTitle>
-              <CardDescription>Monitor and resolve security incidents</CardDescription>
+              <CardDescription>
+                Monitor and resolve security incidents
+              </CardDescription>
             </div>
             {highPriorityCount > 0 && (
               <Badge variant="destructive" className="gap-1">
@@ -163,7 +193,7 @@ export function SecurityMonitor({
                 Resolved ({resolvedEvents.length})
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="active">
               <ScrollArea className="h-[400px]">
                 <div className="space-y-3">
@@ -176,31 +206,55 @@ export function SecurityMonitor({
                     unresolvedEvents.map((event) => (
                       <div
                         key={event.id}
-                        className="flex items-start gap-4 p-4 rounded-3xl bg-muted/50 hover:bg-muted transition-colors"
+                        className="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-3xl bg-muted/50 hover:bg-muted transition-colors"
                       >
-                        <div className="mt-1">
-                          {getEventIcon(event.event_type)}
+                        <div className="flex items-start gap-4 w-full sm:w-auto">
+                          <div className="mt-1 shrink-0">
+                            {getEventIcon(event.event_type)}
+                          </div>
+                          <div className="flex-1 min-w-0 sm:hidden">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-medium">
+                                {formatEventType(event.event_type)}
+                              </h4>
+                              {getRiskBadge(event.risk_level)}
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {event.user_email || "Unknown user"}
+                            </p>
+                            <p className="text-sm text-muted-foreground truncate">
+                              IP: {event.ip_address || "Unknown"}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              <Clock className="h-3 w-3 inline mr-1" />
+                              {formatTime(event.created_at)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="hidden sm:block flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-medium">{formatEventType(event.event_type)}</h4>
+                            <h4 className="font-medium">
+                              {formatEventType(event.event_type)}
+                            </h4>
                             {getRiskBadge(event.risk_level)}
                           </div>
                           <p className="text-sm text-muted-foreground truncate">
-                            {event.user_email || 'Unknown user'} • IP: {event.ip_address || 'Unknown'}
+                            {event.user_email || "Unknown user"} • IP:{" "}
+                            {event.ip_address || "Unknown"}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
                             <Clock className="h-3 w-3 inline mr-1" />
                             {formatTime(event.created_at)}
                           </p>
                         </div>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
+                          className="w-full sm:w-auto mt-2 sm:mt-0"
                           disabled={processing === event.id}
                           onClick={() => handleResolve(event.id)}
                         >
-                          {processing === event.id ? 'Resolving...' : 'Resolve'}
+                          {processing === event.id ? "Resolving..." : "Resolve"}
                         </Button>
                       </div>
                     ))
@@ -208,7 +262,7 @@ export function SecurityMonitor({
                 </div>
               </ScrollArea>
             </TabsContent>
-            
+
             <TabsContent value="resolved">
               <ScrollArea className="h-[400px]">
                 <div className="space-y-3">
@@ -221,18 +275,40 @@ export function SecurityMonitor({
                     resolvedEvents.map((event) => (
                       <div
                         key={event.id}
-                        className="flex items-start gap-4 p-4 rounded-3xl bg-muted/30 opacity-70"
+                        className="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-3xl bg-muted/30 opacity-70"
                       >
-                        <div className="mt-1">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        <div className="flex items-start gap-4 w-full sm:w-auto">
+                          <div className="mt-1 shrink-0">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          </div>
+                          <div className="flex-1 min-w-0 sm:hidden">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-medium">
+                                {formatEventType(event.event_type)}
+                              </h4>
+                              <Badge
+                                variant="outline"
+                                className="text-green-600"
+                              >
+                                Resolved
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {event.user_email || "Unknown user"}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="hidden sm:block flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium">{formatEventType(event.event_type)}</h4>
-                            <Badge variant="outline" className="text-green-600">Resolved</Badge>
+                            <h4 className="font-medium">
+                              {formatEventType(event.event_type)}
+                            </h4>
+                            <Badge variant="outline" className="text-green-600">
+                              Resolved
+                            </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground truncate">
-                            {event.user_email || 'Unknown user'}
+                            {event.user_email || "Unknown user"}
                           </p>
                         </div>
                       </div>
@@ -244,7 +320,7 @@ export function SecurityMonitor({
           </Tabs>
         </CardContent>
       </Card>
-      
+
       {/* System Logs */}
       <Card>
         <CardHeader>
@@ -270,7 +346,9 @@ export function SecurityMonitor({
                   >
                     {getLogIcon(log.log_type)}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{log.action}</p>
+                      <p className="text-sm font-medium truncate">
+                        {log.action}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {log.module} • {formatTime(log.created_at)}
                       </p>
@@ -285,4 +363,3 @@ export function SecurityMonitor({
     </div>
   );
 }
-

@@ -150,7 +150,7 @@ export function UserManagement({
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-2">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-primary" />
@@ -160,18 +160,18 @@ export function UserManagement({
                 Manage all platform users ({users.length} total)
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search users..."
-                  className="pl-10 w-48"
+                  className="pl-10 w-full sm:w-48"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue placeholder="Filter role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,7 +182,7 @@ export function UserManagement({
                   <SelectItem value="student">Student</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add User
               </Button>
@@ -199,13 +199,31 @@ export function UserManagement({
             filteredUsers.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center gap-4 p-4 rounded-3xl bg-muted/50 hover:bg-muted transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-3xl bg-muted/50 hover:bg-muted transition-colors"
               >
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 sm:hidden">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-medium text-sm sm:text-base">
+                        {user.full_name || "Unknown"}
+                      </h4>
+                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {user.role || "student"}
+                      </Badge>
+                      {user.status === "suspended" && (
+                        <Badge variant="destructive">suspended</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                <div className="hidden sm:block flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h4 className="font-medium">
                       {user.full_name || "Unknown"}
                     </h4>
@@ -218,51 +236,53 @@ export function UserManagement({
                   </div>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
-                <div className="text-right text-sm text-muted-foreground">
-                  <Clock className="h-3 w-3 inline mr-1" />
-                  {formatLastActive(user.last_active_at)}
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" title="Edit">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    title="Change Role"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setNewRole(user.role || "student");
-                      setShowRoleDialog(true);
-                    }}
-                  >
-                    <UserCog className="h-4 w-4" />
-                  </Button>
-                  {user.status === "active" ? (
+                <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-muted">
+                  <div className="text-xs sm:text-sm text-muted-foreground mr-auto sm:mr-0">
+                    <Clock className="h-3 w-3 inline mr-1" />
+                    {formatLastActive(user.last_active_at)}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" title="Edit">
+                      <Edit className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      title="Suspend"
-                      onClick={async () => {
-                        await onUpdateStatus(user.id, "suspended");
-                        await suspendUser(user.id);
+                      title="Change Role"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setNewRole(user.role || "student");
+                        setShowRoleDialog(true);
                       }}
                     >
-                      <Lock className="h-4 w-4 text-destructive" />
+                      <UserCog className="h-4 w-4" />
                     </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      title="Activate"
-                      onClick={async () => {
-                        await onUpdateStatus(user.id, "active");
-                        await reactivateUser(user.id);
-                      }}
-                    >
-                      <Unlock className="h-4 w-4 text-green-600" />
-                    </Button>
-                  )}
+                    {user.status === "active" ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Suspend"
+                        onClick={async () => {
+                          await onUpdateStatus(user.id, "suspended");
+                          await suspendUser(user.id);
+                        }}
+                      >
+                        <Lock className="h-4 w-4 text-destructive" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Activate"
+                        onClick={async () => {
+                          await onUpdateStatus(user.id, "active");
+                          await reactivateUser(user.id);
+                        }}
+                      >
+                        <Unlock className="h-4 w-4 text-green-600" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -343,4 +363,3 @@ export function UserManagement({
     </div>
   );
 }
-

@@ -654,6 +654,7 @@ app.put("/api/data/:table/:id", async (req, res) => {
     res.json(data);
   } catch (err) {
     if (err.code === "PGRST205") return res.json({});
+    console.error(`PUT /data/${table}/${id} ERROR:`, err);
     res.status(500).json({ error: err.message });
   }
 });

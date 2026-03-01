@@ -102,11 +102,18 @@ const DEMO_EXAM: ExamConfig = {
 /* ═══════════════════════════════════════
    COUNTDOWN TIMER
    ═══════════════════════════════════════ */
-function useCountdown(seconds: number, onExpire: () => void) {
-  const [remaining, setRemaining] = useState(seconds);
+function useCountdown(seconds: number | null, onExpire: () => void) {
+  const [remaining, setRemaining] = useState(seconds ?? 0);
   const expiredRef = useRef(false);
 
   useEffect(() => {
+    if (seconds !== null) {
+      setRemaining(seconds);
+    }
+  }, [seconds]);
+
+  useEffect(() => {
+    if (seconds === null) return;
     if (remaining <= 0) {
       if (!expiredRef.current) {
         expiredRef.current = true;
@@ -116,9 +123,9 @@ function useCountdown(seconds: number, onExpire: () => void) {
     }
     const t = setTimeout(() => setRemaining((r) => r - 1), 1000);
     return () => clearTimeout(t);
-  }, [remaining, onExpire]);
+  }, [remaining, seconds, onExpire]);
 
-  const pct = Math.round((remaining / seconds) * 100);
+  const pct = seconds ? Math.round((remaining / seconds) * 100) : 0;
   const mins = Math.floor(remaining / 60);
   const secs = remaining % 60;
   const isLow = remaining <= 60;
@@ -386,6 +393,7 @@ export default function ExamPage() {
 
   const examId = searchParams.get("id") ?? "demo";
   const examType = (searchParams.get("type") ?? "mock") as "live" | "mock";
+  const userId = user?.id || "demo_user";
 
   const [exam] = useState<ExamConfig>(DEMO_EXAM);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
@@ -401,8 +409,50 @@ export default function ExamPage() {
   const [timeTaken, setTimeTaken] = useState(0);
 
   const [fullscreenWarning, setFullscreenWarning] = useState(false);
+  const [syncing, setSyncing] = useState(true);
+  const [timerSetup, setTimerSetup] = useState<number | null>(null);
 
-  const totalSecs = exam.duration_minutes * 60;
+  useEffect(() => {
+    async function fetchState() {
+      try {
+        const res = await fetch(
+          `http://localhost:8001/api/exam/state/${examId}/${userId}`,
+        );
+        if (res.ok) {
+          const data = await res.json();
+          // Restore answers
+          if (data.answers && Object.keys(data.answers).length > 0) {
+            const nextAnswers = [...answers];
+            const nextStatuses = [...statuses];
+            Object.entries(data.answers).forEach(([qId, val]) => {
+              const qIdx = exam.questions.findIndex((q) => q.id === qId);
+              if (qIdx !== -1) {
+                nextAnswers[qIdx] = Number(val);
+                nextStatuses[qIdx] = "answered";
+              }
+            });
+            setAnswers(nextAnswers);
+            setStatuses(nextStatuses);
+          }
+          // Restore timer
+          if (data.time_remaining_seconds !== null) {
+            setTimerSetup(data.time_remaining_seconds);
+          } else {
+            setTimerSetup(exam.duration_minutes * 60);
+          }
+        } else {
+          setTimerSetup(exam.duration_minutes * 60);
+        }
+      } catch (err) {
+        console.error("Failed to fetch exam state", err);
+        setTimerSetup(exam.duration_minutes * 60);
+      } finally {
+        setSyncing(false);
+      }
+    }
+    fetchState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [examId, userId, exam.duration_minutes]);
 
   const handleExpire = useCallback(() => {
     toast({
@@ -414,14 +464,15 @@ export default function ExamPage() {
   }, [toast, startTime]);
 
   const {
+    remaining,
     mins,
     secs,
     pct: timerPct,
     isLow,
     isCritical,
-  } = useCountdown(totalSecs, handleExpire);
+  } = useCountdown(timerSetup, handleExpire);
 
-  const handleSelect = (optionIdx: number) => {
+  const handleSelect = async (optionIdx: number) => {
     const next = [...answers];
     next[currentQ] = optionIdx;
     setAnswers(next);
@@ -431,6 +482,23 @@ export default function ExamPage() {
       ? "answered-flagged"
       : "answered";
     setStatuses(nextStatuses);
+
+    // Sync to backend
+    try {
+      await fetch("http://localhost:8001/api/exam/submit-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: String(userId),
+          exam_id: String(exam.id),
+          question_id: String(exam.questions[currentQ].id),
+          selected_option: String(optionIdx),
+          time_remaining_seconds: remaining,
+        }),
+      });
+    } catch (err) {
+      console.error("Sync failed", err);
+    }
   };
 
   const handleFlag = () => {
@@ -442,10 +510,19 @@ export default function ExamPage() {
     setStatuses(next);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setTimeTaken(Math.round((Date.now() - startTime) / 1000));
     setSubmitted(true);
     setShowReview(false);
+
+    // Sync finish
+    try {
+      await fetch(`http://localhost:8001/api/exam/finish/${examId}/${userId}`, {
+        method: "POST",
+      });
+    } catch (err) {
+      console.error("Finish failed", err);
+    }
   };
 
   const goNext = () => {
@@ -463,6 +540,17 @@ export default function ExamPage() {
     document.addEventListener("visibilitychange", handler);
     return () => document.removeEventListener("visibilitychange", handler);
   }, []);
+
+  if (syncing) {
+    return (
+      <div className="min-h-screen bg-[#E9E9E9] flex flex-col items-center justify-center font-['Inter']">
+        <div className="w-16 h-16 border-8 border-black border-t-[#FD5A1A] rounded-full animate-spin mb-4" />
+        <div className="text-xl font-black uppercase tracking-widest text-black">
+          SYNCING SERVER...
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -730,4 +818,3 @@ export default function ExamPage() {
     </div>
   );
 }
-

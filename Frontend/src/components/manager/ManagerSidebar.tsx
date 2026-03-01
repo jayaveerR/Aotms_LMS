@@ -26,6 +26,7 @@ import {
   Gavel,
   MonitorPlay,
   CheckSquare,
+  FileSearch,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,6 +54,7 @@ const userManagementItems = [
   { id: "access-control", title: "Access Control", icon: Shield },
   { id: "attendance", title: "Attendance", icon: CheckSquare },
   { id: "leaderboard", title: "Leaderboard", icon: Trophy },
+  { id: "ats-analytics", title: "ATS Analytics", icon: FileSearch },
 ];
 
 export function ManagerSidebar({

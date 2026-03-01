@@ -36,21 +36,21 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12 font-['Inter']">
+    <div className="max-w-4xl mx-auto space-y-6 pb-12 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 font-['Inter'] w-full">
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-black text-[#000000] flex items-center gap-3">
-          <Settings className="w-8 h-8 text-[#0075CF]" />
+        <h1 className="text-2xl sm:text-3xl font-black text-[#000000] flex items-center gap-2 sm:gap-3">
+          <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#0075CF]" />
           Account Settings
         </h1>
-        <p className="text-[#000000]/60 font-medium mt-1">
+        <p className="text-[#000000]/60 font-medium mt-1 text-sm sm:text-base">
           Manage your account preferences and security.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 items-start">
+      <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start w-full">
         {/* SIDEBAR TABS */}
-        <div className="w-full md:w-64 flex flex-col gap-2 shrink-0">
+        <div className="w-full md:w-64 flex flex-row md:flex-col overflow-x-auto gap-2 shrink-0 pb-2 md:pb-0 no-scrollbar">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -63,7 +63,7 @@ export default function SettingsPage() {
                     | "appearance",
                 )
               }
-              className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-3xl border-2 transition-all font-black text-sm uppercase tracking-widest ${
+              className={`flex items-center justify-center md:justify-start gap-3 w-auto md:w-full text-left px-5 sm:px-4 py-3 rounded-3xl border-2 transition-all font-black text-xs sm:text-sm uppercase tracking-widest whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "bg-[#000000] text-white border-[#000000] shadow-[4px_4px_0px_0px_rgba(253,90,26,1)] translate-x-[-2px] translate-y-[-2px]"
                   : "bg-white text-[#000000]/70 border-transparent hover:border-[#000000]/20 hover:bg-[#E9E9E9]"
@@ -86,11 +86,11 @@ export default function SettingsPage() {
                 Public Profile
               </h2>
 
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-24 h-24 rounded-3xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-[#0075CF]/10 flex items-center justify-center font-black text-4xl text-[#0075CF]">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 mb-8">
+                <div className="shrink-0 w-24 h-24 rounded-3xl border-4 border-[#000000] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-[#0075CF]/10 flex items-center justify-center font-black text-4xl text-[#0075CF]">
                   {fullName.charAt(0) || "U"}
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 w-full sm:w-auto flex flex-col items-center sm:items-start">
                   <Button
                     variant="default"
                     className="shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-4 pb-2">
                   <Button
                     variant="accent"
                     className="w-full sm:w-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)] transition-shadow"
@@ -180,10 +180,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="pt-6 border-t-4 border-[#E9E9E9] flex justify-between items-center">
+                <div className="pt-6 border-t-4 border-[#E9E9E9] flex justify-between items-center w-full">
                   <Button
                     variant="destructive"
-                    className="bg-[#FD5A1A] hover:bg-[#FD5A1A]/90 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
+                    className="w-full sm:w-auto bg-[#FD5A1A] hover:bg-[#FD5A1A]/90 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
                   >
                     Update Password
                   </Button>
@@ -217,18 +217,18 @@ export default function SettingsPage() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="p-4 border-2 border-[#000000] rounded-3xl flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white hover:bg-[#E9E9E9] transition-colors cursor-pointer group"
+                    className="p-4 sm:p-5 border-2 border-[#000000] rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white hover:bg-[#E9E9E9] transition-colors cursor-pointer group"
                   >
-                    <div>
-                      <p className="font-black text-[#000000] group-hover:text-[#0075CF] transition-colors">
+                    <div className="w-full sm:w-auto pr-4">
+                      <p className="font-black text-[#000000] group-hover:text-[#0075CF] transition-colors line-clamp-1">
                         {item.label}
                       </p>
-                      <p className="text-xs font-bold text-[#000000]/50">
+                      <p className="text-xs sm:text-sm font-bold text-[#000000]/50 mt-1 line-clamp-2">
                         {item.desc}
                       </p>
                     </div>
                     {/* Brutalist Toggle fake */}
-                    <div className="relative w-12 h-6 rounded-full bg-[#000000] p-1 border-2 border-[#000000] cursor-pointer shadow-inner">
+                    <div className="relative shrink-0 self-end sm:self-auto w-12 h-6 rounded-full bg-[#000000] p-1 border-2 border-[#000000] cursor-pointer shadow-inner">
                       <div className="w-4 h-4 bg-[#FD5A1A] rounded-full translate-x-5 transition-transform" />
                     </div>
                   </div>

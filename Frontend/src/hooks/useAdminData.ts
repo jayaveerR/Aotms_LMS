@@ -232,10 +232,11 @@ export function useAdminData() {
       });
       fetchAllData(); // Refresh data
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      console.error("updateUserStatus FAILED:", error);
       toast({
         title: "Error",
-        description: "Failed to update user status",
+        description: error.message || "Failed to update user status",
         variant: "destructive",
       });
       return false;

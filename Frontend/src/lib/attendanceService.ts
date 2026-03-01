@@ -200,19 +200,19 @@ export async function suspendUser(userId: string) {
     suspended.push({ userId, suspendedAt: new Date().toISOString() });
     saveLocalSuspended(suspended);
 
-    // Sync to Backend
+    // Sync to Backend profiles table
     try {
       const token = localStorage.getItem("access_token");
       if (token) {
-        await fetch(`${API_URL}/data/suspended_users`, {
-          method: "POST",
+        await fetch(`${API_URL}/data/profiles/${userId}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            user_id: userId,
-            suspended_at: new Date().toISOString(),
+            status: "suspended",
+            updated_at: new Date().toISOString(),
           }),
         });
       }
@@ -235,24 +235,21 @@ export async function reactivateUser(userId: string) {
   suspended = suspended.filter((s) => s.userId !== userId);
   saveLocalSuspended(suspended);
 
-  // Sync to Backend
+  // Sync to Backend profiles table
   try {
     const token = localStorage.getItem("access_token");
     if (token) {
-      // Find the specific record ID in the backend
-      const res = await fetch(
-        `${API_URL}/data/suspended_users?user_id=${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      await fetch(`${API_URL}/data/profiles/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
-      const data = await res.json();
-      if (data && data.length > 0) {
-        await fetch(`${API_URL}/data/suspended_users/${data[0].id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
+        body: JSON.stringify({
+          status: "active",
+          updated_at: new Date().toISOString(),
+        }),
+      });
     }
   } catch (e) {
     console.error("Failed to reactivate user on backend:", e);

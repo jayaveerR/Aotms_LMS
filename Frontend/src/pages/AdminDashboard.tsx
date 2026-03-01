@@ -540,7 +540,7 @@ export default function AdminDashboard() {
               <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           <BarChart3 className="h-5 w-5 text-primary" />
@@ -550,18 +550,26 @@ export default function AdminDashboard() {
                           Overview of platform performance
                         </CardDescription>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 sm:flex-none"
+                        >
                           This Week
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 sm:flex-none"
+                        >
                           Export
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="p-4 rounded-3xl bg-muted/50">
                         <div className="flex items-center gap-2 mb-2">
                           <Users className="h-4 w-4 text-primary" />
@@ -858,4 +866,3 @@ export default function AdminDashboard() {
     </SidebarProvider>
   );
 }
-

@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+redis
+python-dotenv
+pydantic
+sqlalchemy
+asyncpg
+psycopg2-binary
+elasticsearch
+structlog
+elastic-apm
