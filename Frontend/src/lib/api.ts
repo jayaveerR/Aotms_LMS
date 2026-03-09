@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:5000/api';
+export const API_URL = 'https://new-lms-m5l5.onrender.com/api';
 
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     let token = localStorage.getItem('access_token');

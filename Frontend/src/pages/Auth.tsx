@@ -118,7 +118,7 @@ export default function Auth() {
 
       // Fetch fresh role for redirection
       const token = localStorage.getItem('access_token');
-      const roleRes = await fetch('http://localhost:5000/api/user/role', {
+      const roleRes = await fetch('https://new-lms-m5l5.onrender.com/api/user/role', {
         headers: { Authorization: `Bearer ${token}` }
       });
 

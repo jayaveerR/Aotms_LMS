@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://new-lms-m5l5.onrender.com/api';
 
 export interface Course {
   id: string;

@@ -138,7 +138,7 @@ export default function InstructorRegister() {
         formData.append('resume', resumeFile);
       }
 
-      const res = await fetch('http://localhost:5000/api/instructor/register', {
+      const res = await fetch('https://new-lms-m5l5.onrender.com/api/instructor/register', {
         method: 'POST',
         body: formData
       });
