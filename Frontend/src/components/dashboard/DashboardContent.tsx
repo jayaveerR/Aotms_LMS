@@ -333,7 +333,7 @@ function DashboardHome() {
                 <div className="flex gap-4">
                   <div className="h-24 w-40 rounded-xl overflow-hidden bg-muted group-hover:scale-105 transition-transform shrink-0">
                     <img
-                      src={latestCourse.thumbnail_url?.startsWith('http') ? latestCourse.thumbnail_url : `https://new-lms-m5l5.onrender.com/api/s3/public/${latestCourse.thumbnail_url}`}
+                      src={latestCourse.thumbnail_url?.startsWith('http') ? latestCourse.thumbnail_url : `/s3/public/${latestCourse.thumbnail_url}`}
                       alt=""
                       className="w-full h-full object-cover"
                       onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop'; }}
