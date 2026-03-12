@@ -126,10 +126,10 @@ const Header = () => {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
-                className={`px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-medium transition-all duration-200 ${
+                className={`px-3 xl:px-4 py-2 rounded-lg text-sm xl:text-base font-bold transition-all duration-200 ${
                   isScrolled || hasLightBg
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-primary"
+                    ? "text-slate-800 hover:text-[#0075CF]"
+                    : "text-[#FDFEFE] hover:text-[#FD5A1A]"
                 }`}
               >
                 {link.name}
@@ -143,13 +143,13 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
-                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-primary/20">
+                  <button className="flex items-center gap-2 p-1 rounded-full hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-[#0075CF]/20">
+                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-[#0075CF]/20">
                       <AvatarImage
                         src={user.user_metadata?.avatar_url}
                         alt="User avatar"
                       />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
+                      <AvatarFallback className="bg-[#0075CF] text-[#FDFEFE] font-semibold text-sm sm:text-base">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -160,14 +160,14 @@ const Header = () => {
                   className="w-56 bg-background border border-border shadow-lg z-[100]"
                 >
                   <div className="px-3 py-2 border-b border-border">
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-sm font-bold text-foreground">
                       {user.user_metadata?.full_name || "User"}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {user.email}
                     </p>
                   </div>
-                  <DropdownMenuItem asChild className="cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer focus:bg-[#0075CF]/10 focus:text-[#0075CF]">
                     <Link
                       to={
                         userRole === "admin"
@@ -182,22 +182,22 @@ const Header = () => {
                       className="flex items-center gap-2"
                     >
                       <LayoutDashboard className="h-4 w-4" />
-                      <span>Dashboard</span>
+                      <span className="font-bold">Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer focus:bg-[#0075CF]/10 focus:text-[#0075CF]">
                     <Link to="/settings" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />
-                      <span>Settings</span>
+                      <span className="font-bold">Settings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleSignOut}
-                    className="cursor-pointer text-destructive focus:text-destructive"
+                    className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    <span>Log out</span>
+                    <span className="font-bold">Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -206,7 +206,11 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`}
+                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 font-bold transition-all duration-300 hover:scale-105 ${
+                    isScrolled || hasLightBg 
+                      ? "text-slate-800 border-slate-800/30 hover:border-[#0075CF] hover:text-[#0075CF] hover:bg-transparent" 
+                      : "text-[#FDFEFE] border-[#FDFEFE]/50 hover:border-[#FDFEFE] hover:text-[#FDFEFE] hover:bg-transparent"
+                  }`}
                   asChild
                 >
                   <Link to="/auth">Login</Link>
@@ -214,7 +218,11 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 transition-all duration-300 hover:scale-105 hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground border-foreground/30 hover:border-primary hover:text-primary" : "text-white border-white/50 hover:border-white hover:text-white/90"}`}
+                  className={`text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 rounded-full border-2 font-black transition-all duration-300 hover:scale-105 ${
+                    isScrolled || hasLightBg 
+                      ? "bg-[#0075CF] text-[#FDFEFE] border-[#0075CF] hover:bg-[#0066B3] hover:text-[#FDFEFE]" 
+                      : "bg-[#FD5A1A] text-[#FDFEFE] border-[#FD5A1A] hover:bg-[#E34D14] hover:text-[#FDFEFE]"
+                  }`}
                   asChild
                 >
                   <Link to="/auth">Sign Up</Link>
@@ -228,7 +236,7 @@ const Header = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`lg:hidden hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground" : "text-white"}`}
+                  className={`lg:hidden hover:bg-transparent ${isScrolled || hasLightBg ? "text-foreground" : "text-[#FDFEFE]"}`}
                 >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>
@@ -252,7 +260,7 @@ const Header = () => {
                           <SheetClose asChild>
                             <button
                               onClick={() => handleNavClick(link.href)}
-                              className="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                              className="w-full text-left px-4 py-3 rounded-lg text-base font-bold text-foreground hover:bg-[#0075CF]/10 hover:text-[#0075CF] transition-colors"
                             >
                               {link.name}
                             </button>
@@ -266,12 +274,12 @@ const Header = () => {
                   {!user && (
                     <div className="p-4 border-t border-border space-y-3">
                       <SheetClose asChild>
-                        <Button variant="outline" className="w-full" asChild>
+                        <Button variant="outline" className="w-full font-bold border-border hover:text-[#0075CF] hover:border-[#0075CF]" asChild>
                           <Link to="/auth">Login</Link>
                         </Button>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Button variant="accent" className="w-full" asChild>
+                        <Button className="w-full bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-black" asChild>
                           <Link to="/auth">Sign Up</Link>
                         </Button>
                       </SheetClose>

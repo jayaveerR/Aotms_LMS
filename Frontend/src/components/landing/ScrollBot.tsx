@@ -67,10 +67,10 @@ const ScrollBot = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="w-2.5 h-48 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200 shadow-inner"
+            className="w-2.5 h-48 bg-[#E6F2FA] rounded-full overflow-hidden relative border border-[#0075CF]/10 shadow-inner"
           >
             <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-blue-600 via-blue-500 to-orange-500 origin-top h-full"
+              className="absolute inset-0 bg-gradient-to-b from-[#0075CF] via-[#3391D9] to-[#FD5A1A] origin-top h-full"
               style={{ scaleY }}
             />
           </motion.div>
@@ -88,10 +88,10 @@ const ScrollBot = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className="bg-white border border-slate-200 shadow-2xl rounded-2xl w-80 sm:w-96 overflow-hidden flex flex-col mb-4"
+                className="bg-[#FDFEFE] border border-slate-200 shadow-2xl rounded-2xl w-80 sm:w-96 overflow-hidden flex flex-col mb-4"
               >
                 {/* Header */}
-                <div className="bg-blue-600 p-4 flex items-center justify-between text-white">
+                <div className="bg-[#0075CF] p-4 flex items-center justify-between text-[#FDFEFE]">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <Bot size={18} />
@@ -121,8 +121,8 @@ const ScrollBot = () => {
                       <div
                         className={`max-w-[80%] p-3 rounded-2xl text-sm ${
                           m.role === "user"
-                            ? "bg-blue-600 text-white rounded-br-none"
-                            : "bg-white border border-slate-100 text-slate-700 shadow-sm rounded-bl-none"
+                            ? "bg-[#0075CF] text-[#FDFEFE] rounded-br-none"
+                            : "bg-[#FDFEFE] border border-slate-100 text-slate-700 shadow-sm rounded-bl-none"
                         }`}
                       >
                         {m.text}
@@ -132,18 +132,18 @@ const ScrollBot = () => {
                 </div>
 
                 {/* Input */}
-                <div className="p-4 bg-white border-t border-slate-100 flex gap-2">
+                <div className="p-4 bg-[#FDFEFE] border-t border-slate-100 flex gap-2">
                   <Input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSend()}
                     placeholder="Type a message..."
-                    className="flex-1 bg-slate-50 border-none focus:ring-1 focus:ring-blue-600"
+                    className="flex-1 bg-slate-50 border-none focus:ring-1 focus:ring-[#0075CF]"
                   />
                   <Button
                     onClick={handleSend}
                     size="icon"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#0075CF] hover:bg-[#0066B3]"
                   >
                     <Send size={18} />
                   </Button>
@@ -153,16 +153,16 @@ const ScrollBot = () => {
               /* FLOATING CHAT BUBBLE */
               <button
                 onClick={() => setIsChatOpen(true)}
-                className="w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform group relative overflow-hidden"
+                className="w-14 h-14 rounded-full bg-[#0075CF] text-[#FDFEFE] shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform group relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-700 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#0075CF] to-[#FD5A1A] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <MessageSquare className="relative z-10 w-6 h-6" />
 
                 {/* Scroll Indicator Pulse */}
                 {!isScrolling && (
                   <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FD5A1A] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-[#FD5A1A]"></span>
                   </span>
                 )}
               </button>
