@@ -49,25 +49,31 @@ export default function LiveSession() {
                 ZoomMtg.prepareWebSDK();
 
                 // 1. Get Security Signature
+                addLog('Requesting security signature...');
                 const { signature } = await fetchWithAuth('/zoom/signature', {
                     method: 'POST',
                     body: JSON.stringify({
-                        meetingNumber: meetingId,
+                        meetingNumber: meetingId.replace(/\s/g, ''),
                         role: role
                     })
                 });
 
-                addLog('Signature generated. Preparing UI...');
+                if (!signature) throw new Error('Failed to generate signature');
+                addLog('Signature ready. Initializing engine...');
+
+                const sdkKey = import.meta.env.VITE_ZOOM_CLIENT_ID;
+                if (!sdkKey) {
+                    addLog('Error: VITE_ZOOM_CLIENT_ID is missing!');
+                    throw new Error('Zoom SDK Key is not configured in Frontend .env');
+                }
 
                 // 2. Initialize Zoom Client View
                 const zRoot = document.getElementById('zmmtg-root');
-                const appRoot = document.getElementById('root');
-
                 if (zRoot) zRoot.style.display = 'block';
-                // if (appRoot) appRoot.style.display = 'none'; // Zoom usually does this, but we can helper
 
                 ZoomMtg.init({
                     leaveUrl: window.location.origin + (role === 1 ? '/instructor' : '/student-dashboard'),
+                    sdkKey: sdkKey,
                     patchJsMedia: true,
                     isSupportAV: true,
                     isSupportChat: true,
@@ -75,41 +81,32 @@ export default function LiveSession() {
                     isSupportPolling: true,
                     isSupportBreakoutRoom: true,
                     success: () => {
-                        addLog('Zoom initialized. Joining...');
-
-                        // Safety timeout if join hangs
-                        const joinTimeout = setTimeout(() => {
-                            if (loading) {
-                                addLog('Join timing out... check console for SDK errors.');
-                                setError('The join process is taking too long. Please refresh or check your internet.');
-                                setLoading(false);
-                            }
-                        }, 15000);
+                        addLog('Engine initialized. Joining room...');
 
                         ZoomMtg.join({
                             signature: signature,
-                            sdkKey: import.meta.env.VITE_ZOOM_CLIENT_ID || '_TNoW1ETxKPzLFRtM6dUQ',
-                            meetingNumber: meetingId!,
+                            sdkKey: sdkKey,
+                            meetingNumber: meetingId!.replace(/\s/g, ''),
                             userName: user.user_metadata?.full_name || user.email || 'AOTMS User',
                             passWord: password,
                             tk: '',
-                            success: () => {
-                                clearTimeout(joinTimeout);
+                            success: (res: any) => {
                                 addLog('Joined successfully!');
                                 setStatus('Connected!');
                                 setLoading(false);
                             },
-                            error: (err: unknown) => {
-                                clearTimeout(joinTimeout);
-                                addLog(`Join Error: ${JSON.stringify(err)}`);
-                                setError('Failed to enter the room. This could be due to an invalid signature or the meeting has not started.');
+                            error: (err: any) => {
+                                console.error('Join Error:', err);
+                                addLog(`Join Fail: ${err.errorMessage || 'Unknown error'}`);
+                                setError(`Failed to enter: ${err.errorMessage || 'Invalid meeting credentials'}`);
                                 setLoading(false);
                             }
                         });
                     },
-                    error: (err: unknown) => {
-                        addLog(`Init Error: ${JSON.stringify(err)}`);
-                        setError('The video engine could not be initialized.');
+                    error: (err: any) => {
+                        console.error('Init Error:', err);
+                        addLog(`Init Fail: ${err.errorMessage || 'Parameter mismatch'}`);
+                        setError(`Engine initialization failed: ${err.errorMessage || 'Check SDK Key and Meeting ID format'}`);
                         setLoading(false);
                     }
                 });
