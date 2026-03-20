@@ -41,8 +41,12 @@ PlaylistSchema.set('toJSON', { virtuals: true, versionKey: false, transform: (do
 const LiveClassSchema = new Schema({
     course_id: { type: Schema.Types.ObjectId, ref: 'Course' },
     title: { type: String, required: true },
+    description: { type: String },
     instructor_id: { type: Schema.Types.ObjectId, ref: 'User' },
-    meeting_link: { type: String }, // Zoom/Meet
+    meeting_id: { type: String }, // For SDK/Zoom
+    meeting_url: { type: String }, // Join URL
+    start_url: { type: String }, // Start URL (for instructor)
+    meeting_password: { type: String },
     scheduled_at: { type: Date, required: true },
     duration_minutes: { type: Number, default: 60 },
     status: { type: String, default: 'scheduled' }, // scheduled, live, ended

@@ -2,9 +2,11 @@
 require('dotenv').config();
 const https = require('https');
 
-const ACCOUNT_ID = process.env.ACCOUNT_ID;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const ACCOUNT_ID = process.env.ZOOM_S2S_ACCOUNT_ID;
+const CLIENT_ID = process.env.ZOOM_S2S_CLIENT_ID;
+const CLIENT_SECRET = process.env.ZOOM_S2S_CLIENT_SECRET;
+const axios = require('axios'); // use axios if possible, or stay with https
+
 
 async function testZoom() {
     console.log("Testing Zoom credentials...");

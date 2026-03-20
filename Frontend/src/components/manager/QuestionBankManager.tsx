@@ -24,7 +24,8 @@ import {
   useCreateQuestion,
   useDeleteQuestion,
   useMockTestConfigs,
-  useCreateMockTestConfig
+  useCreateMockTestConfig,
+  useExams
 } from '@/hooks/useManagerData';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -44,6 +45,8 @@ import {
   Layers,
   ClipboardList,
   ArrowRight,
+  Calendar,
+  ShieldCheck,
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -64,7 +67,7 @@ import { cn } from '@/lib/utils';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const N8N_WEBHOOK = 'https://aotms.app.n8n.cloud/webhook/Aotms';
+const N8N_WEBHOOK = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://aotms.app.n8n.cloud/webhook/generate-quiz';
 
 const DIFFICULTY_COLOR = {
   easy: 'text-emerald-500',
@@ -91,7 +94,7 @@ const QUESTION_TYPES = [
 const EMPTY_QUESTION = {
   topic: '',
   question_text: '',
-  question_type: 'mcq',
+  type: 'mcq',
   difficulty: 'medium',
   options: ['', '', '', ''],
   correct_answer: '',
@@ -183,7 +186,7 @@ function parseAiText(
         // Options: handle 'options' array OR 'optionA'...'optionD' fields
         let opts: string[] = [];
         if (Array.isArray(item.options)) {
-          opts = item.options.map(String);
+          opts = item.options.map((o: any) => typeof o === 'object' ? (o.text || o.option || String(o)) : String(o));
         } else if (item.optionA || item.optionA || item.OptionA) {
           // Strict Schema Support (checking variants optionA/OptionA)
           opts = [
@@ -194,7 +197,12 @@ function parseAiText(
             item.optionE || item.optionE || item.OptionE
           ].filter(Boolean).map(String);
         } else if (typeof item.options === 'object' && item.options !== null) {
-          opts = Object.values(item.options).map(String);
+          // Check for n8n format: [{ text, isCorrect }]
+          if (Array.isArray(Object.values(item.options)[0])) {
+             opts = Object.values(item.options).flat().map((o: any) => typeof o === 'object' ? o.text : String(o));
+          } else {
+             opts = Object.values(item.options).map((o: any) => typeof o === 'object' ? o.text : String(o));
+          }
         } else {
           // Try fetching "Options", "choices"
           const rawOpts = item.Options || item.choices || [];
@@ -210,6 +218,12 @@ function parseAiText(
           if (opts[idx]) {
             ans = opts[idx];
           }
+        }
+
+        // Handle n8n isCorrect mapping
+        if (!ans && Array.isArray(item.options)) {
+          const correct = item.options.find((o: any) => o.isCorrect === true || o.correct === true);
+          if (correct) ans = correct.text || correct.text;
         }
 
         mappedQuestions.push({
@@ -437,7 +451,7 @@ function QuestionTypeIcon({ type }: { type: string }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function QuestionBankManager() {
+export function QuestionBankManager({ onSectionChange }: { onSectionChange?: (section: string) => void }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: questions = [], isLoading } = useQuestions();
@@ -460,11 +474,10 @@ export function QuestionBankManager() {
   const [batchQuestions, setBatchQuestions] = useState<typeof EMPTY_QUESTION[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
-  // ─── Save Wizard State ───
+  // ─── Save Dialog State ───
+  const { data: exams = [] } = useExams();
   const [isSaveWizardOpen, setIsSaveWizardOpen] = useState(false);
-  const [saveWizardStep, setSaveWizardStep] = useState(1);
-  const [quizTitle, setQuizTitle] = useState('');
-  const [quizDescription, setQuizDescription] = useState('');
+  const [selectedExamId, setSelectedExamId] = useState('');
 
   // ─── AI State ───
   const [aiLoading, setAiLoading] = useState(false);
@@ -572,11 +585,12 @@ export function QuestionBankManager() {
     setRawInput('');
 
     const payload = {
-      topic: globalTopic,
+      context: globalTopic,
       prompt: globalPrompt,
-      count: globalCount,
+      questionCount: globalCount,
       difficulty: globalDifficulty,
       question_type: globalType,
+      explanation: true, // Explicitly request explanations from AI
       existing_count: questions.length,
       timestamp: new Date().toISOString(),
     };
@@ -655,7 +669,7 @@ export function QuestionBankManager() {
         ...EMPTY_QUESTION,
         topic: globalTopic, // Strictly use global topic
         question_text: q.question_text,
-        question_type: globalType, // Strictly use global type
+        type: globalType, // Strictly use global type
         difficulty: globalDifficulty, // Strictly use global difficulty
         options: (q.options && q.options.length >= 2) ? q.options : ['', '', '', ''],
         correct_answer: q.correct_answer || '',
@@ -679,9 +693,6 @@ export function QuestionBankManager() {
 
   const handleOpenSaveWizard = () => {
     if (batchQuestions.length === 0) return;
-    setQuizTitle(globalTopic);
-    setQuizDescription('');
-    setSaveWizardStep(1);
     setIsSaveWizardOpen(true);
   };
 
@@ -690,27 +701,33 @@ export function QuestionBankManager() {
     setIsSaving(true);
 
     try {
+      const selectedExam = exams.find(e => e.id === selectedExamId);
+      const batchTopic = selectedExam ? selectedExam.title : globalTopic;
+
       // 1. Save Questions
       const questionsToSave = batchQuestions
         .filter(q => q.question_text.trim())
         .map(q => {
-          // Map UI types to DB constraints if needed
           let type = globalType;
           if (type === 'short') type = 'short_answer';
           if (type === 'long') type = 'long_answer';
 
           return {
-            topic: quizTitle || globalTopic,
+            topic: batchTopic,
             question_text: q.question_text,
-            question_type: type,
+            type: globalType === 'mcq' ? 'multiple_choice' : 
+                  globalType === 'true_false' ? 'true_false' : 'subjective',
             difficulty: globalDifficulty,
-            options: globalType === 'mcq' ? (Array.isArray(q.options) ? q.options.filter(o => o?.trim()) : q.options) : null,
+            options: globalType === 'mcq' ? 
+              (Array.isArray(q.options) ? q.options.filter(o => o?.trim()).map(o => ({
+                text: o,
+                is_correct: String(o).trim() === String(q.correct_answer).trim()
+              })) : []) : [],
             correct_answer: q.correct_answer || '',
             explanation: q.explanation || null,
             marks: Number(globalMarks) || 1,
             created_by: user.id,
             approval_status: 'pending',
-            is_active: false
           };
         });
 
@@ -718,18 +735,9 @@ export function QuestionBankManager() {
 
       await createQuestion.mutateAsync(questionsToSave);
 
-      // 2. Save Quiz Metadata (as a Mock Test Config)
-      await createQuiz.mutateAsync({
-        title: quizTitle || globalTopic,
-        description: quizDescription || `Batch of ${questionsToSave.length} questions`,
-        course_id: null,
-        topics: [quizTitle || globalTopic],
-        question_count: questionsToSave.length,
-        duration_minutes: 30,
-        difficulty_mix: { easy: 33, medium: 33, hard: 34 },
-        is_active: false, // Wait for admin activation
-        created_by: user.id,
-      });
+      // 2. We don't need a separate MockTestConfig if it's attached to an Exam, 
+      // but we'll create a log or simply notify.
+      // The user wants it simply attached.
 
       setBatchQuestions([]);
       setGlobalPrompt('');
@@ -762,12 +770,26 @@ export function QuestionBankManager() {
     <div className="space-y-8 px-1 py-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-8">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Question Bank Manager</h2>
-          <p className="text-muted-foreground">
-            {stats.total} questions · {topics.length} topics
+          <h2 className="text-3xl font-bold tracking-tighter uppercase italic text-slate-900">Repository <span className="text-slate-300 not-italic font-medium">Core</span></h2>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">
+            {stats.total} Analytical Items / {topics.length} Logic Clusters
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+           <Button 
+             variant="outline" 
+             className="rounded-xl h-12 px-6 border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-900 transition-all"
+           >
+             Filter Repository
+           </Button>
+           <Button 
+             className="rounded-xl h-12 px-8 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-slate-100"
+             onClick={() => onSectionChange?.('exams')}
+           >
+             Create Exam <ArrowRight className="h-4 w-4 ml-2" />
+           </Button>
         </div>
       </div>
 
@@ -775,9 +797,9 @@ export function QuestionBankManager() {
       <div className="grid gap-6 border rounded-xl p-6 bg-card shadow-sm">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-violet-500" />
-              New Question Batch
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 flex items-center gap-2">
+              <Sparkles className="h-3 w-3 text-violet-400" />
+              Initialize Logic Batch
             </h3>
           </div>
 
@@ -963,7 +985,7 @@ export function QuestionBankManager() {
 
                   {/* Row 3: Options (if MCQ) & Answer */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {q.question_type === 'mcq' && (
+                    {q.type === 'mcq' && (
                       <div className="space-y-2">
                         <Label>Options</Label>
                         <div className="grid grid-cols-1 gap-2">
@@ -1190,11 +1212,7 @@ export function QuestionBankManager() {
             <div className="space-y-2">
               {filteredQuestions.map((q, idx) => {
                 const isExpanded = expandedId === q.id;
-                const opts = Array.isArray(q.options)
-                  ? q.options
-                  : q.options && typeof q.options === 'object'
-                    ? Object.values(q.options as Record<string, string>)
-                    : [];
+                const opts = Array.isArray(q.options) ? q.options : [];
 
                 return (
                   <div
@@ -1214,7 +1232,7 @@ export function QuestionBankManager() {
                       {/* Content */}
                       <div className="flex-1 space-y-2 min-w-0">
                         <div className="flex items-center gap-2">
-                          <QuestionTypeIcon type={q.question_type} />
+                          <QuestionTypeIcon type={q.type} />
                           <Badge
                             variant={DIFFICULTY_BADGE_VARIANT[q.difficulty as keyof typeof DIFFICULTY_BADGE_VARIANT] ?? 'secondary'}
                             className="text-[9px] uppercase tracking-tighter h-4 px-1"
@@ -1272,7 +1290,11 @@ export function QuestionBankManager() {
                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest pl-1">Options Preview</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               {opts.map((opt, i) => {
-                                const isCorrect = String(opt).trim() === String(q.correct_answer).trim();
+                                const optText = typeof opt === 'object' && opt !== null && 'text' in opt ? String(opt.text) : String(opt);
+                                const isCorrect = typeof opt === 'object' && opt !== null && 'is_correct' in opt 
+                                  ? Boolean(opt.is_correct) 
+                                  : String(opt).trim() === String(q.correct_answer).trim();
+                                
                                 return (
                                   <div
                                     key={i}
@@ -1289,7 +1311,7 @@ export function QuestionBankManager() {
                                     )}>
                                       {String.fromCharCode(65 + i)}
                                     </div>
-                                    <span className="flex-1 font-medium">{opt}</span>
+                                    <span className="flex-1 font-medium">{optText}</span>
                                     {isCorrect && (
                                       <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
                                         <span>CORRECT</span>
@@ -1351,173 +1373,91 @@ export function QuestionBankManager() {
       {/* ─── Save Wizard Dialog ─── */}
       <Dialog open={isSaveWizardOpen} onOpenChange={setIsSaveWizardOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden p-0 border-0 rounded-[2.5rem] shadow-2xl flex flex-col">
-          <div className="flex h-full w-full overflow-hidden min-h-[500px]">
-            {/* Steps Left Panel */}
-            <div className="w-[28%] bg-muted/30 p-10 border-r space-y-10 relative overflow-hidden flex flex-col">
-              {/* Decorative Circle for Left Panel */}
-              <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl" />
-
-              <div className="space-y-8 relative z-10">
-                {[
-                  { step: 1, label: 'Quiz Info', icon: ClipboardList },
-                  { step: 2, label: 'Preview', icon: Brain },
-                  { step: 3, label: 'Finalize', icon: CheckCircle },
-                ].map((s) => (
-                  <div key={s.step} className={cn("flex items-center gap-5 transition-all", saveWizardStep >= s.step ? "text-primary scale-105" : "text-muted-foreground/30")}>
-                    <div className={cn("h-11 w-11 rounded-[1.1rem] flex items-center justify-center text-sm font-black border-2 transition-all shadow-sm",
-                      saveWizardStep === s.step ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20" :
-                        saveWizardStep > s.step ? "border-primary text-primary bg-primary/5" : "border-muted-foreground/10")}>
-                      {saveWizardStep > s.step ? <CheckCircle className="h-5 w-5" /> : s.step}
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-auto relative z-10">
-                <div className="p-6 rounded-[1.8rem] bg-background/50 backdrop-blur-md border border-white/20 shadow-xl">
-                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-2 opacity-60">Items in Batch</p>
-                  <div className="flex items-end gap-2">
-                    <p className="text-4xl font-black leading-none tracking-tighter">{batchQuestions.length}</p>
-                    <p className="text-[11px] font-bold text-muted-foreground pb-1">questions</p>
-                  </div>
+          <div className="flex flex-col h-full w-full overflow-hidden min-h-[500px] bg-background">
+            <div className="flex-1 p-12 pt-14 overflow-y-auto custom-scrollbar relative">
+              {/* Background Decorative Gradients */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-40 -mt-40 blur-[100px] pointer-events-none" />
+              
+              <DialogHeader className="mb-10 relative z-10 text-left">
+                <div className="h-16 w-16 rounded-3xl bg-slate-900 flex items-center justify-center mb-6 shadow-2xl shadow-slate-200">
+                  <Calendar className="h-8 w-8 text-white" />
                 </div>
-              </div>
-            </div>
-
-            {/* Content Right Panel */}
-            <div className="flex-1 flex flex-col bg-background relative overflow-hidden">
-              <div className="flex-1 p-12 pt-10 overflow-y-auto custom-scrollbar">
-                {/* Background Decorative Gradients */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-40 -mt-40 blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-emerald-500/5 rounded-full -ml-20 -mb-20 blur-[60px] pointer-events-none" />
-
-                <DialogHeader className="mb-8 relative z-10 text-left">
-                  <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 rotate-6 shadow-lg shadow-primary/5 border border-primary/20 transition-transform hover:rotate-0 duration-500">
-                    <ClipboardList className="h-7 w-7 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <DialogTitle className="text-3xl font-black tracking-tight italic leading-none">
-                      {saveWizardStep === 1 && "QUIZ INTEL"}
-                      {saveWizardStep === 2 && "PREVIEW MODE"}
-                      {saveWizardStep === 3 && "EXPORT READY"}
-                    </DialogTitle>
-                    <DialogDescription className="text-sm font-semibold text-muted-foreground">
-                      {saveWizardStep === 1 && "Define the metadata for this learning module."}
-                      {saveWizardStep === 2 && "Inspect the batch before committing to deep storage."}
-                      {saveWizardStep === 3 && "Verification complete. Proceed to finalize."}
-                    </DialogDescription>
-                  </div>
-                </DialogHeader>
-
-                <div className="flex-1 relative z-10 flex flex-col justify-start pt-2">
-                  {saveWizardStep === 1 && (
-                    <div className="space-y-8 animate-in slide-in-from-right-8 duration-500">
-                      <div className="space-y-3 relative group">
-                        <div className="flex items-center justify-between px-1">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary transition-all">Title of Batch</Label>
-                          <Badge variant="outline" className="text-[8px] font-black uppercase opacity-40 group-focus-within:opacity-100 transition-opacity rounded-full px-2 py-0">REQUIRED</Badge>
-                        </div>
-                        <Input
-                          placeholder="e.g. Backend Architecture Mastery"
-                          className="h-14 rounded-2xl text-lg font-bold border-2 bg-muted/10 focus:bg-background focus:ring-8 focus:ring-primary/5 transition-all px-6 border-muted/50 focus:border-primary shadow-sm"
-                          value={quizTitle}
-                          onChange={(e) => setQuizTitle(e.target.value)}
-                          autoFocus
-                        />
-                      </div>
-                      <div className="space-y-3 relative group">
-                        <div className="flex items-center justify-between px-1">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground group-focus-within:text-primary transition-all">Short Description</Label>
-                          <Badge variant="outline" className="text-[8px] font-black uppercase opacity-20 rounded-full px-2 py-0">OPTIONAL</Badge>
-                        </div>
-                        <Textarea
-                          placeholder="Provide context or learning objectives..."
-                          rows={5}
-                          className="resize-none rounded-2xl border-2 bg-muted/10 focus:bg-background focus:ring-8 focus:ring-primary/5 transition-all text-sm font-medium p-5 border-muted/50 focus:border-primary shadow-sm leading-relaxed"
-                          value={quizDescription}
-                          onChange={(e) => setQuizDescription(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {saveWizardStep === 2 && (
-                    <div className="animate-in slide-in-from-right-8 duration-500 py-4">
-                      <Card className="border-2 border-primary/20 shadow-2xl shadow-primary/5 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-background via-muted/5 to-muted/20">
-                        <CardContent className="p-8 space-y-8">
-                          <div className="flex items-start justify-between gap-6">
-                            <div className="space-y-3">
-                              <h4 className="text-2xl font-black tracking-tighter leading-tight text-foreground">{quizTitle || 'Untitled Batch'}</h4>
-                              <p className="text-sm text-muted-foreground font-medium leading-relaxed italic pr-4 max-h-[80px] overflow-hidden line-clamp-3">
-                                {quizDescription || 'No description provided.'}
-                              </p>
-                            </div>
-                            <Badge className="bg-primary hover:bg-primary h-10 px-5 rounded-[1.2rem] font-black shadow-lg shadow-primary/20 text-[10px] tracking-widest shrink-0">
-                              {batchQuestions.length} ITEMS
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4 pt-8 border-t border-primary/10 font-black uppercase text-[9px] tracking-[0.25em] text-muted-foreground">
-                            <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/10 text-primary">
-                              <Brain className="h-5 w-5" />
-                              {globalType.toUpperCase()}
-                            </div>
-                            <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/10 text-primary">
-                              <Layers className="h-5 w-5" />
-                              {globalTopic}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-
-                  {saveWizardStep === 3 && (
-                    <div className="flex flex-col items-center justify-center space-y-8 animate-in zoom-in-95 duration-700 py-6">
-                      <div className="h-32 w-32 rounded-[3rem] bg-emerald-500 flex items-center justify-center shadow-[0_25px_60px_rgba(16,185,129,0.35)] rotate-12 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <CheckCircle className="h-16 w-16 text-white -rotate-12 relative z-10" />
-                      </div>
-                      <div className="space-y-3 text-center">
-                        <h4 className="text-2xl font-black tracking-tighter italic text-foreground uppercase">Storage Ready</h4>
-                        <p className="text-sm text-muted-foreground font-medium max-w-[280px] leading-relaxed mx-auto">
-                          Your questions will be indexed as <span className="text-foreground font-bold underline decoration-primary decoration-4 underline-offset-4">{quizTitle}</span>.
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  <DialogTitle className="text-4xl font-black tracking-tighter italic leading-none uppercase">
+                    Select Exam Scheduling
+                  </DialogTitle>
+                  <DialogDescription className="text-base font-bold text-slate-400 uppercase tracking-widest">
+                    Attach this question batch to an active assessment protocol
+                  </DialogDescription>
                 </div>
-              </div>
+              </DialogHeader>
 
-              <DialogFooter className="mt-auto pt-8 border-t border-muted/50 gap-4 relative z-10 bg-background/80 backdrop-blur-sm -mx-12 px-12 pb-2">
-                {saveWizardStep > 1 && (
-                  <Button variant="ghost" className="rounded-2xl h-14 font-bold px-8 hover:bg-muted transition-all" onClick={() => setSaveWizardStep(prev => prev - 1)}>Back</Button>
-                )}
-                {saveWizardStep < 3 ? (
-                  <Button
-                    className="flex-1 h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] gap-3 bg-foreground hover:bg-foreground/90 text-background shadow-2xl shadow-foreground/20 transition-all hover:scale-[1.02] active:scale-95"
-                    onClick={() => {
-                      if (saveWizardStep === 1 && !quizTitle.trim()) {
-                        toast({ title: "Title Required", description: "Please enter a name for this quiz.", variant: "destructive" });
-                        return;
-                      }
-                      setSaveWizardStep(prev => prev + 1);
-                    }}
-                  >
-                    Continue <ArrowRight className="h-5 w-5" />
-                  </Button>
+              <div className="grid grid-cols-1 gap-4 relative z-10">
+                {exams.length === 0 ? (
+                  <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-[3rem] bg-slate-50/50">
+                     <p className="text-sm font-black text-slate-300 uppercase tracking-widest italic">No Active Schedulings Found</p>
+                     <Button variant="link" className="text-primary mt-2 uppercase text-[10px] font-bold tracking-widest" onClick={() => onSectionChange?.('exams')}>Create New Schedule</Button>
+                  </div>
                 ) : (
-                  <Button
-                    className="flex-1 h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] gap-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xl shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-95 border-b-4 border-emerald-800"
-                    onClick={handleFinalSave}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Layers className="h-5 w-5" />}
-                    Confirm & Export
-                  </Button>
+                  exams.map((exam) => (
+                    <div 
+                      key={exam.id}
+                      onClick={() => setSelectedExamId(exam.id)}
+                      className={cn(
+                        "group p-8 rounded-[2.5rem] border-2 transition-all cursor-pointer flex items-center justify-between",
+                        selectedExamId === exam.id 
+                          ? "bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-200 scale-[1.01]" 
+                          : "bg-white border-slate-50 hover:border-slate-100 text-slate-900"
+                      )}
+                    >
+                      <div className="flex items-center gap-8">
+                         <div className={cn(
+                           "h-20 w-20 rounded-[1.8rem] flex items-center justify-center overflow-hidden border-2",
+                           selectedExamId === exam.id ? "border-white/20 bg-white/5" : "border-slate-50 bg-slate-50"
+                         )}>
+                           {exam.assigned_image ? (
+                             <img src={exam.assigned_image} className="h-full w-full object-cover" alt="" />
+                           ) : (
+                             <ShieldCheck className={cn("h-8 w-8", selectedExamId === exam.id ? "text-white" : "text-slate-200")} />
+                           )}
+                         </div>
+                         <div className="space-y-1.5">
+                           <h4 className="text-xl font-black uppercase tracking-tight italic leading-none">{exam.title}</h4>
+                           <div className="flex items-center gap-4">
+                              <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40", selectedExamId === exam.id ? "text-white" : "text-slate-400")}>
+                                Protocol #{exam.id.slice(0, 8)}
+                              </p>
+                              <Badge className={cn("text-[8px] font-black uppercase h-5 rounded-full border-none px-3", selectedExamId === exam.id ? "bg-white/10 text-white" : "bg-slate-100 text-slate-500")}>
+                                 {exam.exam_type}
+                              </Badge>
+                           </div>
+                         </div>
+                      </div>
+                      <div className={cn(
+                        "h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all",
+                        selectedExamId === exam.id ? "bg-white border-white text-slate-900 scale-110 shadow-lg shadow-white/20" : "border-slate-100 text-transparent"
+                      )}>
+                        <CheckCircle className="h-5 w-5" />
+                      </div>
+                    </div>
+                  ))
                 )}
-              </DialogFooter>
+              </div>
             </div>
+
+            <DialogFooter className="p-10 bg-slate-50 shadow-inner flex items-center justify-between gap-6">
+              <Button variant="ghost" className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest text-[10px] text-slate-400 hover:text-slate-900" onClick={() => setIsSaveWizardOpen(false)}>
+                Back to Editor
+              </Button>
+              <Button
+                className="flex-1 h-16 rounded-[1.8rem] font-black text-[13px] uppercase tracking-[0.25em] gap-4 bg-slate-900 hover:bg-black text-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all hover:scale-[1.02] active:scale-95"
+                onClick={handleFinalSave}
+                disabled={isSaving || !selectedExamId}
+              >
+                {isSaving ? <Loader2 className="h-6 w-6 animate-spin text-white/50" /> : <Plus className="h-6 w-6" />}
+                Confirm
+              </Button>
+            </DialogFooter>
           </div>
         </DialogContent>
       </Dialog>

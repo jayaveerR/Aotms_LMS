@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Edit, ArrowRight, Trash2, Layers, Clock, AlertCircle, CheckCircle, Send, FileEdit, MoreHorizontal, RefreshCw } from 'lucide-react';
+import { PlayCircle, Edit, ArrowRight, Trash2, Layers, Clock, AlertCircle, CheckCircle, Send, FileEdit, MoreHorizontal, RefreshCw, Plus, Archive, ShieldAlert, BookOpen as BookOpenIcon, Calendar, Eye } from 'lucide-react';
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogDescription, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogFooter 
+} from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
@@ -10,6 +19,7 @@ import { useInstructorS3Courses } from '@/hooks/useCourseBuilder';
 import { API_URL } from '@/lib/api';
 import { Course } from '@/hooks/useInstructorData';
 import { CourseBuilder } from './CourseBuilder';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import {
   DropdownMenu,
@@ -19,15 +29,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { fetchWithAuth } from '@/lib/api';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 interface InstructorCoursesProps {
     limit?: number;
     hideHeader?: boolean;
+    showAll?: boolean;
+    title?: string;
 }
 
-export function InstructorCourses({ limit, hideHeader }: InstructorCoursesProps = {}) {
-    const { data: allCourses, isLoading, refetch } = useInstructorS3Courses();
+export function InstructorCourses({ limit, hideHeader, showAll: initialShowAll, title }: InstructorCoursesProps = {}) {
+    const [viewTab, setViewTab] = useState<'my' | 'catalog'>(initialShowAll ? 'catalog' : 'my');
+    
+    // If we're in 'my' tab, we want NOT all courses (only assigned).
+    // If we're in 'catalog' tab, we want ALL courses.
+    const { data: allCourses, isLoading, refetch } = useInstructorS3Courses(viewTab === 'catalog');
+    
     const courses = limit ? allCourses?.slice(0, limit) : allCourses;
     const [viewingCourse, setViewingCourse] = useState<Course | null>(null);
+    const [selectedProfile, setSelectedProfile] = useState<Course | null>(null);
+    const [showProfile, setShowProfile] = useState(false);
     const [processing, setProcessing] = useState<string | null>(null);
     const { toast } = useToast();
 
@@ -83,6 +104,25 @@ export function InstructorCourses({ limit, hideHeader }: InstructorCoursesProps 
             setProcessing(null);
         }
     };
+    const { user } = useAuth();
+    const [assigning, setAssigning] = useState<string | null>(null);
+
+    const handleAssignToMe = async (courseId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setAssigning(courseId);
+        try {
+            await fetchWithAuth(`/data/courses/${courseId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ instructor_id: user?.id })
+            });
+            toast({ title: 'Success', description: 'Course assigned to your profile.' });
+            refetch();
+        } catch (err) {
+            toast({ title: 'Error', description: 'Failed to assign course.', variant: 'destructive' });
+        } finally {
+            setAssigning(null);
+        }
+    };
 
     if (viewingCourse) {
         return <CourseBuilder course={viewingCourse} onBack={() => setViewingCourse(null)} />;
@@ -91,14 +131,21 @@ export function InstructorCourses({ limit, hideHeader }: InstructorCoursesProps 
     return (
         <div className="space-y-6">
             {!hideHeader && (
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-3xl font-bold tracking-tight">My Courses</h2>
-                        <p className="text-muted-foreground mt-1">View and manage your assigned courses.</p>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="space-y-4 w-full sm:w-auto">
+                        <Tabs value={viewTab} onValueChange={(v) => setViewTab(v as 'my' | 'catalog')} className="w-full sm:w-auto">
+                            <TabsList className="bg-slate-100/50 p-1 rounded-xl">
+                                <TabsTrigger value="my" className="rounded-lg px-6 py-2">My Courses</TabsTrigger>
+                                <TabsTrigger value="catalog" className="rounded-lg px-6 py-2">Courses Catalogue</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                        <p className="text-muted-foreground mt-1 text-sm font-medium">
+                            {viewTab === 'catalog' ? 'Explore the full course repository and choose curricula to teach.' : 'View and manage your assigned courses.'}
+                        </p>
                     </div>
-                    <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2">
+                    <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2 shrink-0">
                         <RefreshCw className="h-4 w-4" />
-                        Sync Courses
+                        Sync Data
                     </Button>
                 </div>
             )}
@@ -116,120 +163,258 @@ export function InstructorCourses({ limit, hideHeader }: InstructorCoursesProps 
                     </div>
                     <CardTitle className="mb-2">No Courses Found</CardTitle>
                     <p className="text-muted-foreground max-w-sm mb-6">
-                        You don't have any courses assigned yet. Contact your manager or click below to check for updates.
+                        {viewTab === 'catalog' 
+                            ? "No courses are currently available in the catalogue." 
+                            : "You don't have any courses assigned to you yet. You can find courses in the Courses Catalogue."}
                     </p>
                     <Button onClick={() => refetch()} variant="outline" className="gap-2">
                         <RefreshCw className="h-4 w-4" />
-                        Check for New Assignments
+                        {viewTab === 'catalog' ? "Refresh Catalogue" : "Check for Assignments"}
                     </Button>
                 </Card>
             ) : (
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     <AnimatePresence>
-                        {courses?.map((course: Course, index: number) => (
-                            <motion.div
-                                key={course.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Card className="overflow-hidden h-full flex flex-col hover:border-primary/50 transition-colors group cursor-pointer" onClick={() => setViewingCourse(course)}>
-                                    <div className="relative aspect-video bg-muted border-b">
-                                        {course.thumbnail_url ? (
-                                            <img
-                                                src={course.thumbnail_url.startsWith('http') ? course.thumbnail_url : `${API_URL}/s3/public/${course.thumbnail_url}`}
-                                                alt={course.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop'; }}
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                                                <PlayCircle className="h-12 w-12 text-muted-foreground/30" />
+                        {courses?.map((course: Course, index: number) => {
+                            const isInstructorOwner = course.instructor_id === user?.id;
+                            
+                            return (
+                                <motion.div
+                                    key={course.id || course._id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ delay: index * 0.1 }}
+                                >
+                                    <Card className="overflow-hidden h-full flex flex-col hover:border-primary/50 transition-colors group cursor-pointer" onClick={() => isInstructorOwner && setViewingCourse(course)}>
+                                        <div className="relative aspect-video bg-muted border-b">
+                                            {course.thumbnail_url || course.image ? (
+                                                <img
+                                                    src={(course.thumbnail_url || course.image).startsWith('http') ? (course.thumbnail_url || course.image) : `${API_URL}/s3/public/${course.thumbnail_url}`}
+                                                    alt={course.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop'; }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                                    <PlayCircle className="h-12 w-12 text-muted-foreground/30" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-3 left-3 flex gap-2">
+                                                <Badge className="bg-primary/90 backdrop-blur-md">
+                                                    {course.category}
+                                                </Badge>
+                                                {isInstructorOwner && (
+                                                    <Badge variant={
+                                                        (course.status?.toLowerCase() === 'approved' || course.status?.toLowerCase() === 'published') ? 'default' :
+                                                            course.status?.toLowerCase() === 'pending' ? 'secondary' :
+                                                                course.status?.toLowerCase() === 'rejected' ? 'destructive' : 'outline'
+                                                    } className="text-[10px]">
+                                                        {course.status === 'published' ? 'Published' : course.status === 'pending' ? 'Pending Review' : course.status === 'rejected' ? 'Rejected' : course.status === 'draft' ? 'Draft' : course.status || 'Active'}
+                                                    </Badge>
+                                                )}
                                             </div>
-                                        )}
-                                        <div className="absolute top-3 left-3 flex gap-2">
-                                            <span className="bg-primary hover:bg-primary/90 text-primary-foreground px-2 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1 backdrop-blur-md">
-                                                {course.category}
-                                            </span>
-                                            <Badge variant={
-                                                (course.status?.toLowerCase() === 'approved' || course.status?.toLowerCase() === 'published') ? 'default' :
-                                                    course.status?.toLowerCase() === 'pending' ? 'secondary' :
-                                                        course.status?.toLowerCase() === 'rejected' ? 'destructive' : 'outline'
-                                            } className="text-[10px]">
-                                                {course.status === 'published' ? 'Published' : course.status === 'pending' ? 'Pending Review' : course.status === 'rejected' ? 'Rejected' : course.status === 'draft' ? 'Draft' : course.status || 'Draft'}
-                                            </Badge>
+                                            
+                                            {isInstructorOwner && (
+                                                <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/30 hover:bg-black/50 text-white rounded-full">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            {(course.status === 'draft' || !course.status) && (
+                                                                <DropdownMenuItem onClick={(e) => handleSubmitForReview(course.id, e)} disabled={processing === course.id}>
+                                                                    <Send className="h-4 w-4 mr-2" />
+                                                                    Submit for Review
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                            {course.status === 'pending' && (
+                                                                <DropdownMenuItem onClick={(e) => handleSaveDraft(course.id, e)} disabled={processing === course.id}>
+                                                                    <FileEdit className="h-4 w-4 mr-2" />
+                                                                    Save as Draft
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                            {(course.status === 'draft' || course.status === 'rejected' || !course.status) && (
+                                                                <DropdownMenuItem 
+                                                                    onClick={(e) => handleDelete(course.id, e)} 
+                                                                    disabled={processing === course.id}
+                                                                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                                    Delete Course
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/30 hover:bg-black/50 text-white">
-                                                        <MoreHorizontal className="h-4 w-4" />
+                                        <CardContent className="p-5 flex-1 flex flex-col">
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                                                    {course.title}
+                                                </h3>
+                                                <p className="text-muted-foreground text-sm line-clamp-2">
+                                                    {course.description || course.level || "No description provided."}
+                                                </p>
+                                            </div>
+ 
+                                            <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    {isInstructorOwner ? (
+                                                        <div className="flex items-center gap-2">
+                                                            {course.status?.toLowerCase() === 'pending' && <Clock className="h-3 w-3 text-yellow-600" />}
+                                                            {course.status?.toLowerCase() === 'rejected' && <AlertCircle className="h-3 w-3 text-red-600" />}
+                                                            {(course.status?.toLowerCase() === 'published' || course.status?.toLowerCase() === 'approved') && <CheckCircle className="h-3 w-3 text-green-600" />}
+                                                            <span className="text-xs text-muted-foreground">My Course</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-muted-foreground">{course.duration || 'Flexible'}</span>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-1">
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedProfile(course);
+                                                            setShowProfile(true);
+                                                        }}
+                                                    >
+                                                        <Eye className="h-4 w-4" />
                                                     </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    {(course.status === 'draft' || !course.status) && (
-                                                        <DropdownMenuItem onClick={(e) => handleSubmitForReview(course.id, e)} disabled={processing === course.id}>
-                                                            <Send className="h-4 w-4 mr-2" />
-                                                            Submit for Review
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                    {course.status === 'pending' && (
-                                                        <DropdownMenuItem onClick={(e) => handleSaveDraft(course.id, e)} disabled={processing === course.id}>
-                                                            <FileEdit className="h-4 w-4 mr-2" />
-                                                            Save as Draft
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                    {(course.status === 'draft' || course.status === 'rejected' || !course.status) && (
-                                                        <DropdownMenuItem 
-                                                            onClick={(e) => handleDelete(course.id, e)} 
-                                                            disabled={processing === course.id}
-                                                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                                    {isInstructorOwner ? (
+                                                        <Button variant="ghost" size="sm" className="group-hover:translate-x-1 transition-transform">
+                                                            Manage <ArrowRight className="ml-1 h-4 w-4" />
+                                                        </Button>
+                                                    ) : (
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+                                                            onClick={(e) => handleAssignToMe(course.id || course._id, e)}
+                                                            disabled={assigning === (course.id || course._id)}
                                                         >
-                                                            <Trash2 className="h-4 w-4 mr-2" />
-                                                            Delete Course
-                                                        </DropdownMenuItem>
+                                                            {assigning === (course.id || course._id) ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                                            Enroll to Teach
+                                                        </Button>
                                                     )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </div>
-                                    <CardContent className="p-5 flex-1 flex flex-col">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                                                {course.title}
-                                            </h3>
-                                            <p className="text-muted-foreground text-sm line-clamp-2">
-                                                {course.description || "No description provided."}
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                {course.status?.toLowerCase() === 'pending' && (
-                                                    <Clock className="h-3 w-3 text-yellow-600" />
-                                                )}
-                                                {course.status?.toLowerCase() === 'rejected' && (
-                                                    <AlertCircle className="h-3 w-3 text-red-600" />
-                                                )}
-                                                {(course.status?.toLowerCase() === 'published' || course.status?.toLowerCase() === 'approved') && (
-                                                    <CheckCircle className="h-3 w-3 text-green-600" />
-                                                )}
-                                                <span className="text-xs text-muted-foreground">
-                                                    {course.created_at ? format(new Date(course.created_at), 'MMM d, yyyy') : ''}
-                                                </span>
+                                                </div>
                                             </div>
-                                            <Button variant="ghost" size="sm" className="group-hover:translate-x-1 transition-transform">
-                                                Open Course <ArrowRight className="ml-1 h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            );
+                        })}
                     </AnimatePresence>
                 </div>
             )}
+ 
+             {/* Course Profile View Modal */}
+             <Dialog open={showProfile} onOpenChange={setShowProfile}>
+                 <DialogContent className="max-w-xl pro-modal">
+                     <DialogHeader>
+                         <DialogTitle className="flex items-center gap-2 text-xl">
+                             <BookOpenIcon className="h-5 w-5 text-primary" />
+                             Course Profile
+                         </DialogTitle>
+                         <DialogDescription>
+                             Detailed information about this training curriculum
+                         </DialogDescription>
+                     </DialogHeader>
+                    
+                    {selectedProfile && (
+                        <div className="space-y-6 py-4">
+                            <div className="aspect-video relative rounded-xl overflow-hidden bg-slate-100 border shadow-inner">
+                                {selectedProfile.thumbnail_url || selectedProfile.image ? (
+                                    <img 
+                                        src={(selectedProfile.thumbnail_url || selectedProfile.image).startsWith('http') ? (selectedProfile.thumbnail_url || selectedProfile.image) : `${API_URL}/s3/public/${selectedProfile.thumbnail_url}`}
+                                        alt={selectedProfile.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <BookOpenIcon className="h-12 w-12 text-slate-300" />
+                                    </div>
+                                )}
+                                <div className="absolute top-4 left-4">
+                                    <span className="bg-white/90 text-primary px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm">
+                                        {selectedProfile.category || 'Curriculum'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-bold tracking-tight text-slate-900">{selectedProfile.title}</h3>
+                                <p className="text-slate-500 text-sm leading-relaxed">
+                                    {selectedProfile.description || 'Professional aviation training curriculum designed for efficiency and safety.'}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400">Metadata</h4>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Clock className="h-4 w-4 text-slate-400" />
+                                            <span>{selectedProfile.duration || 'Flexible'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Layers className="h-4 w-4 text-slate-400" />
+                                            <span>Level: {selectedProfile.level || 'All Levels'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-primary/60">Your Access</h4>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                                            <ShieldAlert className="h-4 w-4 text-primary/40" />
+                                            <span className="font-medium truncate">{selectedProfile.instructor_id === user?.id ? 'My Assigned Course' : 'Available for Selection'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                                            <Calendar className="h-4 w-4 text-primary/40" />
+                                            <span>Added {selectedProfile.created_at ? format(new Date(selectedProfile.created_at), 'MMM d, yyyy') : 'N/A'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter className="border-t pt-4">
+                        <Button variant="outline" className="rounded-lg h-10 px-6 font-semibold" onClick={() => setShowProfile(false)}>
+                            Close Profile
+                        </Button>
+                        {viewTab === 'my' && (
+                            <Button className="pro-button-primary h-10 px-8 rounded-lg shadow-md" onClick={() => {
+                                setShowProfile(false);
+                                setViewingCourse(selectedProfile);
+                            }}>
+                                Manage Curriculum
+                            </Button>
+                        )}
+                        {viewTab === 'catalog' && selectedProfile && selectedProfile.instructor_id !== user?.id && (
+                             <Button 
+                                className="pro-button-primary h-10 px-8 rounded-lg shadow-md" 
+                                onClick={(e) => {
+                                    setShowProfile(false);
+                                    handleAssignToMe(selectedProfile.id || selectedProfile._id, e);
+                                }}
+                                disabled={assigning === (selectedProfile?.id || selectedProfile?._id)}
+                             >
+                                Enroll to Teach
+                             </Button>
+                        )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -10,6 +10,7 @@ import { UserManagement } from "@/components/admin/UserManagement";
 import { CourseApproval } from "@/components/admin/CourseApproval";
 import { SecurityMonitor } from "@/components/admin/SecurityMonitor";
 import { QuestionBankApproval } from "@/components/admin/QuestionBankApproval";
+import { ExamApproval } from "@/components/admin/ExamApproval";
 import { EnrollmentsList } from "@/components/admin/EnrollmentsList";
 import { GrantStudentAccess } from "@/components/admin/GrantStudentAccess";
 import InstructorCoursesAdmin from "@/pages/InstructorCourses";
@@ -34,9 +35,23 @@ import {
   ChevronRight,
   GraduationCap,
   Trash2,
+  ShieldCheck,
+  ClipboardList,
+  Eye,
+  User,
+  Mail,
+  Calendar,
+  Clock,
+  Archive,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-function AllCoursesList({ onDelete, refreshTrigger }: { onDelete?: (id: string) => void, refreshTrigger?: number }) {
+import { Course as InstructorCourse } from "@/hooks/useInstructorData";
+import { Course as CatalogCourse } from "@/hooks/useCourses";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+
+type CombinedCourse = CatalogCourse & Partial<InstructorCourse>;
+
+function AllCoursesList({ onDelete, onView, refreshTrigger }: { onDelete?: (id: string) => void, onView?: (course: CatalogCourse) => void, refreshTrigger?: number }) {
   const { courses: allCourses, fetchCourses, loading } = useCourses();
 
   useEffect(() => {
@@ -106,16 +121,34 @@ function AllCoursesList({ onDelete, refreshTrigger }: { onDelete?: (id: string) 
                     {course.level || 'All Levels'}
                   </Badge>
                 </div>
-                {onDelete && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="absolute top-4 right-4 h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
-                    onClick={() => onDelete(course.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
+                <div className="absolute top-4 right-4 flex gap-1">
+                  {onView && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onView(course);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(course.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 <div className="flex items-center justify-between text-sm text-slate-500">
@@ -136,6 +169,8 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   const adminData = useAdminData(userRole);
+  const [selectedCourseDetail, setSelectedCourseDetail] = useState<CombinedCourse | null>(null);
+  const [showCourseDetail, setShowCourseDetail] = useState(false);
   const {
     loading: dataLoading,
     profiles,
@@ -221,6 +256,7 @@ export default function AdminDashboard() {
       "/admin/instructor-courses": "instructor-courses",
       "/admin/questions": "questions",
       "/admin/courses": "courses",
+      "/admin/exams": "exams",
       "/admin/security": "security",
     };
     const path = location.pathname;
@@ -382,6 +418,7 @@ export default function AdminDashboard() {
                         icon: FileQuestion,
                         key: "tab-questions",
                       },
+                      { id: "exams", label: "Assessments", icon: ShieldCheck, key: "tab-exams" },
                       { id: "security", label: "Security Center", icon: Shield, key: "tab-security" },
                     ].map((tab) => (
                       <TabsTrigger
@@ -463,7 +500,14 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <AllCoursesList onDelete={deleteCourse} refreshTrigger={coursesRefreshKey} />
+                      <AllCoursesList 
+                        onDelete={deleteCourse} 
+                        onView={(course) => {
+                          setSelectedCourseDetail(course);
+                          setShowCourseDetail(true);
+                        }}
+                        refreshTrigger={coursesRefreshKey} 
+                      />
                     </motion.div>
                   </TabsContent>
 
@@ -477,7 +521,7 @@ export default function AdminDashboard() {
                     </motion.div>
                   </TabsContent>
 
-                  <TabsContent key="tab-courses" value="courses" className="mt-0 outline-none">
+                    <TabsContent key="tab-courses" value="courses" className="mt-0 outline-none">
                     <motion.div
                       key="motion-courses"
                       initial={{ opacity: 0 }}
@@ -490,6 +534,16 @@ export default function AdminDashboard() {
                         onReject={rejectCourse}
                         onUpdateStatus={updateCourseStatus}
                       />
+                    </motion.div>
+                  </TabsContent>
+
+                  <TabsContent key="tab-exams" value="exams" className="mt-0 outline-none">
+                    <motion.div
+                      key="motion-exams"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      <ExamApproval />
                     </motion.div>
                   </TabsContent>
 
@@ -514,6 +568,107 @@ export default function AdminDashboard() {
           </div>
         </main>
       </SidebarInset>
+
+      {/* Course Detail View Modal */}
+      <Dialog open={showCourseDetail} onOpenChange={setShowCourseDetail}>
+        <DialogContent className="max-w-xl pro-modal">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <BookOpen className="h-5 w-5 text-primary" />
+              Course Profile
+            </DialogTitle>
+            <DialogDescription>
+              Detailed information about the selected curriculum
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedCourseDetail && (
+            <div className="space-y-6 py-4">
+              <div className="aspect-video relative rounded-xl overflow-hidden bg-slate-100 border shadow-inner">
+                {selectedCourseDetail.thumbnail_url || selectedCourseDetail.image ? (
+                  <img 
+                    src={selectedCourseDetail.thumbnail_url?.startsWith('http') ? selectedCourseDetail.thumbnail_url : 
+                        (selectedCourseDetail.image?.startsWith('http') ? selectedCourseDetail.image : 
+                        `/s3/public/${selectedCourseDetail.thumbnail_url || selectedCourseDetail.image}`)}
+                    alt={selectedCourseDetail.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <BookOpen className="h-12 w-12 text-slate-300" />
+                  </div>
+                )}
+                <div className="absolute top-4 left-4">
+                  <Badge className="bg-white/90 text-primary hover:bg-white shadow-sm backdrop-blur-sm border-none px-3 py-1">
+                    {selectedCourseDetail.category || 'Curriculum'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold tracking-tight text-slate-900">{selectedCourseDetail.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  {selectedCourseDetail.description || 'Comprehensive training program for aviation professionals.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400">Course Metadata</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <Clock className="h-4 w-4 text-slate-400" />
+                      <span>{selectedCourseDetail.duration || 'Flexible'} duration</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <LayoutGrid className="h-4 w-4 text-slate-400" />
+                      <span>Level: {selectedCourseDetail.level || 'Beginner'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-primary/60">Assignment Details</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-700">
+                      <User className="h-4 w-4 text-primary/40" />
+                      <span className="font-medium truncate">{selectedCourseDetail.instructor_id ? 'Assigned' : 'Open Catalog'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-700">
+                      <Calendar className="h-4 w-4 text-primary/40" />
+                      <span>Added {selectedCourseDetail.created_at ? new Date(selectedCourseDetail.created_at).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-orange-50 border border-orange-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-orange-200 flex items-center justify-center">
+                    <ShieldAlert className="h-4 w-4 text-orange-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-orange-800 uppercase tracking-tighter">Current Status</p>
+                    <p className="text-sm font-medium text-orange-900">{selectedCourseDetail.status || 'Active in Library'}</p>
+                  </div>
+                </div>
+                <Badge className="bg-orange-200 text-orange-800 hover:bg-orange-300 border-none">
+                  {selectedCourseDetail.is_active !== false ? 'Active' : 'Archived'}
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" className="rounded-lg h-10 px-6 font-semibold" onClick={() => setShowCourseDetail(false)}>
+              Close Profile
+            </Button>
+            <Button className="pro-button-primary h-10 px-8 rounded-lg shadow-md" onClick={() => setShowCourseDetail(false)}>
+              Manage Course
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }

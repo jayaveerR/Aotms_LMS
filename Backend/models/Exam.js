@@ -17,12 +17,18 @@ const ExamSchema = new Schema({
     proctoring_enabled: { type: Boolean, default: false },
     browser_security: { type: Boolean, default: false },
     assigned_image: { type: String },
-    status: { type: String, default: 'scheduled' },
+    status: { type: String, default: 'scheduled' }, // scheduled, active, completed, cancelled
+    approval_status: { type: String, default: 'pending' }, // pending, approved, rejected
+    total_questions: { type: Number, default: 0 },
+    topics: [String],
+    ai_generated: { type: Boolean, default: false },
+    source_topic: { type: String },
     created_by: { type: Schema.Types.ObjectId, ref: 'User' },
     is_active: { type: Boolean, default: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date }
 });
+
 
 ExamSchema.set('toJSON', { virtuals: true, versionKey: false, transform: (doc, ret) => { ret.id = ret._id; delete ret._id; } });
 
@@ -33,6 +39,7 @@ const QuestionBankSchema = new Schema({
     options: [{ text: String, is_correct: Boolean }], // Array of options
     type: { type: String, enum: ['multiple_choice', 'true_false', 'subjective'], default: 'multiple_choice' },
     marks: { type: Number, default: 1 },
+    course_id: { type: Schema.Types.ObjectId, ref: 'Course' }, // Optional course link
     approval_status: { type: String, default: 'pending' }, // pending, approved, rejected
     created_by: { type: Schema.Types.ObjectId, ref: 'User' },
     created_at: { type: Date, default: Date.now },

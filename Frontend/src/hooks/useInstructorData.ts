@@ -8,14 +8,17 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://new-lms-m5l5.onrender.c
 
 export interface Course {
   id: string;
+  _id?: string;
   title: string;
   description: string | null;
   category: string | null;
   status: string | null;
   thumbnail_url: string | null;
+  image?: string | null;
   instructor_id: string | null;
   created_at: string | null;
   level?: string | null;
+  duration?: string | null;
   duration_hours?: number;
 }
 
@@ -30,6 +33,7 @@ export interface LiveClass {
   meeting_id: string | null;
   meeting_url: string | null;
   start_url: string | null;
+  meeting_password?: string;
   status: string;
 }
 
@@ -164,7 +168,7 @@ export function useInstructorCourses() {
       return fetchWithAuth('/instructor/courses');
     },
     enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
-    staleTime: 1000 * 60 * 5, // 5 minutes to save quota
+    staleTime: 1000 * 30, // 30 seconds to stay fresh
     refetchOnMount: true,
   });
 }

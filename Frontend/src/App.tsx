@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { SocketProvider } from "@/hooks/useSocket";
 import { useEffect, useRef } from "react";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
@@ -82,44 +83,46 @@ const RoleRedirector = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <ScrollToTop />
-          <RoleRedirector />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/assignments" element={<Assignments />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/pending-approval" element={<ProtectedRoute><PendingApproval /></ProtectedRoute>} />
-            <Route path="/become-instructor" element={<InstructorRegister />} />
-            <Route path="/learning-paths" element={<LearningPaths />} />
+      <SocketProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ScrollToTop />
+            <RoleRedirector />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/assignments" element={<Assignments />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/pending-approval" element={<ProtectedRoute><PendingApproval /></ProtectedRoute>} />
+              <Route path="/become-instructor" element={<InstructorRegister />} />
+              <Route path="/learning-paths" element={<LearningPaths />} />
 
-            <Route
-              path="/student-dashboard/*"
-              element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}><Dashboard /></ProtectedRoute>}
-            />
-            <Route
-              path="/instructor/*"
-              element={<ProtectedRoute allowedRoles={['instructor', 'admin']}><InstructorDashboard /></ProtectedRoute>}
-            />
-            <Route
-              path="/manager/*"
-              element={<ProtectedRoute allowedRoles={['manager', 'admin']}><ManagerDashboard /></ProtectedRoute>}
-            />
-            <Route
-              path="/admin/*"
-              element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>}
-            />
+              <Route
+                path="/student-dashboard/*"
+                element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}><Dashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/instructor/*"
+                element={<ProtectedRoute allowedRoles={['instructor', 'admin']}><InstructorDashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/manager/*"
+                element={<ProtectedRoute allowedRoles={['manager', 'admin']}><ManagerDashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin/*"
+                element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>}
+              />
 
-            <Route path="/live/:meetingId" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              <Route path="/live/:meetingId" element={<ProtectedRoute><LiveSession /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SocketProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

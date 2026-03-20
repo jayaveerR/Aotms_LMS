@@ -150,7 +150,7 @@ export function LiveClassManager() {
                                             <div className="flex items-center gap-3">
                                                 <Button
                                                     className="flex-1 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
-                                                    onClick={() => session.meeting_id && navigate(`/live/${session.meeting_id}?role=1`)}
+                                                    onClick={() => session.meeting_id && navigate(`/live/${session.meeting_id}?role=1&pwd=${session.meeting_password || ''}`)}
                                                 >
                                                     <Play className="w-4 h-4 mr-2" /> Start Meeting
                                                 </Button>

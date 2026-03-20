@@ -10,47 +10,54 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     const { user, userRole, loading } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
+    const { pathname } = useLocation();
 
     useEffect(() => {
         if (!loading) {
             if (!user) {
-                navigate("/auth", { state: { from: location } });
+                navigate("/auth", { state: { from: pathname } });
                 return;
             }
 
-            // If user is admin/manager, always send to their portal regardless of approval_status
+            // Privileged access bypass
             if (['admin', 'manager'].includes(userRole || '')) {
-                if (location.pathname === '/pending-approval') {
+                if (pathname === '/pending-approval') {
                     const portal = userRole === 'admin' ? '/admin' : '/manager';
                     navigate(portal);
                     return;
                 }
-                // Skip any further approval checks for admins/managers
             } else {
-            // For non-admin/manager users: redirect pending users
-            // Handle both "pending" and undefined/null
-            if ((!user.approval_status || user.approval_status === 'pending') && location.pathname !== '/pending-approval') {
-                navigate('/pending-approval');
-                return;
+                // Approval check for non-privileged users
+                if ((!user.approval_status || user.approval_status === 'pending') && pathname !== '/pending-approval') {
+                    navigate('/pending-approval');
+                    return;
+                }
+
+                const isApproved = ['approved', 'active', 'approve'].includes((user.approval_status || '').toLowerCase());
+                if (isApproved && pathname === '/pending-approval') {
+                    navigate('/student-dashboard');
+                    return;
+                }
             }
 
-            // If now approved but stuck on pending page, redirect to their dashboard
-            // Handle "approved", "active", "approve" (in case of typo)
-            const isApproved = ['approved', 'active', 'approve'].includes(user.approval_status || '');
-            
-            if (isApproved && location.pathname === '/pending-approval') {
-                navigate('/student-dashboard');
-                return;
-            }
-            }
-
-            // Check roles
+            // Role enforcement with recursive protection
             if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
-                navigate("/student-dashboard");
+                const dashboardMap: Record<string, string> = {
+                  student: "/student-dashboard",
+                  instructor: "/instructor",
+                  admin: "/admin",
+                  manager: "/manager"
+                };
+                
+                const target = dashboardMap[userRole] || "/student-dashboard";
+                
+                // Only navigate if we're not already there to prevent infinite loops
+                if (pathname !== target && !pathname.startsWith(target)) {
+                    navigate(target);
+                }
             }
         }
-    }, [user, userRole, loading, navigate, location, allowedRoles]);
+    }, [user, userRole, loading, navigate, pathname, allowedRoles?.join(',')]);
 
     if (loading) {
         return (

@@ -22,6 +22,7 @@ import {
   FileQuestion,
   GraduationCap,
   ClipboardList,
+  ShieldCheck,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +34,7 @@ const mainNavItems = [
   { title: "Instructor Courses", url: "/admin/instructor-courses", icon: ClipboardList },
   { title: "All Courses", url: "/admin/all-courses", icon: GraduationCap },
   { title: "Question Bank", url: "/admin/questions", icon: FileQuestion },
+  { title: "Exam Approvals", url: "/admin/exams", icon: ShieldCheck },
 ];
 
 const securityNavItems = [

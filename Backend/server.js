@@ -56,6 +56,58 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key_change_me';
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Create HTTP Server for Socket.io
+const http = require('http');
+const { Server } = require('socket.io');
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*", // Adjust in production
+        methods: ["GET", "POST"]
+    }
+});
+
+// Socket.io Connection Logic
+const userSockets = new Map(); // userId -> Set of socketIds
+
+io.on('connection', (socket) => {
+    socket.on('authenticate', (userId) => {
+        if (!userId) return;
+        socket.userId = userId;
+        if (!userSockets.has(userId)) {
+            userSockets.set(userId, new Set());
+        }
+        userSockets.get(userId).add(socket.id);
+        console.log(`[Socket] User ${userId} connected (${socket.id})`);
+    });
+
+    socket.on('disconnect', () => {
+        if (socket.userId && userSockets.has(socket.userId)) {
+            userSockets.get(socket.userId).delete(socket.id);
+            if (userSockets.get(socket.userId).size === 0) {
+                userSockets.delete(socket.userId);
+            }
+        }
+        console.log(`[Socket] Disconnected: ${socket.id}`);
+    });
+});
+
+// Notification Helper
+const sendNotification = (userId, data) => {
+    const sockets = userSockets.get(userId?.toString());
+    if (sockets) {
+        sockets.forEach(sid => {
+            io.to(sid).emit('notification', {
+                ...data,
+                id: Date.now().toString(),
+                timestamp: new Date()
+            });
+        });
+        return true;
+    }
+    return false;
+};
+
 // Connect to MongoDB
 connectDB();
 
@@ -79,8 +131,12 @@ const getZoomAccessToken = async () => {
         });
         return response.data.access_token;
     } catch (error) {
-        console.error('Error getting Zoom access token:', error.response?.data || error.message);
-        throw new Error('Failed to connect to Zoom');
+        if (error.response) {
+            console.error('[Zoom OAuth Error Response]:', JSON.stringify(error.response.data, null, 2));
+        } else {
+            console.error('[Zoom OAuth Error Message]:', error.message);
+        }
+        throw new Error('Failed to connect to Zoom: ' + (error.response?.data?.reason || error.message));
     }
 };
 
@@ -198,12 +254,42 @@ app.post('/api/zoom/meetings', authenticateToken, requireInstructor, async (req,
 });
 
 app.post('/api/zoom/signature', authenticateToken, async (req, res) => {
-    // Basic signature generation for Meeting SDK (if needed by frontend)
-    // Note: For S2S, we usually use the start_url (ZAK token included) for instructors
-    // and just the meeting ID/password for students.
-    // If the frontend needs a signature for the Web SDK, it requires a different set of credentials (SDK Key/Secret).
-    // Assuming the frontend uses the generic Join URL or Start URL for now.
-    res.json({ message: 'Signature endpoint placeholder - use meeting URLs' }); 
+    try {
+        const { meetingNumber, role } = req.body;
+        const sdkKey = process.env.ZOOM_SDK_KEY || process.env.ZOOM_S2S_CLIENT_ID;
+        const sdkSecret = process.env.ZOOM_SDK_SECRET || process.env.ZOOM_S2S_CLIENT_SECRET;
+
+        // In Meeting SDK, a signature is a JWT
+        const iat = Math.round(new Date().getTime() / 1000) - 30;
+        const exp = iat + 60 * 60 * 2; // Valid for 2 hours
+
+        const oHeader = { alg: 'HS256', typ: 'JWT' };
+        const oPayload = {
+            sdkKey: sdkKey,
+            mn: meetingNumber,
+            role: role,
+            iat: iat,
+            exp: exp,
+            tokenExp: exp
+        };
+
+        const sHeader = JSON.stringify(oHeader);
+        const sPayload = JSON.stringify(oPayload);
+        
+        const base64Header = Buffer.from(sHeader).toString('base64').replace(/=/g, '');
+        const base64Payload = Buffer.from(sPayload).toString('base64').replace(/=/g, '');
+        
+        const signature = require('crypto')
+            .createHmac('sha256', sdkSecret)
+            .update(`${base64Header}.${base64Payload}`)
+            .digest('base64')
+            .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+        const finalSignature = `${base64Header}.${base64Payload}.${signature}`;
+        res.json({ signature: finalSignature });
+    } catch (err) {
+        handleError(res, err, 'zoom-signature');
+    }
 });
 
 
@@ -492,6 +578,34 @@ app.put('/api/admin/approve-course', authenticateToken, requireAdmin, async (req
     }
 });
 
+app.put('/api/admin/approve-question-bank', authenticateToken, requireAdmin, async (req, res) => {
+    const { topic, status, course_id } = req.body;
+    if (!topic || !status) return res.status(400).json({ error: 'Missing topic or status' });
+
+    try {
+        const updateData = {
+            approval_status: status,
+            course_id: course_id || undefined,
+            updated_at: new Date()
+        };
+
+        const result = await QuestionBank.updateMany({ topic }, updateData);
+        
+        // Log action
+        await SystemLog.create({
+            log_type: 'audit',
+            module: 'QuestionBank',
+            action: `Question Bank ${status} for topic: ${topic}`,
+            details: { topic, status, modified_count: result.modifiedCount },
+            user_id: req.user.id
+        });
+
+        res.json({ message: `Question Bank for ${topic} ${status}`, modified_count: result.modifiedCount });
+    } catch (err) {
+        handleError(res, err, 'approve-question-bank');
+    }
+});
+
 app.get('/api/admin/courses-with-instructors', authenticateToken, requireAdminOrManager, async (req, res) => {
     try {
         const courses = await Course.find()
@@ -764,6 +878,11 @@ app.post('/api/instructor/choose-course', authenticateToken, requireInstructor, 
         await course.save();
 
         res.json({ message: 'Course requested successfully' });
+
+        // Notify Admins/Managers (Broadly for now, or specific)
+        // We'll emit to a general 'admin' room if implemented, 
+        // but for now let's just log and show how it would work.
+        // In a real app, you'd find admins and send to them.
     } catch (err) {
         handleError(res, err, 'choose-course');
     }
@@ -826,14 +945,25 @@ app.post('/api/courses/enroll', authenticateToken, async (req, res) => {
         await Enrollment.findOneAndUpdate(
             { user_id: req.user.id, course_id: finalCourseId },
             { 
-                status: 'active', // Changed from 'pending' to 'active' for immediate access
+                status: 'pending', // Reverted to pending for manual admin approval
                 enrolled_at: new Date(),
                 progress_percentage: 0 
             },
             { upsert: true, new: true }
         );
 
-        res.json({ message: 'Enrollment successful! You can now start learning.' });
+        res.json({ message: 'Enrollment application submitted! Waiting for administrative approval.' });
+
+        // Notify Instructor
+        if (course.instructor_id) {
+            const studentName = (await User.findById(req.user.id))?.full_name || 'A new student';
+            sendNotification(course.instructor_id, {
+                type: 'enrollment_request',
+                title: 'New Enrollment Request',
+                message: `${studentName} wants to join your course: ${course.title}`,
+                courseId: finalCourseId
+            });
+        }
     } catch (err) {
         handleError(res, err, 'enroll-course');
     }
@@ -892,6 +1022,18 @@ app.put('/api/courses/enrollment-status', authenticateToken, requireAdmin, async
     try {
         await Enrollment.findByIdAndUpdate(enrollmentId, { status, updated_at: new Date() });
         res.json({ success: true });
+
+        // Notify Student of approval/rejection
+        const enrollment = await Enrollment.findById(enrollmentId);
+        if (enrollment) {
+            const course = await Course.findById(enrollment.course_id);
+            sendNotification(enrollment.user_id, {
+                type: 'enrollment_update',
+                title: `Enrollment ${status}`,
+                message: `Your enrollment for ${course?.title || 'a course'} has been ${status}.`,
+                status
+            });
+        }
     } catch (err) {
         handleError(res, err, 'update-enrollment-status');
     }
@@ -901,12 +1043,79 @@ app.put('/api/courses/enrollment-status', authenticateToken, requireAdmin, async
 
 app.get('/api/student/accessible-exams', authenticateToken, async (req, res) => {
     try {
+        // 1. Get explicit access
         const accessList = await StudentExamAccess.find({ student_id: req.user.id })
             .populate('exam_id')
-            .populate('mock_paper_id');
+            .populate('mock_paper_id')
+            .lean();
         
-        // Transform for frontend consistency
-        const data = accessList.map(access => ({
+        // 2. Get implicit access via Course Enrollments
+        const enrollments = await Enrollment.find({ user_id: req.user.id, status: 'active' }).lean();
+        const enrolledCourseIds = enrollments.map(e => e.course_id);
+
+        const courseExams = await Exam.find({ 
+            course_id: { $in: enrolledCourseIds },
+            approval_status: 'approved',
+            status: 'active'
+        }).lean();
+
+        // Map course-based exams to the consistent format based on type
+        const implicitAccess = courseExams.map(exam => {
+            const isMock = exam.exam_type === 'mock';
+            return {
+                id: `implicit_${exam._id}`,
+                access_type: isMock ? 'mock' : 'exam',
+                granted_at: exam.updated_at || exam.created_at,
+                // Assign to either exam_id or mock_paper_id depending on type
+                exam_id: isMock ? null : exam._id,
+                mock_paper_id: isMock ? exam._id : null,
+                // Populate the specific schema expected by useStudentExams/useStudentMockPapers
+                exam_schedules: isMock ? null : {
+                    title: exam.title,
+                    description: exam.description || '',
+                    duration_minutes: exam.duration_minutes,
+                    total_marks: exam.total_marks,
+                    passing_marks: exam.passing_marks
+                },
+                mock_papers: isMock ? {
+                    title: exam.title,
+                    description: exam.description || '',
+                    duration_minutes: exam.duration_minutes,
+                    total_marks: exam.total_marks,
+                    question_count: exam.total_questions || 0
+                } : null
+            };
+        });
+        
+        // 3. Get Question Bank access via Course Enrollments
+        const courseQBs = await QuestionBank.find({
+            course_id: { $in: enrolledCourseIds },
+            approval_status: 'approved'
+        }).lean();
+
+        // Group QBs by topic to match the UI format
+        const topicMap = new Map();
+        courseQBs.forEach(qb => {
+            if (!topicMap.has(qb.topic)) {
+                topicMap.set(qb.topic, {
+                    id: `qb_${qb.topic}`,
+                    access_type: 'question_bank',
+                    granted_at: qb.updated_at || qb.created_at,
+                    mock_paper_id: `qb_${qb.topic}`, // Use topic as ID
+                    mock_papers: {
+                        title: `${qb.topic} Practice Set`,
+                        description: `Topic-wise questions for ${qb.topic}`,
+                        question_count: 0
+                    }
+                });
+            }
+            topicMap.get(qb.topic).mock_papers.question_count++;
+        });
+
+        const qbAccess = Array.from(topicMap.values());
+        
+        // Transform explicit access for frontend consistency
+        const explicitData = accessList.map(access => ({
             id: access._id,
             access_type: access.access_type,
             granted_at: access.granted_at,
@@ -920,14 +1129,75 @@ app.get('/api/student/accessible-exams', authenticateToken, async (req, res) => 
             } : null,
             mock_papers: access.mock_paper_id ? {
                 title: access.mock_paper_id.title,
-                description: access.mock_paper_id.description,
+                description: access.mock_paper_id.description || '',
+                duration_minutes: access.mock_paper_id.duration_minutes || 60,
                 question_count: access.mock_paper_id.questions?.length || 0
             } : null
         }));
 
-        res.json(data);
+        // Combine and filter out duplicates (prefer explicit if both exist)
+        const combined = [...explicitData, ...qbAccess];
+        const existingExamIds = new Set(explicitData.map(e => e.exam_id?.toString()).filter(Boolean));
+
+        implicitAccess.forEach(ia => {
+             if (!existingExamIds.has(ia.exam_id.toString())) {
+                 combined.push(ia);
+             }
+        });
+
+        res.json(combined);
     } catch (err) {
         handleError(res, err, 'student-accessible-exams');
+    }
+});
+
+app.get('/api/student/exam-questions/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        let questions = [];
+
+        if (id.startsWith('qb_')) {
+            const topic = id.replace('qb_', '');
+            questions = await QuestionBank.find({ 
+                topic, 
+                approval_status: 'approved' 
+            }).lean();
+        } else {
+            // Try to find as Mock Paper first
+            const mockPaper = await MockPaper.findById(id).populate('questions').lean();
+            if (mockPaper) {
+                questions = mockPaper.questions || [];
+            } else {
+                // Try as Exam
+                const exam = await Exam.findById(id).lean();
+                if (exam) {
+                    // Fetch by topics if exam refers to QB topics, or other logic
+                    questions = await QuestionBank.find({ 
+                        topic: { $in: exam.topics }, 
+                        approval_status: 'approved' 
+                    })
+                    .limit(exam.total_questions || 50)
+                    .lean();
+                }
+            }
+        }
+
+        // Shuffle questions for simulation integrity
+        questions = questions.sort(() => Math.random() - 0.5);
+
+        // Sanitize: Map to standard format and remove status/approvals
+        const data = questions.map(q => ({
+            id: q._id,
+            text: q.question_text,
+            type: q.type,
+            options: q.options.map(opt => ({ id: opt._id || Math.random(), text: opt.text })),
+            // Do NOT send is_correct to frontend during exam
+            marks: q.marks || 1
+        }));
+
+        res.json(data);
+    } catch (err) {
+        handleError(res, err, 'get-exam-questions');
     }
 });
 
@@ -1022,6 +1292,122 @@ app.post('/api/manager/grant-question-bank-access', authenticateToken, requireAd
         handleError(res, err, 'grant-qb-access');
     }
 });
+
+app.post('/api/student/submit-exam', authenticateToken, async (req, res) => {
+    try {
+        const { examId, answers, timeSpent, totalQuestions } = req.body;
+        
+        // Calculate score server-side
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        const qIds = Object.keys(answers);
+        const questions = await QuestionBank.find({ _id: { $in: qIds } }).lean();
+        
+        questions.forEach(q => {
+            const studentAns = answers[q._id.toString()];
+            const correctOpt = q.options.find(opt => opt.is_correct);
+            
+            if (correctOpt) {
+                const correctId = correctOpt._id?.toString() || correctOpt.text;
+                if (studentAns === correctId) {
+                    score += q.marks || 1;
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+            }
+        });
+
+        const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+
+        const result = await ExamResult.create({
+            student_id: req.user.id,
+            exam_id: examId.startsWith('qb_') ? null : examId,
+            mock_paper_id: examId.startsWith('qb_') ? null : examId, // Alias for now
+            score,
+            total_questions: totalQuestions,
+            percentage,
+            answers,
+            time_spent: timeSpent,
+            submitted_at: new Date()
+        });
+
+        // Update Leaderboard stats
+        await LeaderboardStat.findOneAndUpdate(
+            { user_id: req.user.id },
+            { 
+                $inc: { exams_taken: 1, total_score: score },
+                $set: { last_activity: new Date() }
+            },
+            { upsert: true }
+        );
+
+        res.json({ message: 'Exam submitted successfully', resultId: result._id, score, percentage, correctCount, wrongCount });
+
+        // Notify Instructor
+        const exam = await Exam.findById(examId);
+        if (exam && exam.instructor_id) {
+            const student = await User.findById(req.user.id);
+            sendNotification(exam.instructor_id, {
+                type: 'exam_submission',
+                title: 'Exam Submitted',
+                message: `${student?.full_name || 'A student'} submitted the exam: ${exam.title}`,
+                score,
+                percentage
+            });
+        }
+    } catch (err) {
+        handleError(res, err, 'submit-exam');
+    }
+});
+
+app.get('/api/student/exam-review/:resultId', authenticateToken, async (req, res) => {
+    try {
+        const result = await ExamResult.findById(req.params.resultId).lean();
+        if (!result) return res.status(404).json({ error: 'Result not found' });
+        
+        // Authorization: Only student or staff can view
+        if (result.student_id.toString() !== req.user.id) {
+            const role = await getUserRole(req.user.id);
+            if (!['admin', 'manager', 'instructor'].includes(role)) {
+                return res.status(403).json({ error: 'Access denied to this result' });
+            }
+        }
+
+        // result.answers is a Map in Mongoose, in lean it's a plain object or Map depending on version
+        // In this project we'll treat it as a plain object or Map
+        const answers = result.answers instanceof Map ? Object.fromEntries(result.answers) : result.answers;
+        const qIds = Object.keys(answers);
+        const questions = await QuestionBank.find({ _id: { $in: qIds } }).lean();
+
+        const review = questions.map(q => ({
+            id: q._id,
+            text: q.question_text,
+            type: q.type,
+            options: q.options.map(opt => ({ 
+                id: opt._id?.toString() || opt.text, 
+                text: opt.text,
+                is_correct: opt.is_correct 
+            })),
+            studentAnswerId: answers[q._id.toString()],
+            marks: q.marks || 1
+        }));
+
+        res.json({
+            meta: {
+                score: result.score,
+                total: result.total_questions,
+                percentage: result.percentage,
+                submitted_at: result.submitted_at
+            },
+            questions: review
+        });
+    } catch (err) {
+        handleError(res, err, 'exam-review');
+    }
+});
+
 
 // --- Generic Course Resources ---
 
@@ -1129,7 +1515,8 @@ app.get('/api/data/:table', authenticateToken, async (req, res) => {
 
         // Authorization Scoping
         const role = await getUserRole(req.user.id);
-        if (!['admin', 'manager'].includes(role)) {
+        if (!['admin', 'manager', 'instructor'].includes(role)) {
+
             if (['course_enrollments', 'student_exam_access', 'exam_results'].includes(table)) {
                 query['user_id'] = req.user.id;
             }
@@ -1156,6 +1543,19 @@ app.post('/api/data/:table', authenticateToken, async (req, res) => {
     if (!Model) return res.status(403).json({ error: 'Invalid table' });
 
     try {
+        const role = await getUserRole(req.user.id);
+        
+        // Security: Restrict who can create entries in sensitive tables
+        if (role !== 'admin' && role !== 'manager') {
+            if (['course_enrollments', 'student_exam_access'].includes(table)) {
+                // Force user_id and pending status for students
+                req.body.user_id = req.user.id;
+                req.body.status = 'pending';
+            } else if (['user_roles', 'courses', 'system_logs'].includes(table)) {
+                return res.status(403).json({ error: 'Unauthorized to create entries in this table' });
+            }
+        }
+
         const item = await Model.create(req.body);
         res.json(item);
     } catch (err) {
@@ -1169,6 +1569,45 @@ app.put('/api/data/:table/:id', authenticateToken, async (req, res) => {
     if (!Model) return res.status(403).json({ error: 'Invalid table' });
 
     try {
+        const role = await getUserRole(req.user.id);
+
+        // Security: Restrict who can update sensitive data
+        if (role !== 'admin' && role !== 'manager') {
+            if (['course_enrollments', 'student_exam_access', 'exam_results'].includes(table)) {
+                // ... same logic for students
+                const existing = await Model.findById(id);
+                if (existing && existing.user_id?.toString() !== req.user.id) {
+                    return res.status(403).json({ error: 'Forbidden: Cannot update other users records' });
+                }
+                if (req.body.status && req.body.status !== existing.status) {
+                    return res.status(403).json({ error: 'Forbidden: Cannot change status' });
+                }
+            } else if (table === 'courses') {
+                // Allow instructors to update their own courses or assigning themselves
+                const existing = await Model.findById(id);
+                const isInstructorRole = role === 'instructor';
+                
+                if (isInstructorRole) {
+                    const isAlreadyOwner = existing?.instructor_id === req.user.id;
+                    const isAssigningSelf = req.body.instructor_id === req.user.id;
+                    
+                    if (!isAlreadyOwner && !isAssigningSelf) {
+                        return res.status(403).json({ error: 'Forbidden: Cannot modify courses assigned to others' });
+                    }
+                    
+                    // Instructors shouldn't change the status without admin approval?
+                    // But we allow draft and pending
+                    if (req.body.status && !['draft', 'pending'].includes(req.body.status) && existing.status !== req.body.status) {
+                        // Managers/admins can change to anything, instructors can only submit for review
+                        // Actually, instructors might need to set it to published if it's their course?
+                        // Let's assume for now they can mod their own course freely.
+                    }
+                }
+            } else {
+                return res.status(403).json({ error: 'Unauthorized to update this table' });
+            }
+        }
+
         const item = await Model.findByIdAndUpdate(id, req.body, { new: true });
         res.json(item);
     } catch (err) {
@@ -1245,6 +1684,6 @@ app.post('/api/s3/view-url', authenticateToken, async (req, res) => {
 });
 
 // Start Server
-app.listen(port, () => {
-    console.log(`Server running on port ${port} - MongoDB/Mongoose Version`);
+httpServer.listen(port, () => {
+    console.log(`Server running on port ${port} - Socket.io Enabled`);
 });

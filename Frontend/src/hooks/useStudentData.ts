@@ -47,6 +47,7 @@ export function useStudentExams() {
                 }));
         },
         enabled: !!user?.id,
+        refetchInterval: 30000,
     });
 }
 
@@ -64,6 +65,19 @@ export function useStudentMockPapers() {
                 }));
         },
         enabled: !!user?.id,
+        refetchInterval: 30000,
+    });
+}
+
+export function useExamQuestions(id: string | null) {
+    return useQuery({
+        queryKey: ['exam-questions', id],
+        queryFn: async () => {
+            if (!id) return [];
+            return await fetchWithAuth(`/student/exam-questions/${id}`) as any[];
+        },
+        enabled: !!id,
+        staleTime: Infinity, // Keep questions during exam session
     });
 }
 

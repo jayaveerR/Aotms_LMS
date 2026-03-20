@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 
 const mainNavItems = [
   { title: "Dashboard", url: "/instructor", icon: LayoutDashboard },
-  { title: "My Courses", url: "/instructor/courses", icon: BookOpen },
+  { title: "My Courses", url: "/instructor/my-courses", icon: BookOpen },
   { title: "Student Roster", url: "/instructor/students", icon: Users, isLive: true },
   { title: "Live Broadcast", url: "/instructor/live-classes", icon: Radio },
 ];

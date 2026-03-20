@@ -22,6 +22,11 @@ export interface Exam {
   browser_security: boolean | null;
   status: string | null;
   assigned_image: string | null;
+  approval_status: string;
+  total_questions?: number;
+  topics?: string[];
+  ai_generated?: boolean;
+  source_topic?: string;
   created_by: string;
   created_at: string | null;
 
@@ -31,9 +36,9 @@ export interface Question {
   id: string;
   topic: string;
   question_text: string;
-  question_type: string;
+  type: string;
   difficulty: string;
-  options: Record<string, string> | string[] | null;
+  options: any[] | null;
   correct_answer: string;
   explanation: string | null;
   marks: number | null;

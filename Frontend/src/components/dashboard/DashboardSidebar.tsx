@@ -43,7 +43,6 @@ const navigationGroups = [
     label: "Learning Hub",
     items: [
       { title: "My Courses", url: "/student-dashboard/courses", icon: BookOpen },
-      { title: "AOTMS Courses", url: "/courses", icon: Zap },
       { title: "Video Lessons", url: "/student-dashboard/videos", icon: Video },
       { title: "Live Classes", url: "/student-dashboard/live-classes", icon: Calendar },
     ],

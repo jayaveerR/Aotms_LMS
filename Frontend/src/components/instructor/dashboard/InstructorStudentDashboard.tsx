@@ -4,8 +4,10 @@ import {
   Users, Search, Filter, Download, Mail, MoreHorizontal, 
   BookOpen, Clock, CheckCircle2, AlertTriangle, PlayCircle,
   TrendingUp, TrendingDown, UserPlus, UserMinus, Activity,
-  Eye, FileText, ChevronRight, RefreshCw, Bell, Loader2
+  Eye, FileText, ChevronRight, RefreshCw, Bell, Loader2,
+  Phone, Play, Upload, Link as LinkIcon, Image as ImageIcon, AlertCircle
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,83 +160,97 @@ function StudentRow({ student, onSendMessage, onViewDetails }: {
   
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl border border-slate-100 hover:border-primary/20 hover:bg-slate-50/30 transition-all duration-300 group"
     >
-      <Avatar className="h-10 w-10">
-        <AvatarFallback className="bg-primary/10 text-primary text-sm">
-          {student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-        </AvatarFallback>
-      </Avatar>
-      
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-sm truncate">{student.name}</p>
-          <Badge variant="secondary" className={`${status.bg} ${status.text} text-xs`}>
+      {/* 1. Student Identity (col-span-3) */}
+      <div className="col-span-12 lg:col-span-3 flex items-center gap-3">
+        <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-1 ring-slate-100">
+          <AvatarFallback className="bg-primary/5 text-primary text-xs font-black">
+            {student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="font-black text-sm text-slate-900 truncate leading-none mb-1.5">{student.name}</p>
+          <Badge variant="outline" className={cn(
+            "h-5 px-2 text-[9px] font-black border-none uppercase tracking-tighter",
+            status.bg,
+            status.text
+          )}>
             {status.label}
           </Badge>
         </div>
-        <p className="text-xs text-muted-foreground truncate">{student.email}</p>
       </div>
 
-      <div className="hidden md:flex items-center gap-6 text-xs">
-        <div className="text-center">
-          <p className="font-medium">{student.enrolledCourses}</p>
-          <p className="text-muted-foreground">Enrolled</p>
+      {/* 2. Contact Details (col-span-3) */}
+      <div className="col-span-12 lg:col-span-3 space-y-1">
+        <div className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors cursor-default">
+          <Mail className="h-3 w-3 opacity-40" />
+          <span className="text-[11px] font-bold truncate">{student.email}</span>
         </div>
-        <div className="text-center">
-          <p className="font-medium">{student.completedCourses}</p>
-          <p className="text-muted-foreground">Completed</p>
-        </div>
-        <div className="text-center">
-          <p className="font-medium">{formatWatchTime(student.totalWatchTimeMinutes)}</p>
-          <p className="text-muted-foreground">Watch Time</p>
+        <div className="flex items-center gap-2 text-slate-500">
+          <Phone className="h-3 w-3 opacity-40" />
+          <span className="text-[11px] font-bold">{student.mobileNumber || 'No Mobile'}</span>
         </div>
       </div>
 
-      <div className="hidden lg:block w-24">
-        <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium">{student.overallProgress}%</span>
+      {/* 3. Enrollments (col-span-2) */}
+      <div className="hidden lg:block col-span-2 text-center space-y-0.5">
+        <div className="flex items-center justify-center gap-1.5 font-black text-slate-900 text-sm">
+          <span>{student.enrolledCourses}</span>
+          <BookOpen className="h-3 w-3 opacity-20" />
+        </div>
+        <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Courses</p>
+      </div>
+
+      {/* 4. Learning Progress (col-span-2) */}
+      <div className="hidden lg:block col-span-2 space-y-2 px-2">
+        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-tight">
+          <span className="text-slate-400">Score</span>
+          <span className="text-primary">{student.overallProgress}%</span>
         </div>
         <Progress 
           value={student.overallProgress} 
-          className="h-1.5"
+          className="h-1.5 bg-slate-100"
           indicatorClassName={
-            student.status === 'completed' ? 'bg-blue-500' :
-            student.status === 'at-risk' ? 'bg-amber-500' :
-            student.status === 'inactive' ? 'bg-gray-400' : 'bg-green-500'
+            student.status === 'completed' ? 'bg-green-500' :
+            student.status === 'at-risk' ? 'bg-amber-500' : 'bg-primary'
           }
         />
       </div>
 
-      <div className="text-xs text-muted-foreground hidden sm:block">
-        {formatTimeAgo(student.lastActiveAt)}
-      </div>
+      {/* 5. Last Session & Actions (col-span-2) */}
+      <div className="col-span-12 lg:col-span-2 flex items-center justify-between lg:justify-end gap-3 text-right">
+        <div className="text-right flex flex-col items-end">
+          <span className="text-[11px] font-black text-slate-600 leading-none mb-1">{formatTimeAgo(student.lastActiveAt)}</span>
+          <span className="text-[9px] font-black uppercase text-slate-300 tracking-widest leading-none">Activity</span>
+        </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onViewDetails(student.userId)}>
-            <Eye className="w-4 h-4 mr-2" /> View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onSendMessage(student.userId)}>
-            <Mail className="w-4 h-4 mr-2" /> Send Message
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">
-            <UserMinus className="w-4 h-4 mr-2" /> Remove Student
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white hover:shadow-md transition-all border-none bg-transparent">
+              <MoreHorizontal className="w-4 h-4 text-slate-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-slate-100 shadow-2xl">
+            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Management</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="rounded-xl px-3 h-10 font-bold focus:bg-slate-50" onClick={() => onViewDetails(student.userId)}>
+              <Eye className="w-4 h-4 mr-2 opacity-40 text-blue-600" /> View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem className="rounded-xl px-3 h-10 font-bold focus:bg-slate-50" onClick={() => onSendMessage(student.userId)}>
+              <Mail className="w-4 h-4 mr-2 opacity-40 text-emerald-600" /> Send Mail
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="rounded-xl px-3 h-10 font-bold text-rose-600 focus:bg-rose-50/50">
+              <UserMinus className="w-4 h-4 mr-2 opacity-40" /> Drop Student
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </motion.div>
+
   );
 }
 
@@ -482,13 +498,14 @@ export function InstructorStudentDashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-xs text-muted-foreground font-medium">
-                <div className="col-span-4">Student</div>
-                <div className="col-span-3 text-center">Courses</div>
-                <div className="col-span-2 text-center">Watch Time</div>
-                <div className="col-span-2 text-center">Progress</div>
-                <div className="col-span-1 text-right">Active</div>
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b bg-slate-50/50 rounded-t-xl">
+                <div className="col-span-3">Student Identity</div>
+                <div className="col-span-3">Contact Details</div>
+                <div className="col-span-2 text-center">Enrollments</div>
+                <div className="col-span-2 text-center">Learning Progress</div>
+                <div className="col-span-2 text-right">Last Session</div>
               </div>
+
               <ScrollArea className="h-[400px] pr-2">
                 <div className="space-y-2">
                   {loading ? (
@@ -590,6 +607,10 @@ export function InstructorStudentDashboard() {
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-[2rem]">
           {selectedStudent && (
             <div className="bg-white">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Student Profile</DialogTitle>
+                <DialogDescription>Details for {selectedStudent.name}</DialogDescription>
+              </DialogHeader>
               <div className="bg-slate-900 h-24 relative">
                 <div className="absolute -bottom-8 left-8">
                   <Avatar className="h-20 w-20 border-4 border-white shadow-xl">

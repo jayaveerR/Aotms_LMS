@@ -8,6 +8,8 @@ import {
   useInstructorCourses,
   useInstructorStats,
 } from "@/hooks/useInstructorData";
+import { useSocket } from "@/hooks/useSocket";
+import { useToast } from "@/hooks/use-toast";
 import { InstructorStats } from "@/components/instructor/dashboard/InstructorStats";
 import { PerformanceCharts } from "@/components/instructor/dashboard/PerformanceCharts";
 import { SmartAlerts } from "@/components/instructor/dashboard/SmartAlerts";
@@ -40,11 +42,24 @@ import {
   Video,
 } from "lucide-react";
 
+interface DashboardStats {
+  totalStudents: number;
+  upcomingClasses: number;
+  pendingAssignments: number;
+  totalEarnings?: number;
+  avgCompletion?: number;
+}
+
 // ─── Welcome Component ────────────────────────────────────────────────────────
-function WelcomeBanner({ name }: { name: string }) {
+function WelcomeBanner({ name, stats }: { name: string, stats?: DashboardStats }) {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  // Dynamic stats
+  const studentCount = stats?.totalStudents || 0;
+  const upcomingCount = stats?.upcomingClasses || 0;
+  const pendingAssignments = stats?.pendingAssignments || 0;
 
   return (
     <motion.div
@@ -70,9 +85,13 @@ function WelcomeBanner({ name }: { name: string }) {
           </h1>
           <p className="text-slate-400 max-w-xl font-medium text-base md:text-lg leading-relaxed">
             Welcome back to your teaching portal. You have{" "}
-            <span className="text-white font-bold">12 students</span> waiting
-            for today's live session in{" "}
-            <span className="text-white font-bold">45 minutes</span>.
+            <span className="text-white font-bold">{studentCount} students</span> enrolled in your courses.
+            {pendingAssignments > 0 && (
+              <> There are <span className="text-white font-bold">{pendingAssignments} assignments</span> waiting to be graded.</>
+            )}
+            {upcomingCount > 0 && (
+              <> You have <span className="text-white font-bold">{upcomingCount} classes</span> scheduled for this week.</>
+            )}
           </p>
         </div>
 
@@ -103,7 +122,29 @@ export default function InstructorDashboard() {
     isLoading: coursesLoading,
     refetch,
   } = useInstructorCourses();
-  const { data: stats, isLoading: statsLoading } = useInstructorStats();
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useInstructorStats();
+  const { socket } = useSocket();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (socket) {
+      const handleNotification = (notif: any) => {
+        toast({
+          title: notif.title || "New Notification",
+          description: notif.message,
+          className: "bg-slate-900 text-white border-primary/50 shadow-2xl",
+        });
+        // Refetch data when notifications arrive to keep dashboard fresh
+        refetch();
+        refetchStats();
+      };
+
+      socket.on("notification", handleNotification);
+      return () => {
+        socket.off("notification", handleNotification);
+      };
+    }
+  }, [socket, refetch, refetchStats, toast]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -131,6 +172,7 @@ export default function InstructorDashboard() {
 
   const path = location.pathname;
   const isRoot = path === "/instructor" || path === "/instructor/";
+  const isMyCourses = path === "/instructor/my-courses";
   const isCourses = path.startsWith("/instructor/courses");
   const isStudents = path === "/instructor/students";
   const isDoubts = path === "/instructor/doubts";
@@ -160,6 +202,7 @@ export default function InstructorDashboard() {
                 >
                   <WelcomeBanner
                     name={user?.user_metadata?.full_name || "Instructor"}
+                    stats={stats}
                   />
 
                   <InstructorStats
@@ -250,13 +293,22 @@ export default function InstructorDashboard() {
                   <AssignmentsDashboard />
                 </motion.div>
               )}
+              {isMyCourses && (
+                <motion.div
+                  key="my-courses"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <InstructorCourses showAll={false} title="My Courses" />
+                </motion.div>
+              )}
               {isCourses && (
                 <motion.div
                   key="courses"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  <InstructorCourses />
+                  <InstructorCourses showAll={true} title="AOTMS Courses" />
                 </motion.div>
               )}
               {isStudents && (

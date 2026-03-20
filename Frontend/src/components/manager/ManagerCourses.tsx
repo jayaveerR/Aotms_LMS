@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, ArrowRight, Layers, User, Trash2, Loader2, MoreVertical } from 'lucide-react';
+import { PlayCircle, ArrowRight, Layers, User, Trash2, Loader2, MoreVertical, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
@@ -16,10 +16,14 @@ import { API_URL, fetchWithAuth } from '@/lib/api';
 import { Course } from '@/hooks/useInstructorData';
 import { CourseBuilder } from '../instructor/courses/CourseBuilder';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Clock, Calendar, ShieldAlert, GraduationCap, Mail, Monitor, BookOpen as BookOpenIcon } from 'lucide-react';
 
 export function ManagerCourses() {
-    const { data: courses, isLoading, refetch } = useInstructorS3Courses();
+    const { data: courses, isLoading, refetch } = useInstructorS3Courses(true);
     const [viewingCourse, setViewingCourse] = useState<Course | null>(null);
+    const [selectedCourseProfile, setSelectedCourseProfile] = useState<Course | null>(null);
+    const [showProfile, setShowProfile] = useState(false);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const { toast } = useToast();
 
@@ -150,8 +154,17 @@ export function ManagerCourses() {
                                             <div className="text-xs text-muted-foreground">
                                                 {course.created_at ? format(new Date(course.created_at), 'MMM d, yyyy') : ''}
                                             </div>
-                                            <Button variant="ghost" size="sm" className="group-hover:translate-x-1 transition-transform">
-                                                View <ArrowRight className="ml-1 h-4 w-4" />
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="group-hover:scale-110 transition-transform h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/5"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedCourseProfile(course);
+                                                    setShowProfile(true);
+                                                }}
+                                            >
+                                                <Eye className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </CardContent>
@@ -161,6 +174,98 @@ export function ManagerCourses() {
                     </AnimatePresence>
                 </div>
             )}
+
+            {/* Course Profile View Modal */}
+            <Dialog open={showProfile} onOpenChange={setShowProfile}>
+                <DialogContent className="max-w-xl pro-modal">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl">
+                            <BookOpenIcon className="h-5 w-5 text-primary" />
+                            Course Profile
+                        </DialogTitle>
+                        <DialogDescription>
+                            Comprehensive overview of system curriculum content
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedCourseProfile && (
+                        <div className="space-y-6 py-4">
+                            <div className="aspect-video relative rounded-xl overflow-hidden bg-slate-100 border shadow-inner">
+                                {selectedCourseProfile.thumbnail_url || selectedCourseProfile.image ? (
+                                    <img 
+                                        src={selectedCourseProfile.thumbnail_url?.startsWith('http') ? selectedCourseProfile.thumbnail_url : 
+                                            (selectedCourseProfile.image?.startsWith('http') ? selectedCourseProfile.image : 
+                                            `${API_URL}/s3/public/${selectedCourseProfile.thumbnail_url || selectedCourseProfile.image}`)}
+                                        alt={selectedCourseProfile.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <BookOpenIcon className="h-12 w-12 text-slate-300" />
+                                    </div>
+                                )}
+                                <div className="absolute top-4 left-4">
+                                    <span className="bg-white/90 text-primary px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm">
+                                        {selectedCourseProfile.category || 'Curriculum'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-bold tracking-tight text-slate-900">{selectedCourseProfile.title}</h3>
+                                <p className="text-slate-500 text-sm leading-relaxed">
+                                    {selectedCourseProfile.description || 'Detailed curriculum and teaching modules for professional development.'}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400">Course Info</h4>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Clock className="h-4 w-4 text-slate-400" />
+                                            <span>{selectedCourseProfile.duration || '0'} duration</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Layers className="h-4 w-4 text-slate-400" />
+                                            <span>Level: {selectedCourseProfile.level || 'Standard'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-primary/60">Management</h4>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                                            <User className="h-4 w-4 text-primary/40" />
+                                            <span className="font-medium truncate">{selectedCourseProfile.instructor_id ? 'Instructor Assigned' : 'Internal Library'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                                            <Calendar className="h-4 w-4 text-primary/40" />
+                                            <span>Created {selectedCourseProfile.created_at ? format(new Date(selectedCourseProfile.created_at), 'MMM d, yyyy') : 'N/A'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter className="border-t pt-4">
+                        <Button variant="outline" className="rounded-lg h-10 px-6 font-semibold" onClick={() => setShowProfile(false)}>
+                            Close
+                        </Button>
+                        <Button 
+                            className="pro-button-primary h-10 px-8 rounded-lg shadow-md" 
+                            onClick={() => {
+                                setShowProfile(false);
+                                setViewingCourse(selectedCourseProfile);
+                            }}
+                        >
+                            Manage Content
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

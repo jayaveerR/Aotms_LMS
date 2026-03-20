@@ -36,8 +36,11 @@ import {
 } from "lucide-react";
 import { UserProfile } from "./UserProfile";
 import { CourseList } from "./CourseList";
-import { ExamModule } from "./ExamModule";
 import { StudentCourseViewer } from "./StudentCourseViewer";
+import { StudentHistory } from "./StudentHistory";
+import { ExamModule } from "./ExamModule";
+import { Notifications } from "./Notifications";
+import { StudentSettings } from "./StudentSettings";
 import {
   StudentCourse,
   useStudentAnnouncements,
@@ -80,9 +83,9 @@ function CoursesTab() {
     try {
       await enrollMutation.mutateAsync(course.id);
       toast({
-        title: "Success",
-        description: `Successfully enrolled in ${course.title}!`,
-        className: "bg-green-50 border-green-200"
+        title: "Enrollment Requested",
+        description: `Enrollment for ${course.title} submitted! Waiting for admin approval.`,
+        className: "bg-amber-50 border-amber-200"
       });
       setCourseTab('enrolled'); // Switch back to 'My Courses'
     } catch (err) {
@@ -561,6 +564,7 @@ const routeConfig: Record<string, { title: string; description: string; icon: Re
     title: "Academic Record",
     description: "Review your past performance and transcripts",
     icon: History,
+    component: <StudentHistory />,
   },
   "/student-dashboard/leaderboard": {
     title: "Global Rankings",
@@ -572,11 +576,13 @@ const routeConfig: Record<string, { title: string; description: string; icon: Re
     title: "Communications",
     description: "Important updates from the academy",
     icon: Bell,
+    component: <Notifications />,
   },
   "/student-dashboard/settings": {
     title: "Preferences",
     description: "Configure your digital learning environment",
     icon: Settings,
+    component: <StudentSettings />,
   },
 };
 

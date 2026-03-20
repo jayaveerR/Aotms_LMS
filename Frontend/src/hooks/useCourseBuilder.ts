@@ -21,29 +21,25 @@ export interface S3CourseVideo {
     created_at: string;
 }
 
-export function useInstructorS3Courses() {
+export function useInstructorS3Courses(showAll?: boolean) {
     const { user, userRole } = useAuth();
     return useQuery({
-        queryKey: ['s3-courses', user?.id, userRole],
+        queryKey: ['s3-courses', user?.id, userRole, showAll],
         queryFn: async () => {
             if (!user?.id) return [];
-            console.log(`[useInstructorS3Courses] Fetching for user: ${user.id}, Role: ${userRole}`);
             
-            let data;
-            // Managers and Admins can see all courses
-            if (userRole === 'manager' || userRole === 'admin') {
-                data = await fetchWithAuth('/data/courses?sort=created_at&order=desc');
-            } else {
-                // Instructors only see their own
-                // Fetch using instructor_id filter. Note: Backend handles data/table as a pass-through to Firestore
-                data = await fetchWithAuth(`/data/courses?instructor_id=eq.${user.id}&sort=created_at&order=desc`);
+            // If showAll is requested, fetch all courses
+            if (showAll) {
+                console.log(`[useInstructorS3Courses] Fetching all courses (Library View)`);
+                return await fetchWithAuth('/data/courses');
             }
             
-            console.log(`[useInstructorS3Courses] Found ${data?.length || 0} courses`);
-            return data;
+            // Otherwise, fetch courses assigned to this instructor/user
+            console.log(`[useInstructorS3Courses] Fetching assigned courses for: ${user.id}`);
+            return await fetchWithAuth(`/data/courses?instructor_id=eq.${user.id}`);
         },
         enabled: !!user?.id,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+        staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
     });
 }
