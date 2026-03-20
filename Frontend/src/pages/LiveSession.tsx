@@ -54,6 +54,8 @@ export default function LiveSession() {
                 ZoomMtg.setZoomJSLib(`https://source.zoom.us/${ZOOM_VERSION}/lib`, '/av');
                 ZoomMtg.preLoadWasm();
                 ZoomMtg.prepareWebSDK();
+                ZoomMtg.i18n.load('en-US');
+                ZoomMtg.i18n.reload('en-US');
 
                 // 1. Get Security Signature
                 addLog('Generating security signature...');
@@ -79,23 +81,17 @@ export default function LiveSession() {
 
                 ZoomMtg.init({
                     leaveUrl: window.location.origin + (role === 1 ? '/instructor' : '/student-dashboard'),
-                    sdkKey: activeSdkKey,
-                    patchJsMedia: true,
-                    isSupportAV: true,
-                    isSupportChat: true,
-                    isSupportQA: true,
-                    isSupportPolling: true,
-                    isSupportBreakoutRoom: true,
+                    debug: true,
+                    // Remove patchJsMedia and explicit isSupport flags for now
                     success: () => {
                         addLog('Engine ready. Joining room...');
-
                         ZoomMtg.join({
                             signature: signature,
-                            sdkKey: activeSdkKey,
+                            // sdkKey removed as per log recommendation
                             meetingNumber: meetingNumber,
                             userName: user.user_metadata?.full_name || user.email || 'AOTMS User',
                             passWord: password,
-                            tk: '',
+                            tk: '', // Empty token
                             success: () => {
                                 addLog('Joined successfully!');
                                 setStatus('Connected!');

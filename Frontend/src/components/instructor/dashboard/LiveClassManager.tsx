@@ -14,13 +14,14 @@ import {
     X,
     AlertCircle,
     VideoOff,
-    Users
+    Users,
+    Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { useInstructorLiveClasses, useCreateLiveClass, useInstructorCourses, Course, LiveClass } from '@/hooks/useInstructorData';
+import { useInstructorLiveClasses, useCreateLiveClass, useDeleteLiveClass, useInstructorCourses, Course, LiveClass } from '@/hooks/useInstructorData';
 import { format } from 'date-fns';
 
 export function LiveClassManager() {
@@ -29,6 +30,7 @@ export function LiveClassManager() {
     const { data: liveClasses = [], isLoading } = useInstructorLiveClasses();
     const { data: courses = [] } = useInstructorCourses();
     const createMeeting = useCreateLiveClass();
+    const deleteMeeting = useDeleteLiveClass();
 
     const [formData, setFormData] = useState({
         topic: '',
@@ -37,6 +39,16 @@ export function LiveClassManager() {
         agenda: '',
         courseId: ''
     });
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm("Are you sure you want to permanently delete this scheduled class? This action cannot be undone.")) {
+            try {
+                await deleteMeeting.mutateAsync(id);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -116,8 +128,14 @@ export function LiveClassManager() {
                                                         {session.title}
                                                     </CardTitle>
                                                 </div>
-                                                <Button variant="ghost" size="icon" className="rounded-full">
-                                                    <MoreVertical className="w-4 h-4" />
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                                    onClick={() => handleDelete(session.id)}
+                                                    title="Delete Class"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
                                                 </Button>
                                             </div>
                                         </CardHeader>
@@ -146,6 +164,18 @@ export function LiveClassManager() {
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {session.meeting_password && (
+                                                <div className="flex items-center gap-2 mb-4 p-2 bg-muted/30 rounded-lg border border-border/50">
+                                                    <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-primary">
+                                                        <Users className="w-3 h-3" />
+                                                    </div>
+                                                    <div className="flex-1 text-xs">
+                                                        <span className="font-bold text-muted-foreground uppercase mr-2">Passcode:</span>
+                                                        <code className="font-mono bg-background px-1 py-0.5 rounded border border-border">{session.meeting_password}</code>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             <div className="flex items-center gap-3">
                                                 <Button

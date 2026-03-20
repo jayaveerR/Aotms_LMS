@@ -256,11 +256,13 @@ app.post('/api/zoom/meetings', authenticateToken, requireInstructor, async (req,
 app.post('/api/zoom/signature', (req, res) => {
     try {
         const { meetingNumber, role } = req.body;
-        const sdkKey = process.env.ZOOM_SDK_KEY;
-        const sdkSecret = process.env.ZOOM_SDK_SECRET;
+        // Fallback to CLIENT_ID/SECRET if SDK_KEY/SECRET are not set
+        const sdkKey = process.env.ZOOM_SDK_KEY || process.env.ZOOM_CLIENT_ID;
+        const sdkSecret = process.env.ZOOM_SDK_SECRET || process.env.ZOOM_CLIENT_SECRET;
 
         if (!sdkKey || !sdkSecret) {
-            return res.status(500).json({ error: 'Zoom SDK Credentials missing on server' });
+            console.error('[Zoom Signature] Missing Credentials in .env');
+            return res.status(500).json({ error: 'Zoom SDK Credentials missing on server. Check .env for ZOOM_SDK_KEY or ZOOM_CLIENT_ID.' });
         }
 
         const iat = Math.floor(Date.now() / 1000) - 30;
@@ -268,11 +270,13 @@ app.post('/api/zoom/signature', (req, res) => {
 
         const payload = {
             sdkKey: sdkKey,
+            appKey: sdkKey, // Required for SDK v5.0+
             mn: meetingNumber,
             role: role, // 0 for attendee, 1 for host
             iat: iat,
             exp: exp,
-            tokenExp: exp
+            tokenExp: exp,
+            video_webrtc_mode: 1 // Force WebRTC mode to prevent "Job was cancelled" and "Gallery View Not Supported" errors
         };
 
         const jwt = require('jsonwebtoken');

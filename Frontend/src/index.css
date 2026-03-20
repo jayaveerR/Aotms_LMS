@@ -209,6 +209,19 @@
   }
 }
 
+
+/* ZOOM MEETING SDK STYLES */
+#zmmtg-root {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999 !important;
+  background-color: black; /* Visual feedback if loading */
+}
+
 /* Page Transitions */
 .page-fade-enter {
   opacity: 0;

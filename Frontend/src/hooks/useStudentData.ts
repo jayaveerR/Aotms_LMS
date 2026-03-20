@@ -143,6 +143,7 @@ export interface LiveClass {
     duration_minutes: number;
     status: string;
     meeting_id?: string;
+    meeting_password?: string;
 }
 
 export interface StudentCourse extends Course {

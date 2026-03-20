@@ -1458,3 +1458,21 @@ export function useCreateLiveClass() {
     }
   });
 }
+
+export function useDeleteLiveClass() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await fetchWithAuth(`/data/live_classes/${id}`, { method: 'DELETE' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instructor-live-classes'] });
+      toast({ title: 'Live class deleted successfully' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error deleting live class', description: error.message, variant: 'destructive' });
+    },
+  });
+}

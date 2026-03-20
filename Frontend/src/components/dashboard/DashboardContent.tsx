@@ -32,7 +32,8 @@ import {
   Settings,
   Target,
   Medal,
-  ChevronRight
+  ChevronRight,
+  Copy
 } from "lucide-react";
 import { UserProfile } from "./UserProfile";
 import { CourseList } from "./CourseList";
@@ -292,6 +293,18 @@ function LeaderboardTab() {
 function LiveClassesTab() {
   const { data: classes, isLoading } = useLiveClasses();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleCopyPassword = (e: React.MouseEvent, password?: string) => {
+    e.stopPropagation();
+    if (!password) return;
+    navigator.clipboard.writeText(password);
+    toast({
+      title: "Password Copied",
+      description: "Meeting passcode copied to clipboard.",
+      className: "bg-blue-50 border-blue-200"
+    });
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -357,10 +370,35 @@ function LiveClassesTab() {
                       </p>
                     </div>
                   </div>
+                  
+                  {session.meeting_password && (
+                    <div className="flex items-center gap-4 text-sm font-medium text-slate-600">
+                      <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                        <Users className="h-4.5 w-4.5 text-blue-500" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Meeting Passcode</p>
+                        <div className="flex items-center gap-2">
+                          <code className="bg-slate-100 px-2 py-0.5 rounded text-slate-900 font-mono font-bold text-sm tracking-widest border border-slate-200">
+                            {session.meeting_password}
+                          </code>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 hover:bg-slate-200" 
+                            onClick={(e) => handleCopyPassword(e, session.meeting_password)}
+                            title="Copy Passcode"
+                          >
+                            <Copy className="h-3.5 w-3.5 text-slate-500" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Button
-                  onClick={() => session.meeting_id && navigate(`/live/${session.meeting_id}?role=0`)}
+                  onClick={() => session.meeting_id && navigate(`/live/${session.meeting_id}?role=0&pwd=${session.meeting_password || ''}`)}
                   className="w-full pro-button-primary"
                   disabled={!session.meeting_id}
                 >
