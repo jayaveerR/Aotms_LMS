@@ -292,6 +292,72 @@ app.post('/api/zoom/signature', authenticateToken, async (req, res) => {
     }
 });
 
+app.post('/api/zoom/webhook', async (req, res) => {
+    try {
+        const { event, payload } = req.body;
+        const secretToken = process.env.ZOOM_SECRET_TOKEN?.trim();
+
+        // 1. URL Validation (Required by Zoom to activate webhooks)
+        if (event === 'endpoint.url_validation') {
+            if (!secretToken) {
+                console.warn('[Zoom Webhook] No ZOOM_SECRET_TOKEN found for validation');
+                return res.status(400).send('No secret token configured');
+            }
+
+            const hash = require('crypto')
+                .createHmac('sha256', secretToken)
+                .update(payload.plainToken)
+                .digest('hex');
+
+            console.log('[Zoom Webhook] Responding to validation');
+            return res.status(200).json({
+                plainToken: payload.plainToken,
+                encryptedToken: hash
+            });
+        }
+
+        // 2. Event Verification (Security check for other events)
+        const signature = req.headers['x-zm-signature'];
+        if (signature && secretToken) {
+            const timestamp = req.headers['x-zm-request-timestamp'];
+            const message = `v0:${timestamp}:${JSON.stringify(req.body)}`;
+            const hash = require('crypto')
+                .createHmac('sha256', secretToken)
+                .update(message)
+                .digest('hex');
+            
+            const expectedSignature = `v0=${hash}`;
+            if (signature !== expectedSignature) {
+                console.error('[Zoom Webhook] Invalid signature');
+                return res.status(401).send('Invalid signature');
+            }
+        }
+
+        // 3. Handle specific events
+        console.log(`[Zoom Webhook] Event Received: ${event}`);
+        
+        switch (event) {
+            case 'meeting.started':
+                await LiveClass.findOneAndUpdate(
+                    { meeting_id: payload.object.id.toString() },
+                    { status: 'live' }
+                );
+                break;
+            case 'meeting.ended':
+                await LiveClass.findOneAndUpdate(
+                    { meeting_id: payload.object.id.toString() },
+                    { status: 'ended' }
+                );
+                break;
+        }
+
+        res.status(200).send('OK');
+    } catch (err) {
+        console.error('[Zoom Webhook Error]', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 // --- Auth Routes ---
 
