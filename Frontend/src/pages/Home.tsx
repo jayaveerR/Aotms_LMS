@@ -3,6 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import WhyAOTMS from "@/components/landing/WhyAOTMS";
 import HowItWorks from "@/components/landing/HowItWorks";
 import KeyFeatures from "@/components/landing/KeyFeatures";
+import FeaturedCourses from "@/components/landing/FeaturedCourses";
 
 import Instructors from "@/components/landing/Instructors";
 import Testimonials from "@/components/landing/Testimonials";
@@ -11,8 +12,8 @@ import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 import ScrollBot from "@/components/landing/ScrollBot";
 import LowPolyBackground from "@/components/landing/LowPolyBackground";
-
 const Home = () => {
+
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       {/* GLOBAL FIXED BACKGROUND */}
@@ -25,6 +26,7 @@ const Home = () => {
             <HeroSection />
           </div>
           <WhyAOTMS />
+          <FeaturedCourses />
           <HowItWorks />
           <KeyFeatures />
 

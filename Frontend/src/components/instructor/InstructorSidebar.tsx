@@ -29,17 +29,23 @@ import {
   Radio,
   Settings,
   ShieldCheck,
+  RefreshCw,
 } from "lucide-react";
+
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { useInstructorStats } from "@/hooks/useInstructorData";
+import { Badge } from "@/components/ui/badge";
+
 
 const mainNavItems = [
   { title: "Dashboard", url: "/instructor", icon: LayoutDashboard },
   { title: "My Courses", url: "/instructor/courses", icon: BookOpen },
-  { title: "Student Roster", url: "/instructor/students", icon: Users },
+  { title: "Student Roster", url: "/instructor/students", icon: Users, isLive: true },
   { title: "Live Broadcast", url: "/instructor/live-classes", icon: Radio },
 ];
+
 
 const contentNavItems = [
   { title: "Video Library", url: "/instructor/videos", icon: Video },
@@ -60,8 +66,10 @@ export function InstructorSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { data: stats } = useInstructorStats();
 
   const isActive = (path: string) => {
+
     if (path === "/instructor") {
       return (
         location.pathname === "/instructor" ||
@@ -107,14 +115,30 @@ export function InstructorSidebar() {
                     isActive={isActive(item.url)}
                     className="h-11 px-4 rounded-lg transition-all duration-200 group data-[active=true]:bg-primary/5 data-[active=true]:text-primary"
                   >
-                    <Link to={item.url} className="flex items-center gap-3">
-                      <item.icon
-                        className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover:text-slate-700"}`}
-                      />
-                      {!collapsed && <span>{item.title}</span>}
+                    <Link to={item.url} className="flex items-center gap-3 w-full">
+                      <div className="relative">
+                        <item.icon
+                          className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover:text-slate-700"}`}
+                        />
+                        {item.isLive && (
+                          <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+                        )}
+                      </div>
+                      {!collapsed && (
+                        <div className="flex items-center justify-between flex-1">
+                          <span>{item.title}</span>
+                          {item.title === "Student Roster" && stats?.totalStudents !== undefined && (
+                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold bg-primary/10 text-primary border-none">
+                              {stats.totalStudents}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -173,6 +197,14 @@ export function InstructorSidebar() {
 
       <SidebarFooter className="p-4 group-data-[collapsible=icon]:p-2 border-t border-slate-50 bg-slate-50/50">
         <div className="space-y-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start group-data-[collapsible=icon]:justify-center gap-3 h-11 px-4 group-data-[collapsible=icon]:px-0 rounded-lg text-primary hover:bg-primary/5 font-semibold transition-all"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCw className="h-5 w-5 shrink-0" />
+            {!collapsed && <span className="text-sm">Refresh Data</span>}
+          </Button>
           <Button
             variant="ghost"
             className="w-full justify-start group-data-[collapsible=icon]:justify-center gap-3 h-11 px-4 group-data-[collapsible=icon]:px-0 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold"

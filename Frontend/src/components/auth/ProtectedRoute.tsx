@@ -28,17 +28,21 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
                 }
                 // Skip any further approval checks for admins/managers
             } else {
-                // For non-admin/manager users: redirect pending users
-                if (user.approval_status === 'pending' && location.pathname !== '/pending-approval') {
-                    navigate('/pending-approval');
-                    return;
-                }
+            // For non-admin/manager users: redirect pending users
+            // Handle both "pending" and undefined/null
+            if ((!user.approval_status || user.approval_status === 'pending') && location.pathname !== '/pending-approval') {
+                navigate('/pending-approval');
+                return;
+            }
 
-                // If now approved but stuck on pending page, redirect to their dashboard
-                if (user.approval_status === 'approved' && location.pathname === '/pending-approval') {
-                    navigate('/student-dashboard');
-                    return;
-                }
+            // If now approved but stuck on pending page, redirect to their dashboard
+            // Handle "approved", "active", "approve" (in case of typo)
+            const isApproved = ['approved', 'active', 'approve'].includes(user.approval_status || '');
+            
+            if (isApproved && location.pathname === '/pending-approval') {
+                navigate('/student-dashboard');
+                return;
+            }
             }
 
             // Check roles

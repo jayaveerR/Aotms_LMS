@@ -1,14 +1,14 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useInstructorPlaylists, Playlist } from '@/hooks/useInstructorData';
+import { useInstructorCourses, Course } from '@/hooks/useInstructorData';
 import { BookOpen } from 'lucide-react';
 
 interface CourseSelectorProps {
-  selectedCourse: any | null;
-  onSelectCourse: (course: any | null) => void;
+  selectedCourse: Course | null;
+  onSelectCourse: (course: Course | null) => void;
 }
 
 export function CourseSelector({ selectedCourse, onSelectCourse }: CourseSelectorProps) {
-  const { data: playlists = [], isLoading } = useInstructorPlaylists();
+  const { data: courses = [], isLoading } = useInstructorCourses();
 
   return (
     <div className="flex items-center gap-3">
@@ -16,17 +16,17 @@ export function CourseSelector({ selectedCourse, onSelectCourse }: CourseSelecto
       <Select
         value={selectedCourse?.id || ''}
         onValueChange={(value) => {
-          const course = (playlists || []).find((c: any) => c.id === value) || null;
+          const course = (courses || []).find((c: Course) => c.id === value) || null;
           onSelectCourse(course);
         }}
-        disabled={isLoading || !playlists || playlists.length === 0}
+        disabled={isLoading || !courses || courses.length === 0}
       >
         <SelectTrigger className="w-[280px]">
-          <SelectValue placeholder={isLoading ? "Loading courses..." : (!playlists || playlists.length === 0 ? "No courses available" : "Select a course")} />
+          <SelectValue placeholder={isLoading ? "Loading courses..." : (!courses || courses.length === 0 ? "No courses available" : "Select a course")} />
         </SelectTrigger>
         <SelectContent>
-          {(playlists || []).length > 0 ? (
-            (playlists || []).map((course: any) => (
+          {(courses || []).length > 0 ? (
+            (courses || []).map((course: Course) => (
               <SelectItem key={course.id} value={course.id}>
                 <div className="flex items-center gap-2">
                   <span>{course.title}</span>
@@ -35,7 +35,7 @@ export function CourseSelector({ selectedCourse, onSelectCourse }: CourseSelecto
             ))
           ) : (
             <div className="p-4 text-sm text-muted-foreground text-center">
-              No courses found. Create a course first.
+              No courses found. Create or claim a course first.
             </div>
           )}
         </SelectContent>

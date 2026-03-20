@@ -1,6 +1,7 @@
 import { fetchWithAuth } from '@/lib/api';
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth'; // Import useAuth
 
 // Types for admin data
 export interface Profile {
@@ -8,6 +9,7 @@ export interface Profile {
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
+  mobile_number?: string | null;
   status: 'active' | 'suspended';
   approval_status: 'pending' | 'approved' | 'rejected' | 'suspended';
   last_active_at: string | null;
@@ -28,6 +30,7 @@ export interface Course {
   description: string | null;
   instructor_id: string | null;
   instructor_name: string | null;
+  instructor_email?: string | null;
   status: 'pending' | 'approved' | 'rejected' | 'disabled' | 'published' | 'draft';
   category: string | null;
   thumbnail_url: string | null;
@@ -36,6 +39,16 @@ export interface Course {
   reviewed_by: string | null;
   rejection_reason: string | null;
   created_at: string;
+}
+
+export interface CourseEnrollment {
+  id: string;
+  user_id: string;
+  course_id: string;
+  status: 'pending' | 'active' | 'rejected' | string;
+  enrollment_date: string;
+  user_name?: string;
+  user_email?: string;
 }
 
 export interface SecurityEvent {
@@ -64,24 +77,29 @@ export interface AdminStats {
   totalUsers: number;
   activeCourses: number;
   pendingCourses: number;
+  pendingEnrollments: number; // Added field
   securityEvents: number;
   highPriorityEvents: number;
   roleCounts: Record<string, number>;
 }
 
 
-export function useAdminData() {
+export function useAdminData(userRole?: string | null) {
   const { toast } = useToast();
+  // Removed useAuth hook call here to prevent hook order errors
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]); // Typed
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     activeCourses: 0,
     pendingCourses: 0,
+    pendingEnrollments: 0, // Added field
     securityEvents: 0,
     highPriorityEvents: 0,
     roleCounts: {},
@@ -89,15 +107,23 @@ export function useAdminData() {
 
   // Fetch all admin data
   const fetchAllData = useCallback(async () => {
+    // Only fetch if role is explicitly admin or manager
+    if (!userRole || (userRole !== 'admin' && userRole !== 'manager')) {
+      console.warn(`[AdminData] Fetch skipped: current role is "${userRole}"`);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      // Fetch in parallel
-      const [profilesData, rolesData, coursesData, eventsData, logsData] = await Promise.all([
-        fetchWithAuth('/data/profiles?sort=created_at&order=desc'),
-        fetchWithAuth('/data/user_roles'),
-        fetchWithAuth('/data/courses?sort=created_at&order=desc'),
+      // Fetch in parallel with sensible limits
+      const [profilesData, rolesData, coursesData, eventsData, logsData, enrollmentsData] = await Promise.all([
+        fetchWithAuth('/data/profiles?sort=created_at&order=desc&limit=100'),
+        fetchWithAuth('/data/user_roles?limit=500'), // Roles are small, but we still limit
+        fetchWithAuth('/data/courses?sort=created_at&order=desc&limit=100'),
         fetchWithAuth('/data/security_events?sort=created_at&order=desc&limit=50'),
         fetchWithAuth('/data/system_logs?sort=created_at&order=desc&limit=100'),
+        fetchWithAuth('/courses/enrollments'), // Custom endpoint already limits internally or fetches recent
       ]);
 
       if (profilesData && rolesData) {
@@ -128,6 +154,11 @@ export function useAdminData() {
         const approved = (coursesData as Course[]).filter((c) => c.status?.toLowerCase() === 'approved' || c.status?.toLowerCase() === 'published').length;
         setStats((prev) => ({ ...prev, pendingCourses: pending, activeCourses: approved }));
       }
+      if (enrollmentsData) {
+        setEnrollments(enrollmentsData as CourseEnrollment[]);
+        const pendingEnrollmentsCount = (enrollmentsData as CourseEnrollment[]).filter(e => e.status === 'pending').length;
+        setStats(prev => ({ ...prev, pendingEnrollments: pendingEnrollmentsCount }));
+      }
       if (eventsData) {
         setSecurityEvents(eventsData as SecurityEvent[]);
         const highPriority = (eventsData as SecurityEvent[]).filter(
@@ -143,25 +174,84 @@ export function useAdminData() {
 
       // Update total users count
       setStats((prev) => ({ ...prev, totalUsers: profilesData?.length || 0 }));
-    } catch (error) {
-      console.error('Error fetching admin data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load admin data',
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error fetching admin data:', err);
+      
+      // Handle 403 specifically
+      if (error.message && error.message.includes('Administrative access required')) {
+        toast({
+          title: 'Access Denied',
+          description: 'Your account does not have admin permissions. Please contact support or re-login.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to load admin data',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, userRole]);
 
   // Set up polling instead of realtime
   useEffect(() => {
     fetchAllData();
-    // Poll every 30 seconds
-    const interval = setInterval(fetchAllData, 30000);
+    // Poll every 2 minutes instead of 30s to save quota
+    const interval = setInterval(fetchAllData, 120000);
     return () => clearInterval(interval);
   }, [fetchAllData]);
+
+  const approveCourse = async (courseId: string) => {
+    try {
+      await fetchWithAuth('/admin/approve-course', {
+        method: 'PUT',
+        body: JSON.stringify({ courseId, status: 'approved' })
+      });
+      
+      toast({ title: 'Success', description: 'Course approved and published' });
+      fetchAllData();
+      return true;
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to approve course', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const rejectCourse = async (courseId: string, reason: string) => {
+    try {
+      await fetchWithAuth('/admin/approve-course', {
+        method: 'PUT',
+        body: JSON.stringify({ courseId, status: 'rejected', rejectionReason: reason })
+      });
+
+      toast({ title: 'Success', description: 'Course rejected' });
+      fetchAllData();
+      return true;
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to reject course', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const updateCourseStatus = async (courseId: string, status: string) => {
+    try {
+      await fetchWithAuth('/admin/approve-course', {
+        method: 'PUT',
+        body: JSON.stringify({ courseId, status })
+      });
+
+      toast({ title: 'Success', description: `Course status updated to ${status}` });
+      fetchAllData();
+      return true;
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update course status', variant: 'destructive' });
+      return false;
+    }
+  };
 
   // Admin actions
   const updateUserStatus = async (userId: string, status: 'approved' | 'rejected' | 'suspended' | 'active') => {
@@ -235,47 +325,63 @@ export function useAdminData() {
     }
   };
 
-  const approveCourse = async (courseId: string) => {
+  const updateEnrollmentStatus = async (enrollmentId: string, status: 'active' | 'rejected') => {
     try {
-      await fetchWithAuth('/admin/approve-course', {
+      await fetchWithAuth('/courses/enrollment-status', {
         method: 'PUT',
-        body: JSON.stringify({ courseId, status: 'published' })
+        body: JSON.stringify({ enrollmentId, status })
       });
 
-      // Optimistically update local state immediately
-      setCourses(prev => prev.map(c =>
-        c.id === courseId ? { ...c, status: 'published', reviewed_at: new Date().toISOString() } : c
-      ));
+      // Log for debugging
+      console.log(`[AdminData] Enrollment ${enrollmentId} updated to ${status}`);
 
-      toast({ title: '✅ Course Approved', description: 'Course is now published and visible to students.' });
-
-      // Refresh from server after a short delay to sync real DB state
-      setTimeout(fetchAllData, 1500);
+      toast({ 
+        title: status === 'active' ? '✅ Enrollment Approved' : '❌ Enrollment Rejected', 
+        description: `Student enrollment has been ${status === 'active' ? 'approved' : 'rejected'}.` 
+      });
+      
+      fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to approve course', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to update enrollment status', variant: 'destructive' });
       return false;
     }
   };
 
-  const rejectCourse = async (courseId: string, reason: string) => {
+  const deleteEnrollment = async (enrollmentId: string) => {
     try {
-      await fetchWithAuth('/admin/approve-course', {
-        method: 'PUT',
-        body: JSON.stringify({ courseId, status: 'rejected', rejectionReason: reason })
+      await fetchWithAuth(`/data/course_enrollments/${enrollmentId}`, {
+        method: 'DELETE'
       });
 
-      // Optimistically update local state
-      setCourses(prev => prev.map(c =>
-        c.id === courseId ? { ...c, status: 'rejected', rejection_reason: reason, reviewed_at: new Date().toISOString() } : c
-      ));
-
-      toast({ title: 'Course Rejected', description: 'Course has been rejected.' });
-
-      setTimeout(fetchAllData, 1500);
+      toast({ 
+        title: '🗑️ Enrollment Deleted', 
+        description: 'Student enrollment has been permanently removed.' 
+      });
+      
+      fetchAllData();
       return true;
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to reject course', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to delete enrollment', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const deleteCourse = async (courseId: string) => {
+    try {
+      await fetchWithAuth(`/data/courses/${courseId}`, {
+        method: 'DELETE'
+      });
+
+      toast({ 
+        title: '🗑️ Course Deleted', 
+        description: 'Course has been permanently removed.' 
+      });
+      
+      fetchAllData();
+      return true;
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete course', variant: 'destructive' });
       return false;
     }
   };
@@ -317,6 +423,7 @@ export function useAdminData() {
     loading,
     profiles: getUsersWithRoles(),
     courses,
+    enrollments,
     securityEvents,
     systemLogs,
     stats,
@@ -324,9 +431,13 @@ export function useAdminData() {
     refresh: fetchAllData,
     updateUserStatus,
     updateUserRole,
-    approveCourse,
-    rejectCourse,
+    updateEnrollmentStatus,
+    deleteEnrollment,
+    deleteCourse,
     resolveSecurityEvent,
     sendApprovalEmail,
+    approveCourse,
+    rejectCourse,
+    updateCourseStatus,
   };
 }

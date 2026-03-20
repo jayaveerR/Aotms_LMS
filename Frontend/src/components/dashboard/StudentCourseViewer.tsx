@@ -17,11 +17,14 @@ export function StudentCourseViewer({ course, isEnrolled = true, onBack }: Stude
     const [selectedVideo, setSelectedVideo] = useState<S3CourseVideo | null>(null);
     const enrollMutation = useEnrollCourse();
     const [localIsEnrolled, setLocalIsEnrolled] = useState(isEnrolled);
+    const [hasRequestedEnrollment, setHasRequestedEnrollment] = useState(false);
 
     // Sync with prop changes
     useEffect(() => {
         setLocalIsEnrolled(isEnrolled);
     }, [isEnrolled]);
+
+    const isPending = hasRequestedEnrollment || course.enrollmentStatus === 'pending';
 
     return (
         <motion.div
@@ -58,24 +61,32 @@ export function StudentCourseViewer({ course, isEnrolled = true, onBack }: Stude
                                         <GraduationCap className="h-12 w-12 text-primary" />
                                     </motion.div>
 
-                                    <h3 className="text-3xl font-bold text-foreground mb-3 drop-shadow-sm">Unlock Full Access</h3>
+                                    <h3 className="text-3xl font-bold text-foreground mb-3 drop-shadow-sm">
+                                        {isPending ? "Enrollment Pending" : "Unlock Full Access"}
+                                    </h3>
                                     <p className="text-muted-foreground max-w-md mx-auto text-lg mb-8">
-                                        Enroll now to stream premium video modules, track your progress, and earn a certificate of completion.
+                                        {isPending 
+                                            ? "Your enrollment request has been submitted and is awaiting admin approval. You will be notified once access is granted."
+                                            : "Enroll now to stream premium video modules, track your progress, and earn a certificate of completion."
+                                        }
                                     </p>
 
                                     <Button
-                                        className="h-14 px-10 text-lg font-semibold rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] transition-all hover:scale-105"
+                                        className={`h-14 px-10 text-lg font-semibold rounded-full shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] transition-all ${
+                                            isPending ? "bg-amber-500 hover:bg-amber-600 cursor-not-allowed opacity-80" : "bg-primary hover:bg-primary/90 hover:scale-105"
+                                        }`}
                                         size="lg"
                                         onClick={() => {
+                                            if (isPending) return;
                                             enrollMutation.mutate(course.id, {
                                                 onSuccess: () => {
-                                                    setLocalIsEnrolled(true);
+                                                    setHasRequestedEnrollment(true);
                                                 }
                                             });
                                         }}
-                                        disabled={enrollMutation.isPending}
+                                        disabled={enrollMutation.isPending || isPending}
                                     >
-                                        {enrollMutation.isPending ? "Setting up you account..." : "Enroll for Free"}
+                                        {enrollMutation.isPending ? "Setting up..." : isPending ? "Waiting for Approval" : "Enroll for Free"}
                                     </Button>
                                 </div>
                             </div>
@@ -87,13 +98,28 @@ export function StudentCourseViewer({ course, isEnrolled = true, onBack }: Stude
                                 controlsList="nodownload"
                                 className="w-full h-full"
                             >
-                                <source src={selectedVideo.video_url.startsWith('http') ? selectedVideo.video_url : `/s3/public/${selectedVideo.video_url}`} type="video/mp4" />
+                                <source src={selectedVideo.video_url.startsWith('http') ? selectedVideo.video_url : (selectedVideo.video_url.includes('s3') ? selectedVideo.video_url : `/s3/public/${selectedVideo.video_url}`)} type="video/mp4" />
                                 Your browser does not support native video streaming.
                             </video>
                         ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-br from-muted/30 to-background">
-                                <PlayCircle className="h-20 w-20 mb-6 opacity-20" />
-                                <p className="text-lg font-medium opacity-70">Select a video from the playlist to begin</p>
+                            <div className="absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center relative overflow-hidden">
+                                {course.thumbnail_url && (
+                                    <>
+                                        <img 
+                                            src={course.thumbnail_url.startsWith('http') ? course.thumbnail_url : `/s3/public/${course.thumbnail_url}`} 
+                                            className="absolute inset-0 w-full h-full object-cover opacity-30 blur-xl scale-110" 
+                                            alt="" 
+                                        />
+                                        <div className="absolute inset-0 bg-black/40" />
+                                    </>
+                                )}
+                                <div className="relative z-10 flex flex-col items-center text-center p-6">
+                                    <div className="h-20 w-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 shadow-xl">
+                                        <PlayCircle className="h-10 w-10 text-white/80" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-2">Ready to Start?</h3>
+                                    <p className="text-white/60 max-w-sm">Select a module from the list on the right to begin watching.</p>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { 
   Cloud, 
@@ -14,7 +13,9 @@ import {
   X,
   CheckCircle2,
   AlertCircle,
-  Loader2
+  Loader2,
+  Presentation,
+  BookOpen
 } from 'lucide-react';
 import { 
   Card, 
@@ -53,7 +54,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchWithAuth } from '@/lib/api';
 import { 
   useResources, 
   useCreateResource, 
@@ -81,7 +82,7 @@ const ALLOWED_TYPES = [
 
 export function ResourcesDashboard() {
   const { user } = useAuth();
-  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [isDragging, setIsDragging] = useState(false);
@@ -100,7 +101,7 @@ export function ResourcesDashboard() {
   const [resourceFormData, setResourceFormData] = useState({
     title: '',
     description: '',
-    resource_type: 'pdf' as any,
+    resource_type: 'Study Material' as CourseResource['resource_type'],
   });
 
   const { data: resources = [], isLoading: loadingResources, refetch } = useResources(selectedCourse?.id || null);
@@ -121,7 +122,7 @@ export function ResourcesDashboard() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
+    const files = Array.from(e.dataTransfer.files) as File[];
     if (files.length > 0) {
       validateAndAddFiles(files);
     }
@@ -152,41 +153,42 @@ export function ResourcesDashboard() {
     setUploading(true);
     setUploadProgress(0);
     setCurrentUploadingFile(file.name);
-    
     try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-        const filePath = `${selectedCourse.id}/${fileName}`;
+        const formData = new FormData();
+        formData.append('file', file);
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('course-resources')
-            .upload(filePath, file, {
-                onUploadProgress: (progress) => {
-                    const percent = (progress.loaded / progress.total) * 100;
-                    setUploadProgress(Math.round(percent));
-                }
-            });
+        // Call the new Backend API endpoint for storage upload
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/upload/course-resources`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: formData
+        });
 
-        if (uploadError) throw uploadError;
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Upload failed');
+        }
 
-        const { data: { publicUrl } } = supabase.storage
-            .from('course-resources')
-            .getPublicUrl(uploadData.path);
+        const { url: publicUrl } = await res.json();
 
         // Open Dialog to confirm metadata
-        setPendingResource({ file, publicUrl, filePath: uploadData.path });
+        setPendingResource({ file, publicUrl, filePath: publicUrl });
         setResourceFormData({
             title: file.name,
-            description: `Resource for course ${selectedCourse.id}`,
-            resource_type: getResourceType(file.type || '', file.name) as any
+            description: `Resource for course ${selectedCourse.title}`,
+            resource_type: getResourceType(file.type || '', file.name) as CourseResource['resource_type']
         });
         setMetadataDialogOpen(true);
 
-    } catch (error: any) {
-        console.error('Upload error:', error);
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Upload error:', err);
         toast({
             title: 'Upload failed',
-            description: `Failed to upload ${file.name}. Please try again.`,
+            description: `Failed to upload ${file.name}. ${err.message}`,
             variant: 'destructive'
         });
     } finally {
@@ -205,8 +207,8 @@ export function ResourcesDashboard() {
             file_url: pendingResource.publicUrl,
             resource_type: resourceFormData.resource_type,
             upload_format: pendingResource.file.name.split('.').pop() || 'unknown',
-            instructor_avatar_url: (user as any).avatar_url || '',
-            instructor_name: (user as any).full_name || user.email || 'Instructor',
+            instructor_avatar_url: (user as { photoURL?: string }).photoURL || '',
+            instructor_name: (user as { displayName?: string, email?: string }).displayName || user.email || 'Instructor',
             short_description: resourceFormData.description
         });
 
@@ -219,10 +221,11 @@ export function ResourcesDashboard() {
         setMetadataDialogOpen(false);
         setPendingResource(null);
         refetch();
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as Error;
         toast({
             title: 'Save failed',
-            description: error.message,
+            description: err.message,
             variant: 'destructive'
         });
     }
@@ -240,34 +243,25 @@ export function ResourcesDashboard() {
     if (!window.confirm(`Are you sure you want to delete "${resource.asset_title}"?`)) return;
 
     try {
-        const urlParts = resource.file_url.split('/');
-        const filePath = `${resource.course_id}/${urlParts[urlParts.length - 1]}`;
-        
-        await supabase.storage.from('course-resources').remove([filePath]);
+        // Backend handles both Firestore entry and Storage deletion via its API
         await deleteResource.mutateAsync({ id: resource.id, courseId: resource.course_id });
         refetch();
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as Error;
         toast({
             title: 'Delete failed',
-            description: error.message,
+            description: err.message,
             variant: 'destructive'
         });
     }
   };
 
   const filteredResources = resources.filter(res => {
-    const matchesSearch = res.asset_title.toLowerCase().includes(searchTerm.toLowerCase());
+    const title = res.asset_title || '';
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || res.resource_type === filterType;
     return matchesSearch && matchesType;
   });
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
 
   const getFileIcon = (type: string) => {
     switch(type) {
@@ -389,7 +383,7 @@ export function ResourcesDashboard() {
                     </ScrollArea>
                     <Button 
                       className="w-full shadow-lg h-11 text-sm font-bold transition-all hover:scale-[1.02]" 
-                      onClick={handleUpload}
+                      onClick={() => handleUpload(uploadFiles[0])}
                       disabled={uploading}
                     >
                       {uploading ? (
@@ -489,7 +483,7 @@ export function ResourcesDashboard() {
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {filteredResources.map((resource) => (
+                            {filteredResources.map((resource: CourseResource) => (
                               <motion.div
                                 key={resource.id}
                                 layout
@@ -584,8 +578,8 @@ function MetadataDialog({
 }: { 
     open: boolean; 
     onOpenChange: (open: boolean) => void;
-    formData: any;
-    setFormData: any;
+    formData: { title: string; description: string; resource_type: string };
+    setFormData: React.Dispatch<React.SetStateAction<{ title: string; description: string; resource_type: CourseResource['resource_type'] }>>;
     onSave: () => void;
     fileName?: string;
 }) {
@@ -667,46 +661,4 @@ function MetadataDialog({
     );
 }
 
-// Helper icons
-function BookOpen({ className }: { className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
-  );
-}
-
-function Presentation({ className }: { className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M2 3h20" />
-      <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
-      <path d="m7 21 5-5 5 5" />
-    </svg>
-  );
-}
-
-export const resources = ResourcesDashboard;
+// Icons already imported or used local svg components if needed.

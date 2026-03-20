@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Upload } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useRef } from 'react';
 
 interface ProfileData {
     id: string;
@@ -21,13 +22,15 @@ interface ProfileData {
     skills: string[];
 }
 
-const API_URL = (import.meta.env.VITE_API_URL || 'https://new-lms-m5l5.onrender.com/api');
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export function UserProfile() {
     const { user } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [profile, setProfile] = useState<ProfileData>({
         id: '',
         full_name: '',
@@ -132,6 +135,57 @@ export function UserProfile() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingImage(true);
+        try {
+            const token = localStorage.getItem('access_token');
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch(`${API_URL}/upload/public`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Upload failed');
+            }
+
+            const data = await res.json();
+            
+            // Assuming the API returns { url: '...' } or { path: '...' }
+            const imageUrl = data.url || data.path || data.fileUrl;
+            if (imageUrl) {
+                setProfile({ ...profile, avatar_url: imageUrl });
+                toast({
+                    title: 'Image Uploaded',
+                    description: 'Remember to save changes to persist your new profile picture.',
+                });
+            } else {
+                 throw new Error("Invalid response format from server");
+            }
+        } catch (error: any) {
+             console.error('Error uploading image:', error);
+             toast({
+                 title: 'Upload Failed',
+                 description: error.message || 'Could not upload image',
+                 variant: 'destructive'
+             });
+        } finally {
+            setUploadingImage(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center p-8">
@@ -153,17 +207,29 @@ export function UserProfile() {
                 {/* Profile Card */}
                 <Card className="md:col-span-4 h-fit">
                     <CardHeader className="text-center">
-                        <div className="mx-auto mb-4 relative group">
+                        <div className="mx-auto mb-4 relative group w-24 h-24">
                             <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                                <AvatarImage src={profile.avatar_url || ''} />
+                                <AvatarImage src={profile.avatar_url?.startsWith('http') ? profile.avatar_url : (profile.avatar_url ? `${API_URL}/s3/public/${profile.avatar_url}` : '')} />
                                 <AvatarFallback className="text-2xl">{profile.full_name?.[0]?.toUpperCase()}</AvatarFallback>
                             </Avatar>
+                            
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                            />
+                            
                             <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute bottom-0 right-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                type="button"
+                                disabled={uploadingImage}
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute bottom-0 right-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                             >
-                                <Upload className="h-4 w-4" />
+                                {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                             </Button>
                         </div>
                         <CardTitle>{profile.full_name}</CardTitle>

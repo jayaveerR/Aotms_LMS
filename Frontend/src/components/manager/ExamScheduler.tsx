@@ -39,7 +39,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { useExams, useCreateExam, useUpdateExam, useDeleteExam } from '@/hooks/useManagerData';
+import { useExams, useCreateExam, useUpdateExam, useDeleteExam, type Exam } from '@/hooks/useManagerData';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Plus,
@@ -63,27 +63,117 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const examSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
-  exam_type: z.enum(['live', 'mock', 'practice', 'question_bank']),
+  exam_type: z.string().min(1, 'Please select or enter an exam type'),
+
   assigned_image: z.string().optional(),
   scheduled_date: z.string().refine((val) => new Date(val) > new Date(), {
     message: 'Scheduled date must be in the future',
   }),
-  duration_minutes: z.coerce.number().min(10, 'Duration must be at least 10 minutes'),
+  duration_minutes: z.coerce.number().min(5, 'Duration must be at least 5 minutes'),
   total_marks: z.coerce.number().min(1, 'Total marks must be at least 1'),
-  passing_marks: z.coerce.number().min(1),
-  negative_marking: z.coerce.number().min(0),
+  passing_percentage: z.coerce.number().min(0).max(100).default(40),
+  max_attempts: z.coerce.number().min(1).default(1),
+  show_results: z.boolean().default(true),
+  browser_security: z.boolean().default(false),
   shuffle_questions: z.boolean().default(true),
   proctoring_enabled: z.boolean().default(false),
-}).refine((data) => data.passing_marks <= data.total_marks, {
-  message: 'Passing marks cannot exceed total marks',
-  path: ['passing_marks'],
+}).refine((data) => data.total_marks > 0, {
+  message: 'Total marks must be positive',
+  path: ['total_marks'],
 });
+
 
 type ExamFormValues = z.infer<typeof examSchema>;
 
 // ─── 2. Image Upload Component ──────────────────────────────────────────────
 
+function ExamCard({ 
+  exam, 
+  onUpdate, 
+  onDelete, 
+  isPast 
+}: { 
+  exam: Exam; 
+  onUpdate: (params: { id: string; status: string }) => void;
+  onDelete: (id: string) => void;
+  isPast?: boolean;
+}) {
+  return (
+    <Card className={cn(
+      "group rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-500 bg-white overflow-hidden flex flex-col",
+      isPast && "opacity-75 grayscale-[0.2]"
+    )}>
+      <div className="h-32 relative bg-slate-900 overflow-hidden">
+        {exam.assigned_image ? (
+          <img src={exam.assigned_image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={exam.title} />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center mesh-bg">
+            <ImageIcon className="h-8 w-8 text-white/20" />
+          </div>
+        )}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Badge className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border-none text-[10px] font-black uppercase tracking-widest h-6 rounded-full px-3">
+             {exam.exam_type}
+          </Badge>
+          <Badge className={cn(
+             "border-none text-[10px] font-black uppercase tracking-widest h-6 rounded-full px-3",
+             exam.status === 'active' ? "bg-emerald-500 text-white animate-pulse" : 
+             isPast ? "bg-slate-500 text-white" : "bg-blue-500 text-white"
+          )}>
+            {exam.status}
+          </Badge>
+        </div>
+      </div>
+      
+      <div className="p-6 flex flex-col justify-between flex-1 space-y-4">
+        <div className="space-y-1">
+          <h4 className="font-black text-lg text-slate-900 leading-tight group-hover:text-primary transition-colors">{exam.title}</h4>
+          <div className="flex items-center gap-4 text-xs font-black text-slate-400 uppercase tracking-widest">
+            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {exam.duration_minutes}m</span>
+            <span className="flex items-center gap-1.5">
+              <CalendarIcon className="h-3.5 w-3.5" /> 
+              {exam.scheduled_date ? (
+                (() => {
+                  try {
+                    return format(new Date(exam.scheduled_date), 'MMM dd');
+                  } catch {
+                    return 'Invalid Date';
+                  }
+                })()
+              ) : 'No Date'}
+            </span>
+          </div>
+
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+           {!isPast && (
+             <Button
+               className={cn(
+                 "flex-1 h-11 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg",
+                 exam.status === 'active' ? "bg-rose-500 hover:bg-rose-600 shadow-rose-200" : "pro-button-primary shadow-blue-100"
+               )}
+               onClick={() => onUpdate({ id: exam.id, status: exam.status === 'active' ? 'completed' : 'active' })}
+             >
+               {exam.status === 'active' ? 'Stop Session' : 'Start Now'}
+             </Button>
+           )}
+           <Button 
+             variant="outline" 
+             size="icon" 
+             className="h-11 w-11 rounded-2xl border-slate-100 text-slate-400 hover:text-destructive hover:bg-rose-50 transition-colors" 
+             onClick={() => onDelete(exam.id)}
+           >
+             <Trash2 className="h-4 w-4" />
+           </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function FileUploadZone({ value, onChange }: { value?: string; onChange: (val: string) => void }) {
+
   const [dragActive, setDragActive] = useState(false);
   const [tab, setTab] = useState<'upload' | 'url'>('upload');
 
@@ -163,44 +253,53 @@ export function ExamScheduler() {
   const updateExam = useUpdateExam();
   const deleteExam = useDeleteExam();
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [showCustomType, setShowCustomType] = useState(false);
+  const [customType, setCustomType] = useState('');
+
 
   const form = useForm<ExamFormValues>({
     resolver: zodResolver(examSchema),
     defaultValues: {
       title: '',
       description: '',
-      exam_type: 'live',
+      exam_type: 'mock',
       duration_minutes: 60,
       total_marks: 100,
-      passing_marks: 40,
-      negative_marking: 0,
+      passing_percentage: 40,
+      max_attempts: 1,
+      show_results: true,
+      browser_security: false,
       shuffle_questions: true,
       proctoring_enabled: false,
       scheduled_date: '',
     },
+
   });
 
   const onSubmit = async (data: ExamFormValues) => {
     if (!user?.id) return;
     try {
       await createExam.mutateAsync({
-        title: data.title as string,
-        exam_type: data.exam_type as string,
-        duration_minutes: data.duration_minutes as number,
-        total_marks: data.total_marks as number,
-        passing_marks: data.passing_marks as number,
-        negative_marking: data.negative_marking as number,
-        shuffle_questions: data.shuffle_questions as boolean,
-        proctoring_enabled: data.proctoring_enabled as boolean,
+        title: data.title,
+        exam_type: data.exam_type === 'other' ? customType : data.exam_type,
+        duration_minutes: data.duration_minutes,
+
+        total_marks: data.total_marks,
+        passing_marks: Math.round((data.total_marks * data.passing_percentage) / 100),
+        negative_marking: 0, // Default to 0, add field if needed later
+        shuffle_questions: data.shuffle_questions,
+        proctoring_enabled: data.proctoring_enabled,
+        browser_security: data.browser_security,
         description: data.description ?? null,
         assigned_image: data.assigned_image ?? null,
         scheduled_date: new Date(data.scheduled_date).toISOString(),
         course_id: null,
-        max_attempts: 1,
-        show_results: true,
+        max_attempts: data.max_attempts,
+        show_results: data.show_results,
         status: 'scheduled',
         created_by: user.id,
       });
+
       setIsAddOpen(false);
       form.reset();
     } catch (error) {
@@ -208,8 +307,36 @@ export function ExamScheduler() {
     }
   };
 
-  const todayExams = exams.filter(e => isToday(new Date(e.scheduled_date)));
-  const upcomingExams = exams.filter(e => isFuture(new Date(e.scheduled_date)) && !isToday(new Date(e.scheduled_date)));
+  const todayExams = exams.filter(e => {
+    if (!e.scheduled_date) return false;
+    try {
+      return isToday(new Date(e.scheduled_date));
+    } catch {
+      return false;
+    }
+  });
+
+  const upcomingExams = exams.filter(e => {
+    if (!e.scheduled_date) return false;
+    try {
+      const d = new Date(e.scheduled_date);
+      return isFuture(d) && !isToday(d);
+    } catch {
+      return false;
+    }
+  });
+
+  const pastExams = exams.filter(e => {
+    if (!e.scheduled_date) return false;
+    try {
+      const d = new Date(e.scheduled_date);
+      return !isFuture(d) && !isToday(d);
+    } catch {
+      return false;
+    }
+  });
+
+
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px] text-xs font-medium text-muted-foreground animate-pulse">Synchronizing exam registry...</div>;
@@ -263,11 +390,34 @@ export function ExamScheduler() {
                               <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                               <SelectContent>
                                 <SelectItem value="live">Live Proctored</SelectItem>
-                                <SelectItem value="mock">Mock Test</SelectItem>
-                                <SelectItem value="practice">Practice Set</SelectItem>
-                                <SelectItem value="question_bank">Question Bank Manager</SelectItem>
+                                <SelectItem value="midterm">Midterm Examination</SelectItem>
+                                <SelectItem value="final">Final Examination</SelectItem>
+                                <SelectItem value="mock">Full Mock Test</SelectItem>
+                                <SelectItem value="certification">Certification Exam</SelectItem>
+                                <SelectItem value="competitive">Competitive Exam</SelectItem>
+                                <SelectItem value="practice">Daily Practice Set</SelectItem>
+                                <SelectItem value="quiz">Speed Quiz</SelectItem>
+                                <SelectItem value="diagnostic">Diagnostic Assessment</SelectItem>
+                                <SelectItem value="scholarship">Scholarship Test</SelectItem>
+                                <SelectItem value="placement">Placement Drive</SelectItem>
+                                <SelectItem value="other">Other / Custom</SelectItem>
                               </SelectContent>
                             </Select>
+                            {field.value === 'other' && (
+                              <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <Label className="text-[10px] font-bold uppercase mb-1.5 block">Custom Category Name</Label>
+                                <Input 
+                                  placeholder="Enter own type..." 
+                                  className="h-9 text-xs"
+                                  value={customType}
+                                  onChange={(e) => {
+                                    setCustomType(e.target.value);
+                                    // Normally we'd use field.onChange here but we need to keep 'other' as the select value
+                                    // We'll handle the final mapping in onSubmit
+                                  }}
+                                />
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -331,7 +481,30 @@ export function ExamScheduler() {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="passing_percentage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase">Pass %</FormLabel>
+                          <FormControl><Input type="number" {...field} className="h-9 text-xs" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="max_attempts"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase">Max Attempts</FormLabel>
+                          <FormControl><Input type="number" {...field} className="h-9 text-xs" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
+
 
                   <div className="flex items-center justify-between p-4 bg-muted/20 border rounded-lg gap-6">
                     <FormField
@@ -342,7 +515,6 @@ export function ExamScheduler() {
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                           <div className="space-y-0.5">
                             <Label className="text-xs font-bold">Shuffle</Label>
-                            <p className="text-[10px] text-muted-foreground">Randomize order</p>
                           </div>
                         </div>
                       )}
@@ -355,12 +527,36 @@ export function ExamScheduler() {
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                           <div className="space-y-0.5">
                             <Label className="text-xs font-bold">Proctoring</Label>
-                            <p className="text-[10px] text-muted-foreground">AI Monitoring</p>
+                          </div>
+                        </div>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="browser_security"
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          <div className="space-y-0.5">
+                            <Label className="text-xs font-bold">Security</Label>
+                          </div>
+                        </div>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="show_results"
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          <div className="space-y-0.5">
+                            <Label className="text-xs font-bold">Results</Label>
                           </div>
                         </div>
                       )}
                     />
                   </div>
+
 
                   <DialogFooter className="pt-4 border-t gap-2">
                     <Button type="button" variant="outline" className="rounded-lg" onClick={() => setIsAddOpen(false)}>Cancel</Button>
@@ -377,103 +573,64 @@ export function ExamScheduler() {
 
       <div className="grid gap-6 lg:grid-cols-3">
 
-        {/* Active Today */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-            <h3 className="text-xs font-bold uppercase tracking-tight text-emerald-700 flex items-center gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Sessions Today
-            </h3>
-            <Badge className="bg-emerald-600 h-5 px-1.5 text-[10px]">{todayExams.length}</Badge>
-          </div>
+      <Tabs defaultValue="upcoming" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-8 h-12 rounded-xl bg-slate-100/50 p-1 border">
+          <TabsTrigger value="today" className="rounded-lg font-black text-xs uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+            Today ({todayExams.length})
+          </TabsTrigger>
+          <TabsTrigger value="upcoming" className="rounded-lg font-black text-xs uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+            Upcoming ({upcomingExams.length})
+          </TabsTrigger>
+          <TabsTrigger value="past" className="rounded-lg font-black text-xs uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:text-slate-500 data-[state=active]:shadow-sm">
+            Past / Completed ({pastExams.length})
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="space-y-2">
+        <TabsContent value="today" className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {todayExams.length === 0 ? (
-              <p className="text-center py-8 text-xs font-medium text-muted-foreground border rounded-lg bg-muted/5">No active sessions for today.</p>
+               <div className="col-span-full py-16 text-center border-2 border-dashed rounded-3xl bg-slate-50/50">
+                 <CalendarIcon className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+                 <p className="text-sm font-bold text-slate-400">No sessions active for today.</p>
+               </div>
             ) : (
               todayExams.map(exam => (
-                <Card key={exam.id} className="rounded-xl border shadow-sm p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0 border">
-                      {exam.assigned_image ? (
-                        <img src={exam.assigned_image} className="h-full w-full object-cover" alt={exam.title} />
-                      ) : (
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-sm truncate">{exam.title}</h4>
-                      <p className="text-[11px] text-muted-foreground font-medium uppercase">{format(new Date(exam.scheduled_date), 'h:mm a')} • {exam.duration_minutes}m</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      className={cn(
-                        "flex-1 h-8 text-[11px] font-bold rounded-lg",
-                        exam.status === 'active' ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                      )}
-                      onClick={() => updateExam.mutate({ id: exam.id, status: exam.status === 'active' ? 'completed' : 'active' })}
-                    >
-                      {exam.status === 'active' ? 'STOP SESSION' : 'START NOW'}
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive" onClick={() => deleteExam.mutate(exam.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </Card>
+                <ExamCard key={exam.id} exam={exam} onUpdate={updateExam.mutate} onDelete={deleteExam.mutate} />
               ))
             )}
           </div>
-        </div>
+        </TabsContent>
 
-        {/* Upcoming Grid */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-            <h3 className="text-xs font-bold uppercase tracking-tight text-slate-700 flex items-center gap-2">
-              <CalendarIcon className="h-3.5 w-3.5" /> Upcoming Schedule
-            </h3>
-            <span className="text-xs font-medium text-muted-foreground">{upcomingExams.length} assessments scheduled</span>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-1 xl:grid-cols-2">
+        <TabsContent value="upcoming" className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {upcomingExams.length === 0 ? (
-              <div className="col-span-full py-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center space-y-2 bg-muted/5">
-                <AlertCircle className="h-8 w-8 text-muted-foreground/20" />
-                <p className="text-sm font-medium text-muted-foreground">No upcoming exams found.</p>
-              </div>
+               <div className="col-span-full py-16 text-center border-2 border-dashed rounded-3xl bg-slate-50/50">
+                 <CalendarIcon className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+                 <p className="text-sm font-bold text-slate-400">No upcoming assessments found.</p>
+               </div>
             ) : (
               upcomingExams.map(exam => (
-                <Card key={exam.id} className="group rounded-xl border-none shadow-sm hover:shadow-md transition-all border bg-card flex flex-col overflow-hidden">
-                  <div className="h-20 sm:h-24 relative bg-muted/20">
-                    {exam.assigned_image ? (
-                      <img src={exam.assigned_image} className="w-full h-full object-cover" alt={exam.title} />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center"><ImageIcon className="h-6 w-6 text-muted-foreground/20" /></div>
-                    )}
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="secondary" className="bg-background/90 text-[10px] h-5 rounded-md border border-border">{exam.exam_type}</Badge>
-                    </div>
-                  </div>
-                  <div className="p-4 flex flex-col justify-between flex-1 space-y-3">
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm leading-tight line-clamp-1">{exam.title}</h4>
-                      <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground uppercase tracking-tight">
-                        <span className="flex items-center gap-1"><Clock className="h-2.5 w-2.5" /> {exam.duration_minutes}m</span>
-                        <span className="flex items-center gap-1"><CalendarIcon className="h-2.5 w-2.5" /> {format(new Date(exam.scheduled_date), 'MMM dd')}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 h-8 rounded-lg text-[10px] font-bold" onClick={() => setIsAddOpen(true)}>Edit</Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive" onClick={() => deleteExam.mutate(exam.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+                <ExamCard key={exam.id} exam={exam} onUpdate={updateExam.mutate} onDelete={deleteExam.mutate} />
               ))
             )}
           </div>
-        </div>
+        </TabsContent>
+
+        <TabsContent value="past" className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 opacity-60 grayscale-[0.5]">
+            {pastExams.length === 0 ? (
+               <div className="col-span-full py-16 text-center border-2 border-dashed rounded-3xl bg-slate-50/50">
+                 <CalendarIcon className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+                 <p className="text-sm font-bold text-slate-400">No past sessions found.</p>
+               </div>
+            ) : (
+              pastExams.map(exam => (
+                <ExamCard key={exam.id} exam={exam} onUpdate={updateExam.mutate} onDelete={deleteExam.mutate} isPast />
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       </div>
     </div>

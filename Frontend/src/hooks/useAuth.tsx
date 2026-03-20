@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { UserRole } from '@/types/auth';
 
-// Simplified types to replace Supabase types
+// Simplified types to replace backend user types
 interface User {
   id: string;
   email?: string;
@@ -25,7 +25,7 @@ interface AuthContextType {
   session: Session | null;
   userRole: UserRole | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   checkSession: () => Promise<void>;
@@ -33,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'https://new-lms-m5l5.onrender.com/api');
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize state from localStorage for instant persistence on refresh
@@ -88,16 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       // 1. Validate session and fetch role with backend
-      // Using fetch with a timeout or better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased to 20s
 
-      const [profileRes, roleRes] = await Promise.all([
+      const [profileRes] = await Promise.all([
         fetch(`${API_URL}/user/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: controller.signal
-        }),
-        fetch(`${API_URL}/user/role`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal
         })
@@ -105,12 +100,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       clearTimeout(timeoutId);
 
-      if (profileRes.status === 401 || profileRes.status === 403) {
+      if (profileRes.status === 401) {
         throw new Error('Session expired');
       }
 
+      if (profileRes.status === 403) {
+        console.warn('Profile access forbidden (Role mismatch?): Skipping update');
+        setLoading(false);
+        return;
+      }
+
       if (!profileRes.ok) {
-        // Temporary server error, don't log out yet
         setLoading(false);
         return;
       }
@@ -122,21 +122,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession({ access_token: token, user: userData } as Session);
       localStorage.setItem('user', JSON.stringify(userData));
 
-      // Only update role if role fetch succeeded to prevent accidental reversion to 'student' on server error
-      if (roleRes.ok) {
-        const roleData = await roleRes.json();
-        const freshRole = roleData.role as UserRole;
+      // Use the role returned from profile endpoint
+      if (userData.role) {
+        const freshRole = userData.role as UserRole;
         setUserRole(freshRole);
         localStorage.setItem('user_role', freshRole);
       }
 
     } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Session check timed out, keeping current local session');
+        setLoading(false);
+        return;
+      }
+
       console.error('Session validation failed:', error);
 
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.warn('Session check timed out, keeping current local session');
-        } else if (error.message?.includes('expired') || error.message?.includes('token') || error.message?.includes('401')) {
+         if (error.message?.includes('expired') || error.message?.includes('token') || error.message?.includes('401')) {
           void signOut();
         }
       }
@@ -153,12 +156,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, [checkSession]);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
+  // Removed Real-time Role Sync (Firebase listeners removed)
+  // Replaced with periodic polling or just relying on checkSession on navigation
+  useEffect(() => {
+      if (!user?.id) return;
+      // Simple polling every 2 minutes to keep role in sync without websockets
+      const interval = setInterval(() => {
+          checkSession();
+      }, 2 * 60 * 1000);
+      return () => clearInterval(interval);
+  }, [user?.id, checkSession]);
+
+  const signUp = useCallback(async (email: string, password: string, fullName: string, phone?: string) => {
     try {
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName }),
+        body: JSON.stringify({ email, password, fullName, phone }),
       });
 
       const data = await res.json();
@@ -206,41 +220,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.session) {
         localStorage.setItem('access_token', data.session.access_token);
         if (data.session.refresh_token) {
-          localStorage.setItem('refresh_token', data.session.refresh_token);
+          localStorage.setItem('access_token_refresh', data.session.refresh_token);
         }
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        setUser(data.user);
-        setSession(data.session);
-
-        // Fetch role after login
-        const roleRes = await fetch(`${API_URL}/user/role`, {
-          headers: { Authorization: `Bearer ${data.session.access_token}` }
-        });
-
-        let role: UserRole = 'student';
-        if (roleRes.ok) {
-          const roleData = await roleRes.json();
-          role = roleData.role;
-        }
-
-        setUserRole(role);
+        
+        const userData = data.user;
+        const role = userData.role || 'student';
+        
+        localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('user_role', role);
 
-        // Fetch approval status
-        const profileRes = await fetch(`${API_URL}/user/profile`, {
-          headers: { Authorization: `Bearer ${data.session.access_token}` }
-        });
-
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          const updatedUser = {
-            ...data.user,
-            approval_status: profileData.user?.approval_status || 'pending'
-          };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-        }
+        setUser(userData);
+        setSession(data.session);
+        setUserRole(role);
       }
 
       setLoading(false);

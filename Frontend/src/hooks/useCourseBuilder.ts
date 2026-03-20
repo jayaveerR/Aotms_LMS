@@ -21,7 +21,6 @@ export interface S3CourseVideo {
     created_at: string;
 }
 
-
 export function useInstructorS3Courses() {
     const { user, userRole } = useAuth();
     return useQuery({
@@ -36,6 +35,7 @@ export function useInstructorS3Courses() {
                 data = await fetchWithAuth('/data/courses?sort=created_at&order=desc');
             } else {
                 // Instructors only see their own
+                // Fetch using instructor_id filter. Note: Backend handles data/table as a pass-through to Firestore
                 data = await fetchWithAuth(`/data/courses?instructor_id=eq.${user.id}&sort=created_at&order=desc`);
             }
             
@@ -43,28 +43,47 @@ export function useInstructorS3Courses() {
             return data;
         },
         enabled: !!user?.id,
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+        refetchOnWindowFocus: false,
     });
 }
 
 export function useCourseModules(courseId: string | null) {
-    return useQuery({
+    const result = useQuery({
         queryKey: ['course-modules', courseId],
         queryFn: async () => {
             if (!courseId) return [];
-            return fetchWithAuth(`/data/course_modules?course_id=eq.${courseId}&sort=order_index&order=asc`);
+            // Use the specific sub-resource endpoint which handles sorting on the backend
+            return fetchWithAuth(`/courses/${courseId}/modules`);
         },
-        enabled: !!courseId,
+        enabled: !!courseId
     });
+
+    return {
+        data: result.data || [],
+        isLoading: result.isLoading,
+        isError: result.isError,
+        refetch: result.refetch
+    };
 }
 
-export function useModuleVideos(moduleId: string | null) {
+export function useModuleVideos(moduleId: string | null, courseId?: string) {
     return useQuery({
-        queryKey: ['module-videos', moduleId],
+        queryKey: ['module-videos', moduleId, courseId],
         queryFn: async () => {
+            // If we have courseId but no moduleId, fetch all videos for the course
+            if (courseId && !moduleId) {
+                return fetchWithAuth(`/courses/${courseId}/videos`);
+            }
             if (!moduleId) return [];
+            // If we have courseId and moduleId, use the dedicated sub-resource route
+            if (courseId) {
+                return fetchWithAuth(`/courses/${courseId}/videos?module_id=eq.${moduleId}`);
+            }
+            // Fallback to generic table data
             return fetchWithAuth(`/data/course_videos?module_id=eq.${moduleId}&sort=order_index&order=asc`);
         },
-        enabled: !!moduleId,
+        enabled: !!moduleId || !!courseId,
     });
 }
 
@@ -118,13 +137,18 @@ export function useCreateCourseModule() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (module: Partial<CourseModule>) => {
-            return fetchWithAuth('/data/course_modules', {
+        mutationFn: async ({ course_id, title, order_index }: Partial<CourseModule>) => {
+            if (!course_id) throw new Error('Course ID is required');
+            return fetchWithAuth(`/courses/${course_id}/modules`, {
                 method: 'POST',
-                body: JSON.stringify(module),
+                body: JSON.stringify({
+                    course_id,
+                    title,
+                    order_index: order_index || 0
+                }),
             });
         },
-        onSuccess: (_, variables) => {
+        onSuccess: (newModule, variables) => {
             queryClient.invalidateQueries({ queryKey: ['course-modules', variables.course_id] });
         },
     });
@@ -134,14 +158,52 @@ export function useCreateCourseVideo() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (video: Partial<S3CourseVideo>) => {
+        mutationFn: async ({ moduleId, courseId, ...video }: { moduleId: string, courseId?: string, title: string, video_type: string, video_url: string, order_index: number }) => {
+            // Prefer the course sub-resource endpoint if courseId is provided
+            if (courseId) {
+                return fetchWithAuth(`/courses/${courseId}/videos`, {
+                    method: 'POST',
+                    body: JSON.stringify({ ...video, module_id: moduleId }),
+                });
+            }
+            // Fallback for generic table data
             return fetchWithAuth('/data/course_videos', {
                 method: 'POST',
-                body: JSON.stringify(video),
+                body: JSON.stringify({ ...video, module_id: moduleId }),
             });
         },
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['module-videos', variables.module_id] });
+        onSuccess: (newVideo, variables) => {
+            // Optimistically update the cache for the specific module
+            queryClient.setQueryData(['module-videos', variables.moduleId, variables.courseId], (oldData: S3CourseVideo[] | undefined) => {
+                if (!oldData) return [newVideo];
+                return [...oldData, newVideo];
+            });
+
+            // Optimistically update the cache for "all videos" if it exists (VideoUploader view)
+            if (variables.courseId) {
+                queryClient.setQueryData(['module-videos', null, variables.courseId], (oldData: S3CourseVideo[] | undefined) => {
+                    if (!oldData) return [newVideo];
+                    return [...oldData, newVideo];
+                });
+            }
+
+            queryClient.invalidateQueries({ queryKey: ['module-videos', variables.moduleId] });
+            queryClient.invalidateQueries({ queryKey: ['module-videos', null] }); // Invalidates the "all videos" queries if any
+        },
+    });
+}
+
+export function useDeleteCourseVideo() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (videoId: string) => {
+            return fetchWithAuth(`/data/course_videos/${videoId}`, {
+                method: 'DELETE',
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['module-videos'] });
         },
     });
 }
@@ -150,11 +212,12 @@ export function useS3Upload() {
     const { user } = useAuth();
 
     return useMutation({
-        mutationFn: async ({ file, customTitle, folder, onProgress }: {
+        mutationFn: async ({ file, customTitle, folder, onProgress, courseId }: {
             file: File,
             customTitle?: string,
             folder?: string,
-            onProgress?: (pct: number) => void
+            onProgress?: (pct: number) => void,
+            courseId?: string
         }) => {
             const token = localStorage.getItem('access_token');
             const fileExt = file.name.split('.').pop();
@@ -170,11 +233,18 @@ export function useS3Upload() {
                 body: JSON.stringify({
                     fileName: fileNameToUse,
                     fileType: file.type,
-                    folder: folder || 'LMS VIDEOS'
+                    folder: folder || 'LMS VIDEOS',
+                    courseId
                 })
             });
 
-            if (!res.ok) throw new Error('Failed to get upload URL');
+            if (!res.ok) {
+                const error = await res.json();
+                if (error.requiresApproval) {
+                    throw new Error('COURSE_NOT_APPROVED');
+                }
+                throw new Error('Failed to get upload URL');
+            }
             const { uploadUrl, fileName: s3Key } = await res.json();
 
             // Step 2: Upload directly to S3
@@ -188,8 +258,10 @@ export function useS3Upload() {
 
                 xhr.onload = () => {
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        // Return the full bucket URL
-                        const bucketUrl = `https://aotms-lms-backend.s3.ap-southeast-2.amazonaws.com/${s3Key}`;
+                        // Use the provided bucket name from .env if possible, or fallback to the one in code
+                        const bucketName = 'aotms-lms-backend'; 
+                        const region = 'ap-southeast-2';
+                        const bucketUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${s3Key}`;
                         resolve(bucketUrl);
                     } else {
                         reject(new Error(`S3 upload failed with status ${xhr.status}`));

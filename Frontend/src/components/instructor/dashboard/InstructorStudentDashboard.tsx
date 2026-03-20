@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   useInstructorAllStudents, 
   useInstructorStudentStats, 
-  useInstructorPlaylists,
+  useInstructorCourses,
   useSendReminder,
   type InstructorStudent 
 } from '@/hooks/useInstructorData';
@@ -180,11 +180,11 @@ function StudentRow({ student, onSendMessage, onViewDetails }: {
 
       <div className="hidden md:flex items-center gap-6 text-xs">
         <div className="text-center">
-          <p className="font-medium">{student.enrolledPlaylists}</p>
+          <p className="font-medium">{student.enrolledCourses}</p>
           <p className="text-muted-foreground">Enrolled</p>
         </div>
         <div className="text-center">
-          <p className="font-medium">{student.completedPlaylists}</p>
+          <p className="font-medium">{student.completedCourses}</p>
           <p className="text-muted-foreground">Completed</p>
         </div>
         <div className="text-center">
@@ -253,7 +253,7 @@ function ActivityFeed({ activities, students }: { activities: RecentActivity[]; 
       studentId: s.userId,
       studentName: s.name,
       action: 'completed' as const,
-      courseName: s.playlistEnrollments[0]?.playlistTitle || 'Course',
+      courseName: s.courseEnrollments[0]?.courseTitle || 'Course',
       timestamp: formatTimeAgo(s.lastActiveAt)
     }));
 
@@ -332,7 +332,7 @@ function ActivityFeed({ activities, students }: { activities: RecentActivity[]; 
 export function InstructorStudentDashboard() {
   const { toast } = useToast();
   const { data: students, isLoading: studentsLoading, refetch } = useInstructorAllStudents();
-  const { data: playlists, isLoading: playlistsLoading } = useInstructorPlaylists();
+  const { data: courses, isLoading: coursesLoading } = useInstructorCourses();
   const { stats, isLoading: statsLoading } = useInstructorStudentStats();
   const sendReminder = useSendReminder();
   
@@ -341,6 +341,9 @@ export function InstructorStudentDashboard() {
   const [courseFilter, setCourseFilter] = useState<string>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activities] = useState<RecentActivity[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<InstructorStudent | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -351,7 +354,7 @@ export function InstructorStudentDashboard() {
         student.email.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
       const matchesCourse = courseFilter === 'all' || 
-        student.playlistEnrollments.some(e => e.playlistId === courseFilter);
+        student.courseEnrollments.some(e => e.courseId === courseFilter);
       return matchesSearch && matchesStatus && matchesCourse;
     });
   }, [students, searchQuery, statusFilter, courseFilter]);
@@ -374,10 +377,15 @@ export function InstructorStudentDashboard() {
   };
 
   const handleViewDetails = (studentId: string) => {
-    console.log('View details for:', studentId);
+    const student = students?.find(s => s.userId === studentId);
+    if (student) {
+      setSelectedStudent(student);
+      setIsDetailOpen(true);
+    }
   };
 
-  const loading = studentsLoading || statsLoading || playlistsLoading;
+
+  const loading = studentsLoading || statsLoading || coursesLoading;
 
   return (
     <motion.div
@@ -524,7 +532,7 @@ export function InstructorStudentDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {playlistsLoading ? (
+              {coursesLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="space-y-2 animate-pulse">
@@ -533,27 +541,27 @@ export function InstructorStudentDashboard() {
                     </div>
                   ))}
                 </div>
-              ) : playlists && playlists.length > 0 ? (
-                playlists.slice(0, 5).map((playlist) => {
+              ) : courses && courses.length > 0 ? (
+                courses.slice(0, 5).map((course) => {
                   const enrolledCount = students?.filter(s => 
-                    s.playlistEnrollments.some(e => e.playlistId === playlist.id)
+                    s.courseEnrollments.some(e => e.courseId === course.id)
                   ).length || 0;
                   const completedCount = students?.filter(s => 
-                    s.playlistEnrollments.some(e => e.playlistId === playlist.id && e.progress === 100)
+                    s.courseEnrollments.some(e => e.courseId === course.id && e.progress === 100)
                   ).length || 0;
                   const avgProgress = enrolledCount > 0 
                     ? Math.round(
-                        students
-                          ?.filter(s => s.playlistEnrollments.some(e => e.playlistId === playlist.id))
-                          .reduce((acc, s) => acc + s.playlistEnrollments.find(e => e.playlistId === playlist.id)!.progress, 0) || 0
+                        (students
+                          ?.filter(s => s.courseEnrollments.some(e => e.courseId === course.id))
+                          .reduce((acc, s) => acc + (s.courseEnrollments.find(e => e.courseId === course.id)?.progress || 0), 0) || 0)
                         / enrolledCount
                       )
                     : 0;
 
                   return (
-                    <div key={playlist.id} className="space-y-2">
+                    <div key={course.id} className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground truncate flex-1 mr-2">{playlist.title}</span>
+                        <span className="text-muted-foreground truncate flex-1 mr-2">{course.title}</span>
                         <span className="font-medium">{avgProgress}%</span>
                       </div>
                       <Progress value={avgProgress} className="h-2" indicatorClassName={
@@ -577,6 +585,73 @@ export function InstructorStudentDashboard() {
           </Card>
         </div>
       </div>
+
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-[2rem]">
+          {selectedStudent && (
+            <div className="bg-white">
+              <div className="bg-slate-900 h-24 relative">
+                <div className="absolute -bottom-8 left-8">
+                  <Avatar className="h-20 w-20 border-4 border-white shadow-xl">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl font-black">
+                      {selectedStudent.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </div>
+              <div className="pt-12 px-8 pb-8 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-900">{selectedStudent.name}</h3>
+                    <p className="text-sm font-medium text-slate-400">Student ID: {selectedStudent.userId.slice(0, 8)}...</p>
+                  </div>
+                  <Badge className={`${getStatusConfig(selectedStudent.status).bg} ${getStatusConfig(selectedStudent.status).text} h-8 px-4 rounded-full font-bold border-none`}>
+                    {getStatusConfig(selectedStudent.status).label}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</p>
+                    <p className="text-sm font-bold text-slate-700 truncate">{selectedStudent.email}</p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mobile Number</p>
+                    <p className="text-sm font-bold text-slate-700">{selectedStudent.mobileNumber || 'Not provided'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                    <BookOpen className="h-3 w-3" /> Enrolled Courses
+                  </h4>
+                  <ScrollArea className="h-[200px] pr-4">
+                    <div className="space-y-3">
+                      {selectedStudent.courseEnrollments.map((course) => (
+                        <div key={course.courseId} className="p-4 rounded-xl border border-slate-100 bg-white">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-bold text-slate-800 truncate flex-1 pr-4">{course.courseTitle}</span>
+                            <span className="text-xs font-black text-primary">{course.progress}%</span>
+                          </div>
+                          <Progress value={course.progress} className="h-1.5" indicatorClassName={course.progress === 100 ? 'bg-green-500' : 'bg-primary'} />
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                <div className="pt-2 flex gap-3">
+                   <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold border-slate-200" onClick={() => setIsDetailOpen(false)}>Close</Button>
+                   <Button className="flex-1 h-12 rounded-xl pro-button-primary font-black gap-2" onClick={() => handleSendMessage(selectedStudent.userId)}>
+                     <Mail className="h-4 w-4" /> Message Student
+                   </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
+
   );
 }

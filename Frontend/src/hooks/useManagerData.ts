@@ -19,10 +19,12 @@ export interface Exam {
   shuffle_questions: boolean | null;
   show_results: boolean | null;
   proctoring_enabled: boolean | null;
+  browser_security: boolean | null;
   status: string | null;
   assigned_image: string | null;
   created_by: string;
   created_at: string | null;
+
 }
 
 export interface Question {
@@ -99,6 +101,15 @@ export interface ExamRule {
   proctoring_enabled: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface Instructor {
+  user_id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  created_at?: string;
+  mobile_number?: string;
 }
 
 export interface InstructorProgress {
@@ -333,7 +344,7 @@ export function useCreateMockTestConfig() {
     },
   });
 }
-0
+
 export function useUpdateMockTestConfig() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -592,6 +603,13 @@ export function useProfiles() {
   return useQuery({
     queryKey: ['manager-profiles'],
     queryFn: () => fetchWithAuth('/data/profiles?sort=created_at&order=desc'),
+  });
+}
+
+export function useInstructors() {
+  return useQuery<Instructor[]>({
+    queryKey: ['manager-instructors'],
+    queryFn: () => fetchWithAuth('/admin/instructors'),
   });
 }
 

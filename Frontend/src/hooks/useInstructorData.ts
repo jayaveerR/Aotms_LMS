@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from "@/integrations/supabase/client";
+
 const API_URL = import.meta.env.VITE_API_URL || 'https://new-lms-m5l5.onrender.com/api';
 
 export interface Course {
@@ -155,7 +155,7 @@ export interface Submission {
 
 
 export function useInstructorCourses() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   return useQuery({
     queryKey: ['instructor-courses', user?.id],
@@ -163,14 +163,14 @@ export function useInstructorCourses() {
       if (!user?.id) return [];
       return fetchWithAuth('/instructor/courses');
     },
-    enabled: !!user?.id,
-    staleTime: 0,
+    enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
+    staleTime: 1000 * 60 * 5, // 5 minutes to save quota
     refetchOnMount: true,
   });
 }
 
 export function useInstructorPlaylists() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   return useQuery({
     queryKey: ['instructor-playlists', user?.id],
@@ -178,7 +178,7 @@ export function useInstructorPlaylists() {
       if (!user?.id) return [];
       return fetchWithAuth(`/data/playlists?created_by=${user.id}`);
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
   });
 }
 
@@ -220,31 +220,7 @@ export function useVideos(courseId: string | null) {
 export function useResources(courseId: string | null) {
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!courseId) return;
 
-    // Set up Realtime subscription
-    const channel = supabase
-      .channel('course-resources-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'course_resources',
-          filter: `course_id=eq.${courseId}`
-        },
-        () => {
-          // Invalidate and refetch when data changes
-          queryClient.invalidateQueries({ queryKey: ['course-resources', courseId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [courseId, queryClient]);
 
   return useQuery({
     queryKey: ['course-resources', courseId],
@@ -276,6 +252,17 @@ export function useAnnouncements(courseId: string | null) {
     },
     enabled: !!courseId,
   });
+}
+
+export function useCourseRoster(courseId: string | null) {
+    return useQuery({
+        queryKey: ['course-roster', courseId],
+        queryFn: async () => {
+            if (!courseId) return [];
+            return fetchWithAuth(`/courses/${courseId}/roster`);
+        },
+        enabled: !!courseId,
+    });
 }
 
 // Mutations
@@ -425,24 +412,7 @@ export function useDeleteResource() {
 export function useAssignments(courseId: string | null) {
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!courseId) return;
 
-    const channel = supabase
-      .channel('assignments-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'assignments', filter: `course_id=eq.${courseId}` },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['course-assignments', courseId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [courseId, queryClient]);
 
   return useQuery({
     queryKey: ['course-assignments', courseId],
@@ -724,24 +694,24 @@ export function useInstructorStats() {
       }
 
       const courseIds = courses.map((c: Course) => c.id);
+      if (courseIds.length === 0) return { totalStudents: 0, contentItems: 0, avgCompletion: 0 };
+      
+      const courseIdsInFormat = courseIds.join(',');
 
-      // Fetch enrollments for all courses
-      // In a real app, we'd use a server-side aggregation or a single query with filters
-      const enrollments = await fetchWithAuth(`/data/course_enrollments`);
-      const instructorEnrollments = enrollments.filter((e: { course_id: string }) => courseIds.includes(e.course_id));
+      // Fetch only enrollments/videos/resources for THIS instructor's courses
+      // Note: "in" query in Firestore has a limit of documents (usually 30).
+      // We chunk if needed or use separate calls, but for now we assume < 30 courses.
+      const [enrollments, allVideos, allResources] = await Promise.all([
+        fetchWithAuth(`/data/course_enrollments?course_id=in.(${courseIdsInFormat})`),
+        fetchWithAuth(`/data/course_videos?course_id=in.(${courseIdsInFormat})`),
+        fetchWithAuth(`/data/course_resources?course_id=in.(${courseIdsInFormat})`)
+      ]);
 
-      // Fetch videos and resources for content count
-      const allVideos = await fetchWithAuth(`/data/course_videos`);
-      const instructorVideos = allVideos.filter((v: { course_id: string }) => courseIds.includes(v.course_id));
+      const totalStudents = enrollments.length;
+      const contentItems = allVideos.length + allResources.length;
 
-      const allResources = await fetchWithAuth(`/data/course_resources`);
-      const instructorResources = allResources.filter((r: { course_id: string }) => courseIds.includes(r.course_id));
-
-      const totalStudents = instructorEnrollments.length;
-      const contentItems = instructorVideos.length + instructorResources.length;
-
-      const avgCompletion = instructorEnrollments.length > 0
-        ? Math.round(instructorEnrollments.reduce((acc: number, e: { progress_percentage: number }) => acc + (e.progress_percentage || 0), 0) / instructorEnrollments.length)
+      const avgCompletion = enrollments.length > 0
+        ? Math.round(enrollments.reduce((acc: number, e: { progress_percentage: number }) => acc + (e.progress_percentage || 0), 0) / enrollments.length)
         : 0;
 
       return {
@@ -750,7 +720,8 @@ export function useInstructorStats() {
         avgCompletion
       };
     },
-    enabled: !!courses && !!user?.id,
+    enabled: !!courses && courses.length > 0 && !!user?.id,
+    staleTime: 60000 * 5, // 5 minutes cache
   });
 }
 
@@ -993,85 +964,95 @@ export interface InstructorStudent {
   name: string;
   email: string;
   avatarUrl?: string;
-  enrolledPlaylists: number;
-  completedPlaylists: number;
-  inProgressPlaylists: number;
+  mobileNumber?: string;
+  enrolledCourses: number;
+
+  completedCourses: number;
+  inProgressCourses: number;
   totalWatchTimeMinutes: number;
   lastActiveAt: string;
   overallProgress: number;
   status: 'active' | 'inactive' | 'at-risk' | 'completed';
   enrolledAt: string;
   certificates: number;
-  playlistEnrollments: {
-    playlistId: string;
-    playlistTitle: string;
+  courseEnrollments: {
+    courseId: string;
+    courseTitle: string;
     progress: number;
     lastWatchedAt: string;
   }[];
 }
 
 export function useInstructorAllStudents() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   return useQuery({
     queryKey: ['instructor-all-students', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const playlists = await fetchWithAuth(`/data/playlists?created_by=${user.id}`);
-      const playlistIds = playlists.map((p: Playlist) => p.id);
+      // 1. Fetch instructor's courses
+      const courses = await fetchWithAuth(`/data/courses?instructor_id=eq.${user.id}`);
+      const courseIds = courses.map((c: Course) => c.id);
 
-      if (playlistIds.length === 0) return [];
+      if (courseIds.length === 0) return [];
 
-      const allEnrollments = await Promise.all(
-        playlistIds.map(async (playlistId: string) => {
-          const enrollments = await fetchWithAuth(`/data/playlist_enrollments?playlist_id=${playlistId}`);
-          return enrollments.map((e: Record<string, unknown>) => ({
-            ...e,
-            playlistId,
-            playlistTitle: playlists.find((p: Playlist) => p.id === playlistId)?.title || 'Unknown'
-          }));
-        })
-      );
-
-      const flattenedEnrollments = allEnrollments.flat();
-
+      // 2. Fetch enrollments for these courses
+      // Note: We might need to chunk this if there are too many courses, but for now we'll assume it fits in the URL length or use a different strategy if backend supports it.
+      // Using 'in' filter for course_id
+      const allEnrollments = await fetchWithAuth(`/data/course_enrollments?course_id=in.(${courseIds.join(',')})`);
+      
       const studentMap = new Map<string, InstructorStudent>();
 
-      flattenedEnrollments.forEach((enrollment: Record<string, unknown>) => {
-        const userId = enrollment.user_id as string;
+      allEnrollments.forEach((enrollment: {
+        id: string;
+        user_id: string;
+        course_id: string;
+        user_name?: string;
+        user_email?: string;
+        progress_percentage?: number;
+        last_accessed_at?: string;
+        enrolled_at?: string;
+      }) => {
+        const userId = enrollment.user_id;
+        
+        // Skip if the student is the instructor themselves (if that's even possible/desired to hide)
+        if (userId === user.id) return;
+
+        const course = courses.find((c: Course) => c.id === enrollment.course_id);
+        const courseTitle = course?.title || 'Unknown Course';
 
         if (studentMap.has(userId)) {
           const existing = studentMap.get(userId)!;
-          existing.enrolledPlaylists += 1;
+          existing.enrolledCourses += 1;
 
-          const progress = enrollment.progress_percentage as number || 0;
+          const progress = enrollment.progress_percentage || 0;
           if (progress === 100) {
-            existing.completedPlaylists += 1;
+            existing.completedCourses += 1;
           } else if (progress > 0) {
-            existing.inProgressPlaylists += 1;
+            existing.inProgressCourses += 1;
           }
 
           existing.overallProgress = Math.round(
-            (existing.overallProgress + progress) / existing.enrolledPlaylists
+            (existing.overallProgress + progress) / existing.enrolledCourses
           );
 
-          existing.totalWatchTimeMinutes += enrollment.time_spent_minutes as number || 0;
+          // existing.totalWatchTimeMinutes += enrollment.time_spent_minutes || 0; // Assuming this field exists or we calculate it
 
-          const lastWatched = new Date(enrollment.last_watched_at as string || enrollment.enrolled_at as string);
+          const lastWatched = new Date(enrollment.last_accessed_at || enrollment.enrolled_at); // Use last_accessed_at if available
           const existingLastWatched = new Date(existing.lastActiveAt);
           if (lastWatched > existingLastWatched) {
-            existing.lastActiveAt = enrollment.last_watched_at as string || enrollment.enrolled_at as string;
+            existing.lastActiveAt = lastWatched.toISOString();
           }
 
-          existing.playlistEnrollments.push({
-            playlistId: enrollment.playlistId as string,
-            playlistTitle: enrollment.playlistTitle as string,
+          existing.courseEnrollments.push({
+            courseId: enrollment.course_id,
+            courseTitle: courseTitle,
             progress: progress,
-            lastWatchedAt: enrollment.last_watched_at as string || enrollment.enrolled_at as string
+            lastWatchedAt: enrollment.last_accessed_at || enrollment.enrolled_at
           });
         } else {
-          const progress = enrollment.progress_percentage as number || 0;
+          const progress = enrollment.progress_percentage || 0;
           const status: InstructorStudent['status'] = progress === 100
             ? 'completed'
             : progress > 0
@@ -1079,29 +1060,53 @@ export function useInstructorAllStudents() {
               : 'inactive';
 
           studentMap.set(userId, {
-            id: enrollment.id as string,
+            id: enrollment.id,
             userId: userId,
-            name: enrollment.user_name as string || 'Unknown Student',
-            email: enrollment.user_email as string || '',
+            name: enrollment.user_name || 'Student', // Backend might need to join with profiles or we fetch profiles separately
+            email: enrollment.user_email || '',
             avatarUrl: undefined,
-            enrolledPlaylists: 1,
-            completedPlaylists: progress === 100 ? 1 : 0,
-            inProgressPlaylists: progress > 0 && progress < 100 ? 1 : 0,
-            totalWatchTimeMinutes: enrollment.time_spent_minutes as number || 0,
-            lastActiveAt: enrollment.last_watched_at as string || enrollment.enrolled_at as string,
+            enrolledCourses: 1,
+            completedCourses: progress === 100 ? 1 : 0,
+            inProgressCourses: progress > 0 && progress < 100 ? 1 : 0,
+            totalWatchTimeMinutes: 0, // enrollment.time_spent_minutes || 0,
+            lastActiveAt: enrollment.last_accessed_at || enrollment.enrolled_at || new Date().toISOString(),
             overallProgress: progress,
             status,
-            enrolledAt: enrollment.enrolled_at as string || new Date().toISOString(),
+            enrolledAt: enrollment.enrolled_at || new Date().toISOString(),
             certificates: progress === 100 ? 1 : 0,
-            playlistEnrollments: [{
-              playlistId: enrollment.playlistId as string,
-              playlistTitle: enrollment.playlistTitle as string,
+            courseEnrollments: [{
+              courseId: enrollment.course_id,
+              courseTitle: courseTitle,
               progress: progress,
-              lastWatchedAt: enrollment.last_watched_at as string || enrollment.enrolled_at as string
+              lastWatchedAt: enrollment.last_accessed_at || enrollment.enrolled_at
             }]
           });
         }
       });
+      
+      // If names are missing (which they likely are from the enrollment table directly), 
+      // we should fetch profiles for these studentIds.
+      const studentIds = Array.from(studentMap.keys());
+      if (studentIds.length > 0) {
+          // Changed user_id to id because profile docs are keyed by user UID
+          const profiles = await fetchWithAuth(`/data/profiles?id=in.(${studentIds.join(',')})`);
+          profiles.forEach((p: {
+              id: string; // The primary ID
+              full_name?: string;
+              email?: string;
+              avatar_url?: string;
+          }) => {
+              const student = studentMap.get(p.id);
+
+              if (student) {
+                  student.name = p.full_name || student.name;
+                  student.email = p.email || student.email; 
+                  student.avatarUrl = p.avatar_url;
+                  student.mobileNumber = p.mobile_number || (p as any).phone;
+              }
+
+          });
+      }
 
       const students = Array.from(studentMap.values()).map(student => {
         const daysSinceActive = Math.floor(
@@ -1122,7 +1127,7 @@ export function useInstructorAllStudents() {
 
       return students;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
   });
 }
 
@@ -1147,7 +1152,7 @@ export function useInstructorStudentStats() {
     stats.atRiskStudents = students.filter(s => s.status === 'at-risk').length;
     stats.inactiveStudents = students.filter(s => s.status === 'inactive').length;
     stats.totalWatchTimeMinutes = students.reduce((acc, s) => acc + s.totalWatchTimeMinutes, 0);
-    stats.totalEnrollments = students.reduce((acc, s) => acc + s.enrolledPlaylists, 0);
+    stats.totalEnrollments = students.reduce((acc, s) => acc + s.enrolledCourses, 0);
     stats.avgProgress = Math.round(
       students.reduce((acc, s) => acc + s.overallProgress, 0) / students.length
     );
@@ -1184,7 +1189,7 @@ export interface Doubt {
 }
 
 export function useDoubts(playlistId?: string | null) {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   return useQuery({
     queryKey: ['instructor-doubts', user?.id, playlistId],
@@ -1214,7 +1219,7 @@ export function useDoubts(playlistId?: string | null) {
 
       return doubtsWithReplies as Doubt[];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
   });
 }
 
@@ -1380,33 +1385,10 @@ export function useStudentLookup(studentId: string) {
 }
 
 export function useInstructorLiveClasses() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user?.id) return;
 
-    // Realtime sync for live classes
-    const channel = supabase
-      .channel('live-classes-instructor')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'live_classes',
-          filter: `instructor_id=eq.${user.id}`
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['instructor-live-classes', user.id] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, queryClient]);
 
   return useQuery({
     queryKey: ['instructor-live-classes', user?.id],
@@ -1414,7 +1396,7 @@ export function useInstructorLiveClasses() {
       if (!user?.id) return [];
       return fetchWithAuth(`/data/live_classes?instructor_id=eq.${user.id}&order=scheduled_at.desc`);
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && (userRole === 'instructor' || userRole === 'admin' || userRole === 'manager'),
   });
 }
 
@@ -1438,7 +1420,7 @@ export function useCreateLiveClass() {
         })
       });
 
-      // 2. Save meeting metadata to our persistent live_classes table in Supabase
+      // 2. Save meeting metadata to our persistent live_classes collection in Firestore via Backend
       return fetchWithAuth('/data/live_classes', {
         method: 'POST',
         body: JSON.stringify({

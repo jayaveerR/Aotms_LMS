@@ -3,26 +3,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { useCourses, useInstructorProgress, useCourseTopics, useProfiles } from '@/hooks/useManagerData';
+import { useCourses, useInstructorProgress, useCourseTopics, useProfiles, useInstructors } from '@/hooks/useManagerData';
 import {
     BookOpen, Users, CheckCircle2, Clock, Search, Video,
-    FileText, MonitorPlay, TrendingUp, AlertCircle, Activity
+    FileText, MonitorPlay, TrendingUp, AlertCircle, Activity, Eye, Mail, Phone, Calendar, GraduationCap
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { useCourseRoster } from '@/hooks/useInstructorData';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function CourseMonitoring() {
     const { data: courses = [], isLoading: coursesLoading } = useCourses();
     const { data: instructorProgress = [], isLoading: progressLoading } = useInstructorProgress();
     const { data: topics = [], isLoading: topicsLoading } = useCourseTopics();
     const { data: profiles = [] } = useProfiles();
+    const { data: instructors = [], isLoading: instructorsLoading } = useInstructors();
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCourseRoster, setSelectedCourseRoster] = useState<string | null>(null);
+    const [isRosterOpen, setIsRosterOpen] = useState(false);
 
-    const isLoading = coursesLoading || progressLoading || topicsLoading;
+    const isLoading = coursesLoading || progressLoading || topicsLoading || instructorsLoading;
 
     // Helper: get instructor name from profiles
-    const getInstructorName = (instructorId: string) => {
+    const getInstructorName = (instructorId: string | null | undefined) => {
+        if (!instructorId) return 'Unknown Instructor';
         const profile = profiles.find((p: { user_id: string; full_name: string }) => p.user_id === instructorId);
-        return profile?.full_name || `Instructor #${instructorId.slice(0, 6)}`;
+        return profile?.full_name || `Instructor #${String(instructorId).slice(0, 6)}`;
     };
 
     // Get course name
@@ -186,12 +194,25 @@ export function CourseMonitoring() {
                                                         <Badge variant={course.is_published ? 'default' : 'secondary'}>
                                                             {course.is_published ? 'Published' : 'Draft'}
                                                         </Badge>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="sm" 
+                                                            className="h-8 w-8 p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+                                                            onClick={() => {
+                                                                setSelectedCourseRoster(course.id);
+                                                                setIsRosterOpen(true);
+                                                            }}
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
                                                         <div className="text-right">
                                                             <div className="text-sm font-bold">
                                                                 {stats?.completedTopics || 0}/{stats?.totalTopics || 0}
                                                             </div>
                                                             <p className="text-xs text-muted-foreground">topics</p>
                                                         </div>
+                                                    </div>
                                                     </div>
                                                 </div>
 
@@ -257,7 +278,9 @@ export function CourseMonitoring() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {instructorProgress.map((progress) => {
+                                    {instructorProgress
+                                        .filter(p => instructors.some(i => i.user_id === p.instructor_id))
+                                        .map((progress) => {
                                         const progressPct = progress.total_topics > 0
                                             ? Math.round((progress.topics_completed / progress.total_topics) * 100)
                                             : 0;
@@ -351,6 +374,103 @@ export function CourseMonitoring() {
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            {/* Student Roster Dialog */}
+            <CourseRosterDialog 
+                courseId={selectedCourseRoster} 
+                open={isRosterOpen} 
+                onOpenChange={setIsRosterOpen} 
+                courseTitle={courses.find(c => c.id === selectedCourseRoster)?.title || ''}
+            />
         </div>
+    );
+}
+
+function CourseRosterDialog({ courseId, open, onOpenChange, courseTitle }: { 
+    courseId: string | null; 
+    open: boolean; 
+    onOpenChange: (open: boolean) => void; 
+    courseTitle: string;
+}) {
+    const { data: roster = [], isLoading } = useCourseRoster(courseId || '');
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0 rounded-3xl border-none shadow-2xl">
+                <DialogHeader className="p-8 bg-gradient-to-r from-slate-900 to-indigo-950 text-white shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                            <GraduationCap className="h-8 w-8 text-primary-foreground" />
+                        </div>
+                        <div>
+                            <DialogTitle className="text-2xl font-black tracking-tight uppercase italic">
+                                Student <span className="text-primary-foreground not-italic">Roster</span>
+                            </DialogTitle>
+                            <DialogDescription className="text-white/60 font-medium">
+                                Enrolled students for <span className="text-white font-bold">{courseTitle}</span>
+                            </DialogDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
+                        </div>
+                    ) : roster.length === 0 ? (
+                        <div className="text-center py-20">
+                            <Users className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No Students Enrolled Yet</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-4">
+                            {roster.map((student: any) => (
+                                <div key={student.id} className="group p-4 rounded-2xl bg-white border border-slate-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm overflow-hidden">
+                                            {student.avatar_url ? (
+                                                <img src={student.avatar_url} className="w-full h-full object-cover" alt="" />
+                                            ) : (
+                                                <span className="text-lg font-black text-slate-400">{student.full_name?.[0] || 'S'}</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-slate-900 group-hover:text-primary transition-colors">{student.full_name || 'Anonymous Student'}</h4>
+                                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium mt-0.5">
+                                                <span className="flex items-center gap-1.2"><Mail className="h-3 w-3" /> {student.email}</span>
+                                                {student.mobile_number && <span className="flex items-center gap-1.2"><Phone className="h-3 w-3" /> {student.mobile_number}</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-6">
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Progress</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-100 shadow-inner">
+                                                    <div className="h-full bg-primary" style={{ width: `${student.progress || 0}%` }} />
+                                                </div>
+                                                <span className="text-sm font-black text-slate-900">{student.progress || 0}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="h-10 w-px bg-slate-100" />
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Joined</p>
+                                            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                                <Calendar className="h-3 w-3 text-slate-400" />
+                                                {new Date(student.enrolled_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <div className="p-6 border-t bg-white flex justify-end">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl border-slate-200 font-bold text-slate-500">Close Roster</Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }

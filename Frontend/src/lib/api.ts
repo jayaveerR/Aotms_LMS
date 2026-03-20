@@ -17,8 +17,8 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 
     let res = await fetch(`${API_URL}${url}`, { ...options, headers: getHeaders(token) });
 
-    // Handle token expiration specifically
-    if (res.status === 401 || res.status === 403) {
+    // Handle token expiration specifically - ONLY 401 should trigger refresh
+    if (res.status === 401) {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
             try {

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { useStudentStats, useEnrolledCourses } from "@/hooks/useStudentData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Sparkles, 
@@ -43,6 +43,9 @@ import {
   useStudentAnnouncements,
   useLeaderboard,
   useLiveClasses,
+  useStudentStats,
+  useEnrolledCourses,
+  useEnrollCourse,
   Announcement,
   LeaderboardEntry,
   LiveClass,
@@ -53,29 +56,87 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { useToast } from "@/components/ui/use-toast";
+
 // ─── Shared Components ────────────────────────────────────────────────────────
 
 function CoursesTab() {
   const [viewingCourse, setViewingCourse] = useState<StudentCourse | null>(null);
+  const [courseTab, setCourseTab] = useState<'enrolled' | 'available'>('enrolled');
+  const { toast } = useToast();
+  const enrollMutation = useEnrollCourse();
 
   if (viewingCourse) {
     return (
       <StudentCourseViewer
         course={viewingCourse}
-        isEnrolled={true}
+        isEnrolled={viewingCourse.enrollmentStatus === 'active'}
         onBack={() => setViewingCourse(null)}
       />
     );
   }
 
+  const handleEnroll = async (course: StudentCourse) => {
+    try {
+      await enrollMutation.mutateAsync(course.id);
+      toast({
+        title: "Success",
+        description: `Successfully enrolled in ${course.title}!`,
+        className: "bg-green-50 border-green-200"
+      });
+      setCourseTab('enrolled'); // Switch back to 'My Courses'
+    } catch (err) {
+      const error = err as Error;
+      toast({
+        title: "Enrollment Failed",
+        description: error.message || "An error occurred during enrollment.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <div className="w-full">
-      <CourseList
-        type="enrolled"
-        onSelectCourse={(c) => {
-          setViewingCourse(c);
-        }}
-      />
+    <div className="w-full space-y-8 h-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <Tabs value={courseTab} onValueChange={(v) => setCourseTab(v as 'enrolled' | 'available')} className="w-full sm:w-auto">
+          <TabsList className="bg-slate-100/50 p-1 rounded-xl">
+            <TabsTrigger value="enrolled" className="rounded-lg px-6 py-2">My Courses</TabsTrigger>
+            <TabsTrigger value="available" className="rounded-lg px-6 py-2">Course Catalog</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <div className="h-full">
+        {courseTab === 'enrolled' ? (
+          <CourseList
+            type="enrolled"
+            onSelectCourse={(c) => {
+              if (c.enrollmentStatus === 'pending') {
+                toast({
+                  title: "Enrollment Pending",
+                  description: "Admin approval required for full access.",
+                  variant: "default"
+                });
+                return;
+              }
+              if (c.enrollmentStatus === 'rejected') {
+                toast({
+                  title: "Enrollment Rejected",
+                  description: "Your enrollment for this course was rejected.",
+                  variant: "destructive"
+                });
+                return;
+              }
+              setViewingCourse(c);
+            }}
+          />
+        ) : (
+          <CourseList
+            type="available"
+            onSelectCourse={handleEnroll}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -343,7 +404,7 @@ function DashboardHome() {
       {/* KPI Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: "Active Courses", value: stats?.enrolled_courses || 0, icon: BookOpen, color: "blue", desc: "Currently enrolled" },
+          { title: "Active Courses", value: stats?.enrolled_courses || enrolledCourses?.length || 0, icon: BookOpen, color: "blue", desc: "Currently enrolled" },
           { title: "Completed Modules", value: stats?.completed_courses || 0, icon: Target, color: "orange", desc: "Milestones reached" },
           { title: "Hours Learned", value: `${stats?.total_watch_minutes ? Math.floor(stats.total_watch_minutes / 60) : 0}h`, icon: Clock, color: "blue", desc: "Total screen time" },
           { title: "Certificates", value: stats?.certificates_earned || 0, icon: Award, color: "orange", desc: "Verified credentials" },
@@ -408,7 +469,7 @@ function DashboardHome() {
                 <div className="flex flex-col md:flex-row gap-6 md:items-center">
                   <div className="aspect-video md:w-64 shrink-0 rounded-xl overflow-hidden bg-slate-100 relative group cursor-pointer shadow-sm border border-slate-200">
                     <img
-                      src={latestCourse.thumbnail_url?.startsWith("http") ? latestCourse.thumbnail_url : `https://new-lms-m5l5.onrender.com/api/s3/public/${latestCourse.thumbnail_url}`}
+                      src={latestCourse.thumbnail_url?.startsWith("http") ? latestCourse.thumbnail_url : `${API_URL}/s3/public/${latestCourse.thumbnail_url}`}
                       alt={latestCourse.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop"; }}
@@ -436,11 +497,17 @@ function DashboardHome() {
                       <Progress value={latestCourse.progress} className="h-2 bg-slate-200 [&>div]:bg-primary" />
                     </div>
 
-                    <Button className="pro-button-primary w-full sm:w-auto" asChild>
-                      <a href={`/student-dashboard/courses?courseId=${latestCourse.id}`}>
-                        Resume Training <ChevronRight className="ml-2 h-4 w-4" />
-                      </a>
-                    </Button>
+                    {latestCourse.enrollmentStatus === 'pending' ? (
+                      <Button className="w-full sm:w-auto bg-amber-100 text-amber-700 hover:bg-amber-100 cursor-not-allowed">
+                        Pending Admin Approval
+                      </Button>
+                    ) : (
+                      <Button className="pro-button-primary w-full sm:w-auto" asChild>
+                        <a href={`/student-dashboard/courses?courseId=${latestCourse.id}`}>
+                          Resume Training <ChevronRight className="ml-2 h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}

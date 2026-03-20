@@ -14,7 +14,7 @@ import { SmartAlerts } from "@/components/instructor/dashboard/SmartAlerts";
 import { InstructorCourses } from "@/components/instructor/courses/InstructorCourses";
 import { InstructorStudentDashboard } from "@/components/instructor/dashboard/InstructorStudentDashboard";
 import { DoubtManager } from "@/components/instructor/dashboard/DoubtManager";
-import { resources as ResourcesDashboard } from "@/components/instructor/dashboard/ResourcesDashboard";
+import { ResourcesDashboard } from "@/components/instructor/dashboard/ResourcesDashboard";
 import AssignmentsDashboard from "@/components/instructor/dashboard/AssignmentsDashboard";
 import PerformanceDashboard from "@/components/instructor/dashboard/PerformanceDashboard";
 import { LiveClassManager } from "@/components/instructor/dashboard/LiveClassManager";
