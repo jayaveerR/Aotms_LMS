@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Bell, Clock, Trash2, CheckCircle2, AlertCircle, Info, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface NotificationItem {
+    id?: string | number;
+    type: string;
+    title: string;
+    timestamp?: string | number | Date;
+    message: string;
+}
+
 export function Notifications() {
     const { notifications, clearNotifications } = useSocket();
 
@@ -63,7 +71,7 @@ export function Notifications() {
             ) : (
                 <div className="grid gap-4">
                     <AnimatePresence initial={false}>
-                        {notifications.map((notif, idx) => (
+                        {notifications.map((notif: NotificationItem, idx: number) => (
                             <motion.div
                                 key={notif.id || idx}
                                 initial={{ opacity: 0, x: -20 }}
