@@ -386,6 +386,16 @@ export function CourseMonitoring() {
     );
 }
 
+interface StudentRosterItem {
+    id: string;
+    full_name: string;
+    email: string;
+    mobile_number?: string | null;
+    avatar_url?: string | null;
+    progress?: number;
+    enrolled_at: string | Date;
+}
+
 function CourseRosterDialog({ courseId, open, onOpenChange, courseTitle }: { 
     courseId: string | null; 
     open: boolean; 
@@ -396,68 +406,71 @@ function CourseRosterDialog({ courseId, open, onOpenChange, courseTitle }: {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0 rounded-3xl border-none shadow-2xl">
-                <DialogHeader className="p-8 bg-gradient-to-r from-slate-900 to-indigo-950 text-white shrink-0">
-                    <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-                            <GraduationCap className="h-8 w-8 text-primary-foreground" />
+            <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col p-0 rounded-[2rem] sm:rounded-3xl border-none shadow-2xl">
+                <DialogHeader className="p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shrink-0">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-5">
+                        <div className="h-16 w-16 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+                            <GraduationCap className="h-8 w-8 text-white" />
                         </div>
-                        <div>
-                            <DialogTitle className="text-2xl font-black tracking-tight uppercase italic">
-                                Student <span className="text-primary-foreground not-italic">Roster</span>
+                        <div className="space-y-1 sm:space-y-0.5 max-w-full">
+                            <DialogTitle className="text-2xl sm:text-3xl font-black uppercase text-white flex flex-wrap justify-center sm:justify-start items-center gap-x-2">
+                                <span>STUDENT</span> 
+                                <span className="text-blue-300">ROSTER</span>
                             </DialogTitle>
-                            <DialogDescription className="text-white/60 font-medium">
-                                Enrolled students for <span className="text-white font-bold">{courseTitle}</span>
+                            <DialogDescription className="text-white/70 font-medium text-sm sm:text-base leading-snug">
+                                Enrolled students for <span className="text-white font-bold block sm:inline">{courseTitle}</span>
                             </DialogDescription>
                         </div>
                     </div>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/80">
                     {isLoading ? (
                         <div className="space-y-4">
-                            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
+                            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}
                         </div>
                     ) : roster.length === 0 ? (
-                        <div className="text-center py-20">
-                            <Users className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No Students Enrolled Yet</p>
+                        <div className="text-center py-24 px-4">
+                            <Users className="h-16 w-16 text-slate-300 mx-auto mb-5" />
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No Students Enrolled Yet</p>
                         </div>
                     ) : (
                         <div className="grid gap-4">
-                            {roster.map((student: any) => (
-                                <div key={student.id} className="group p-4 rounded-2xl bg-white border border-slate-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm overflow-hidden">
+                            {roster.map((student: StudentRosterItem) => (
+                                <div key={student.id} className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/60 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                                    <div className="flex items-start sm:items-center gap-4">
+                                        <div className="h-14 w-14 shrink-0 rounded-full bg-slate-100 flex items-center justify-center border-[3px] border-white shadow-md overflow-hidden">
                                             {student.avatar_url ? (
                                                 <img src={student.avatar_url} className="w-full h-full object-cover" alt="" />
                                             ) : (
-                                                <span className="text-lg font-black text-slate-400">{student.full_name?.[0] || 'S'}</span>
+                                                <span className="text-xl font-black text-slate-400">{student.full_name?.[0]?.toUpperCase() || 'S'}</span>
                                             )}
                                         </div>
-                                        <div>
-                                            <h4 className="font-bold text-slate-900 group-hover:text-primary transition-colors">{student.full_name || 'Anonymous Student'}</h4>
-                                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium mt-0.5">
-                                                <span className="flex items-center gap-1.2"><Mail className="h-3 w-3" /> {student.email}</span>
-                                                {student.mobile_number && <span className="flex items-center gap-1.2"><Phone className="h-3 w-3" /> {student.mobile_number}</span>}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-slate-900 text-base sm:text-lg truncate group-hover:text-primary transition-colors">
+                                                {student.full_name || 'Anonymous Student'}
+                                            </h4>
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-slate-500 font-medium mt-1">
+                                                <span className="flex items-center gap-1.5 truncate"><Mail className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{student.email}</span></span>
+                                                {student.mobile_number && <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 shrink-0" /> {student.mobile_number}</span>}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-6">
-                                        <div className="text-right">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Progress</p>
+                                    <div className="flex flex-row items-center justify-between lg:justify-end gap-4 sm:gap-8 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100 w-full lg:w-auto">
+                                        <div className="text-left lg:text-right flex-1 lg:flex-none">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Progress</p>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-100 shadow-inner">
-                                                    <div className="h-full bg-primary" style={{ width: `${student.progress || 0}%` }} />
+                                                <div className="w-full sm:w-28 h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner flex-1 sm:flex-none">
+                                                    <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${student.progress || 0}%` }} />
                                                 </div>
-                                                <span className="text-sm font-black text-slate-900">{student.progress || 0}%</span>
+                                                <span className="text-sm font-black text-slate-900 w-8">{student.progress || 0}%</span>
                                             </div>
                                         </div>
-                                        <div className="h-10 w-px bg-slate-100" />
-                                        <div className="text-right">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Joined</p>
-                                            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                                                <Calendar className="h-3 w-3 text-slate-400" />
+                                        <div className="hidden sm:block h-10 w-px bg-slate-200" />
+                                        <div className="text-right shrink-0">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Joined</p>
+                                            <span className="text-xs font-bold text-slate-900 flex items-center justify-end gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md">
+                                                <Calendar className="h-3.5 w-3.5 text-slate-400" />
                                                 {new Date(student.enrolled_at).toLocaleDateString()}
                                             </span>
                                         </div>
@@ -467,8 +480,10 @@ function CourseRosterDialog({ courseId, open, onOpenChange, courseTitle }: {
                         </div>
                     )}
                 </div>
-                <div className="p-6 border-t bg-white flex justify-end">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl border-slate-200 font-bold text-slate-500">Close Roster</Button>
+                <div className="p-4 sm:p-6 border-t bg-white flex justify-end">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+                        Close Roster
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>
