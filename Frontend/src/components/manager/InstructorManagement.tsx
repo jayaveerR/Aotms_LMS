@@ -16,6 +16,7 @@ import {
   Trash2,
   Loader2,
   Award,
+  Eye,
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 import { toast } from "sonner";
