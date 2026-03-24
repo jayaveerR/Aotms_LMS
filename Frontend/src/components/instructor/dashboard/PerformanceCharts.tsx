@@ -73,129 +73,162 @@ export function PerformanceCharts({ loading }: PerformanceChartsProps) {
 
     return (
         <Tabs defaultValue="activity" className="w-full">
-            <TabsList className="mb-4 md:mb-6 bg-muted/50 flex-wrap h-auto p-1 justify-start">
-                <TabsTrigger value="activity" className="flex-grow sm:flex-grow-0">Activity</TabsTrigger>
-                <TabsTrigger value="performance" className="flex-grow sm:flex-grow-0">Performance</TabsTrigger>
-                <TabsTrigger value="engagement" className="flex-grow sm:flex-grow-0">Engagement</TabsTrigger>
-                <TabsTrigger value="heatmap" className="flex-grow sm:flex-grow-0">Heatmap</TabsTrigger>
-            </TabsList>
+            <div className="w-full overflow-x-auto hide-scrollbar pb-1 mb-4 md:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <TabsList className="bg-slate-100/50 p-1 flex md:inline-flex rounded-xl min-w-max h-auto">
+                    <TabsTrigger value="activity" className="rounded-lg font-bold min-w-[120px] md:min-w-[140px] h-10 data-[state=active]:shadow-sm">Activity</TabsTrigger>
+                    <TabsTrigger value="performance" className="rounded-lg font-bold min-w-[120px] md:min-w-[140px] h-10 data-[state=active]:shadow-sm">Performance</TabsTrigger>
+                    <TabsTrigger value="engagement" className="rounded-lg font-bold min-w-[120px] md:min-w-[140px] h-10 data-[state=active]:shadow-sm">Engagement</TabsTrigger>
+                    <TabsTrigger value="heatmap" className="rounded-lg font-bold min-w-[120px] md:min-w-[140px] h-10 data-[state=active]:shadow-sm">Heatmap</TabsTrigger>
+                </TabsList>
+            </div>
 
             <TabsContent value="activity">
-                <Card className="border-border/50 shadow-sm overflow-hidden">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm sm:text-base font-semibold">Weekly Student Activity</CardTitle>
-                        <p className="text-xs text-muted-foreground">Active students and new enrollments per day</p>
+                <Card className="border-border/50 shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
+                    <CardHeader className="pb-4 border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">Weekly Student Activity</CardTitle>
+                        <p className="text-xs font-medium text-slate-500">Active students and new enrollments per day</p>
                     </CardHeader>
-                    <CardContent className="overflow-hidden px-1 sm:px-6 pb-2 sm:pb-6">
-                        <ResponsiveContainer width="99%" height={220}>
-                            <AreaChart data={weeklyActivity} margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
-                                <defs>
-                                    <linearGradient id="activeGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="enrollGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                <XAxis dataKey="day" tick={{ fontSize: 10 }} tickLine={false} />
-                                <YAxis tick={{ fontSize: 10 }} width={28} />
-                                <Tooltip />
-                                <Legend wrapperStyle={{ fontSize: '10px' }} />
-                                <Area type="monotone" dataKey="active" name="Active Students" stroke="#3b82f6" fill="url(#activeGrad)" strokeWidth={2} />
-                                <Area type="monotone" dataKey="newEnroll" name="New Enrollments" stroke="#10b981" fill="url(#enrollGrad)" strokeWidth={2} />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                    <CardContent className="overflow-visible px-0 sm:px-6 pt-6 pb-2 sm:pb-6">
+                        <div className="h-[280px] sm:h-[320px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={weeklyActivity} margin={{ top: 10, right: 10, bottom: 0, left: -25 }}>
+                                    <defs>
+                                        <linearGradient id="activeGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="enrollGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                    <XAxis dataKey="day" tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} tickLine={false} axisLine={false} dy={10} />
+                                    <YAxis tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} axisLine={false} tickLine={false} dx={-10} />
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        itemStyle={{ fontSize: '13px', fontWeight: 600 }}
+                                    />
+                                    <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 600, paddingTop: '10px' }} iconType="circle" />
+                                    <Area type="monotone" dataKey="active" name="Active Students" stroke="#3b82f6" fill="url(#activeGrad)" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 0 }} />
+                                    <Area type="monotone" dataKey="newEnroll" name="New Enrollments" stroke="#10b981" fill="url(#enrollGrad)" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 0 }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
             </TabsContent>
 
             <TabsContent value="performance">
-                <Card className="border-border/50 shadow-sm overflow-hidden">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm sm:text-base font-semibold">Course-Wise Performance</CardTitle>
-                        <p className="text-xs text-muted-foreground">Completion rate vs student satisfaction</p>
+                <Card className="border-border/50 shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
+                    <CardHeader className="pb-4 border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">Course-Wise Performance</CardTitle>
+                        <p className="text-xs font-medium text-slate-500">Completion rate vs student satisfaction</p>
                     </CardHeader>
-                    <CardContent className="overflow-hidden px-1 sm:px-6 pb-2 sm:pb-6">
-                        <ResponsiveContainer width="99%" height={200}>
-                            <BarChart data={coursePerformance} barGap={2} barCategoryGap="20%" margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} tickLine={false} />
-                                <YAxis tick={{ fontSize: 9 }} unit="%" domain={[0, 100]} width={28} />
-                                <Tooltip formatter={(v: number) => `${v}%`} />
-                                <Legend wrapperStyle={{ fontSize: '10px' }} />
-                                <Bar dataKey="completion" name="Completion %" fill="#3b82f6" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                                <Bar dataKey="satisfaction" name="Satisfaction %" fill="#f97316" radius={[3, 3, 0, 0]} maxBarSize={18} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <CardContent className="overflow-visible px-0 sm:px-6 pt-6 pb-4 sm:pb-6">
+                        <div className="h-[280px] sm:h-[320px] w-full pr-4 sm:pr-0">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={coursePerformance} barGap={4} barCategoryGap="20%" margin={{ top: 10, right: 10, bottom: 0, left: -25 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                    <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 700, fill: '#64748b' }} interval={0} tickLine={false} axisLine={false} dy={10} />
+                                    <YAxis tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} unit="%" domain={[0, 100]} axisLine={false} tickLine={false} dx={-10} />
+                                    <Tooltip 
+                                        formatter={(v: number) => `${v}%`} 
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        itemStyle={{ fontSize: '13px', fontWeight: 600 }}
+                                    />
+                                    <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 600, paddingTop: '10px' }} iconType="circle" />
+                                    <Bar dataKey="completion" name="Completion" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={24} />
+                                    <Bar dataKey="satisfaction" name="Satisfaction" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={24} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
             </TabsContent>
 
             <TabsContent value="engagement">
-                <Card className="border-border/50 shadow-sm overflow-hidden">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm sm:text-base font-semibold">Overall Engagement</CardTitle>
-                        <p className="text-xs text-muted-foreground">Pass vs Fail & completion distribution</p>
+                <Card className="border-border/50 shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
+                    <CardHeader className="pb-4 border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">Overall Engagement</CardTitle>
+                        <p className="text-xs font-medium text-slate-500">Pass vs Fail & completion distribution</p>
                     </CardHeader>
-                    <CardContent className="overflow-hidden flex items-center justify-center px-1 sm:px-6">
-                        <ResponsiveContainer width="99%" height={220}>
-                            <PieChart>
-                                <Pie
-                                    data={engagementData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={64}
-                                    outerRadius={100}
-                                    paddingAngle={4}
-                                    dataKey="value"
-                                    nameKey="name"
-                                >
-                                    {engagementData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip formatter={(v: number) => `${v}%`} />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
+                    <CardContent className="overflow-hidden flex flex-col items-center justify-center p-6">
+                        <div className="h-[240px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={engagementData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={70}
+                                        outerRadius={95}
+                                        paddingAngle={6}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        stroke="none"
+                                        cornerRadius={4}
+                                    >
+                                        {engagementData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        formatter={(v: number) => `${v}%`} 
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        itemStyle={{ fontSize: '13px', fontWeight: 600 }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-4 mt-2">
+                            {engagementData.map((item, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                    <span className="text-xs font-bold text-slate-700">{item.name}</span>
+                                    <span className="text-xs font-black text-slate-900">{item.value}%</span>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </TabsContent>
 
             <TabsContent value="heatmap">
-                <Card className="border-border/50 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-base font-semibold">Student Engagement Timeline</CardTitle>
-                        <p className="text-xs text-muted-foreground">When are students most active throughout the week?</p>
+                <Card className="border-border/50 shadow-sm bg-white/50 backdrop-blur-sm overflow-hidden">
+                    <CardHeader className="pb-4 border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">Student Engagement Timeline</CardTitle>
+                        <p className="text-xs font-medium text-slate-500">When are students most active throughout the week?</p>
                     </CardHeader>
-                    <CardContent>
-                        <div className="flex gap-2 mb-2">
-                            <div className="w-10" /> {/* spacer */}
-                            {HEATMAP_HOURS.map((h) => (
-                                <div key={h} className="flex-1 text-center text-xs text-muted-foreground">{h}</div>
-                            ))}
-                        </div>
-                        <div className="space-y-2">
-                            {heatmapData.map((row) => (
-                                <div key={row.day} className="flex gap-2 items-center">
-                                    <div className="w-10 text-xs text-muted-foreground text-right pr-1">{row.day}</div>
-                                    {row.values.map((val, i) => (
-                                        <div key={i} className="flex-1">
-                                            <HeatCell value={val} />
-                                        </div>
+                    <CardContent className="p-4 sm:p-6 pb-6 overflow-x-auto hide-scrollbar">
+                        <div className="min-w-[400px]">
+                            <div className="flex gap-2 mb-3">
+                                <div className="w-10" /> {/* spacer */}
+                                {HEATMAP_HOURS.map((h) => (
+                                    <div key={h} className="flex-1 text-center text-[10px] sm:text-xs font-bold text-slate-400">{h}</div>
+                                ))}
+                            </div>
+                            <div className="space-y-3">
+                                {heatmapData.map((row) => (
+                                    <div key={row.day} className="flex gap-2 items-center">
+                                        <div className="w-10 text-[10px] sm:text-xs font-bold text-slate-500 text-right pr-2 uppercase tracking-widest">{row.day}</div>
+                                        {row.values.map((val, i) => (
+                                            <div key={i} className="flex-1">
+                                                <HeatCell value={val} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-2 mt-6 justify-end mr-2">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Low</span>
+                                <div className="flex gap-1">
+                                    {[10, 30, 50, 70, 90].map((v) => (
+                                        <div key={v} className="w-6 sm:w-8 h-2 sm:h-3 rounded-md" style={{ backgroundColor: `rgba(59,130,246,${0.1 + v / 100 * 0.9})` }} />
                                     ))}
                                 </div>
-                            ))}
-                        </div>
-                        <div className="flex items-center gap-2 mt-4 justify-end">
-                            <span className="text-xs text-muted-foreground">Low</span>
-                            {[10, 30, 50, 70, 90].map((v) => (
-                                <div key={v} className="w-6 h-3 rounded-sm" style={{ backgroundColor: `rgba(59,130,246,${0.1 + v / 100 * 0.9})` }} />
-                            ))}
-                            <span className="text-xs text-muted-foreground">High</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">High</span>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
