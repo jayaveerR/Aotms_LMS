@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Users, 
   Search, 
@@ -131,16 +138,22 @@ export function ManagerEnrollments({ enrollments, loading, onRefresh }: ManagerE
           />
         </div>
         <div className="flex gap-2">
-          <select
-            value={filterCourse}
-            onChange={(e) => setFilterCourse(e.target.value)}
-            className="h-10 px-3 rounded-lg border border-input bg-background text-sm flex-1 sm:flex-none sm:min-w-[160px]"
-          >
-            <option value="all">All Courses</option>
-            {courses.map(course => (
-              <option key={course} value={course}>{course}</option>
-            ))}
-          </select>
+          <div className="flex-1 sm:flex-none sm:min-w-[180px]">
+            <Select value={filterCourse} onValueChange={setFilterCourse}>
+              <SelectTrigger className="w-full h-10 bg-background hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-2 truncate">
+                  <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <SelectValue placeholder="All Courses" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Courses</SelectItem>
+                {courses.map(course => (
+                  <SelectItem key={course} value={course}>{course}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="outline" size="icon" onClick={onRefresh} className="shrink-0 h-10 w-10">
             <RefreshCw className="h-4 w-4" />
           </Button>
