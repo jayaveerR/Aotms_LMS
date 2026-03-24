@@ -83,13 +83,13 @@ const Footer = () => {
               <p className="font-black text-[#FDFEFE] text-lg mb-1">Stay updated with AOTMS</p>
               <p className="text-[#FDFEFE]/90 text-sm font-medium">Get course updates, placement news & tech tips weekly.</p>
             </div>
-            <div className="flex w-full sm:w-auto gap-2">
+            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 sm:gap-2 mt-4 sm:mt-0">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 sm:w-64 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-[#FDFEFE] placeholder-[#FDFEFE]/40 text-sm focus:outline-none focus:border-[#FD5A1A] transition-colors"
+                className="w-full sm:flex-1 sm:w-64 px-5 py-3 sm:py-2.5 rounded-xl bg-white/10 border border-white/20 text-[#FDFEFE] placeholder-[#FDFEFE]/50 text-base sm:text-sm focus:outline-none focus:border-[#FD5A1A] transition-colors"
               />
-              <button className="px-5 py-2.5 rounded-xl bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-bold text-sm transition-colors whitespace-nowrap">
+              <button className="w-full sm:w-auto px-6 py-3 sm:py-2.5 rounded-xl bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-bold text-base sm:text-sm transition-colors whitespace-nowrap shadow-lg">
                 Subscribe
               </button>
             </div>

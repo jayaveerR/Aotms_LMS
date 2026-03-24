@@ -59,6 +59,7 @@ const features = [
 
 const KeyFeatures = () => (
   <section id="features" className="relative py-16 md:py-24 overflow-hidden bg-transparent">
+    <KeyFeatBg />
     <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="text-center mb-12 md:mb-16">
@@ -72,7 +73,7 @@ const KeyFeatures = () => (
           Live classes, secure exams, AI resume scoring, and more — all inside one powerful platform.
         </p>
       </motion.div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
         {features.map((f, i) => (
           <motion.div 
             key={f.title} 
@@ -85,7 +86,7 @@ const KeyFeatures = () => (
               {/* Outer glow/border effect on hover */}
               <div className={`absolute -inset-0.5 bg-gradient-to-br ${f.gradient} rounded-[2.5rem] opacity-0 group-hover:opacity-20 blur-md transition duration-500`} />
               
-              <div className="relative h-full bg-white/70 backdrop-blur-2xl border border-slate-900/10 rounded-[2rem] rounded-tl-[4rem] rounded-br-[4rem] p-8 shadow-xl shadow-slate-200/50 group-hover:shadow-2xl group-hover:shadow-[#0075CF]/20 group-hover:-translate-y-2 transition-all duration-500 flex flex-col overflow-hidden">
+              <div className="relative h-full bg-white/70 backdrop-blur-2xl border border-slate-900/10 rounded-[2rem] md:rounded-[2rem] md:rounded-tl-[4rem] md:rounded-br-[4rem] p-6 sm:p-8 shadow-xl shadow-slate-200/50 group-hover:shadow-2xl group-hover:shadow-[#0075CF]/20 group-hover:-translate-y-2 transition-all duration-500 flex flex-col overflow-hidden">
                 
                 {/* Tech chip corner decoration */}
                 <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none opacity-10 group-hover:opacity-20 transition-opacity">
@@ -95,7 +96,7 @@ const KeyFeatures = () => (
                   </svg>
                 </div>
 
-                <div className="flex items-start justify-between mb-8">
+                <div className="flex items-start justify-between mb-6 sm:mb-8">
                   <div className="relative">
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform duration-500`}>
                       <f.icon className="w-8 h-8 text-[#FDFEFE]" />

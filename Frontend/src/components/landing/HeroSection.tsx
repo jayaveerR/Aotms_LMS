@@ -129,7 +129,7 @@ const HeroSection = () => {
       {/* Overlay for readability — kept light so patterns show through */}
       <div className="absolute inset-0 bg-slate-950/20" />
 
-      <div className="container-width section-padding relative z-10 w-full">
+      <div className="container-width section-padding relative z-10 w-full -mt-12 md:-mt-20 sm:-mt-16">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -138,7 +138,7 @@ const HeroSection = () => {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white/90 text-sm font-bold mb-8 tracking-wide uppercase shadow-lg">
               <span className="w-2 h-2 rounded-full bg-[#FD5A1A] animate-pulse" />
-              Vijayawada's #1 Skill Engineering Platform
+              Vijayawada’s Best Skill Platform
             </span>
           </motion.div>
 
@@ -146,21 +146,18 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-heading text-4xl sm:text-6xl lg:text-8xl leading-none tracking-tight mb-6 text-center text-white drop-shadow-2xl px-2 font-extrabold"
+            className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight mb-6 text-center text-white drop-shadow-2xl px-2 font-extrabold"
           >
             SMART LEARNING
             <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0075CF] via-[#FDFEFE] to-[#0075CF]">
-              {" "}
-              MANAGEMENT SYSTEM
-            </span>
+            <span className="text-white"> MANAGEMENT SYSTEM</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-medium"
+            className="text-sm md:text-lg text-white/90 max-w-2xl mx-auto mb-10 px-4 sm:px-0 leading-relaxed font-medium"
           >
             AOTMS is Vijayawada's premier learning management system offering
             online courses, live classes, secure exams, mock tests, and
@@ -172,22 +169,22 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 sm:px-0"
           >
             <Button
               size="xl"
-              className="h-14 px-10 rounded-2xl bg-[#0075CF] hover:bg-[#0066B3] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all group gap-2"
+              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#0075CF] hover:bg-[#0066B3] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all group gap-2"
               onClick={() => navigate("/auth")}
             >
               Get Started
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" />
             </Button>
             <Button
               size="xl"
-              className="h-14 px-10 rounded-2xl bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all gap-2 backdrop-blur"
+              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all gap-2 backdrop-blur"
               onClick={() => navigate("/student-dashboard")}
             >
-              <Play className="w-5 h-5 fill-current" />
+              <Play className="w-5 h-5 fill-current shrink-0" />
               Explore Platform
             </Button>
           </motion.div>
@@ -197,7 +194,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.45 }}
-            className="flex flex-wrap items-center justify-center gap-3 mt-10"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-10 px-2"
           >
             {[
               { icon: BookOpen, text: "100+ Courses" },
