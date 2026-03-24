@@ -113,12 +113,12 @@ export function InstructorSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
-                    className="h-11 px-4 rounded-lg transition-all duration-200 group data-[active=true]:bg-primary/5 data-[active=true]:text-primary"
+                    className="h-11 px-4 group-data-[collapsible=icon]:!p-1.5 group-data-[collapsible=icon]:!justify-center rounded-lg transition-all duration-200 group/navitem data-[active=true]:bg-primary/5 data-[active=true]:text-primary"
                   >
                     <Link to={item.url} className="flex items-center gap-3 w-full">
                       <div className="relative">
                         <item.icon
-                          className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover:text-slate-700"}`}
+                          className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover/navitem:text-slate-700"}`}
                         />
                         {item.isLive && (
                           <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 border-2 border-white animate-pulse" />
@@ -154,11 +154,11 @@ export function InstructorSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
-                    className="h-11 px-4 rounded-lg transition-all duration-200 group data-[active=true]:bg-accent/5 data-[active=true]:text-accent"
+                    className="h-11 px-4 group-data-[collapsible=icon]:!p-1.5 group-data-[collapsible=icon]:!justify-center rounded-lg transition-all duration-200 group/navitem data-[active=true]:bg-accent/5 data-[active=true]:text-accent"
                   >
                     <Link to={item.url} className="flex items-center gap-3">
                       <item.icon
-                        className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-accent" : "text-slate-500 group-hover:text-slate-700"}`}
+                        className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-accent" : "text-slate-500 group-hover/navitem:text-slate-700"}`}
                       />
                       {!collapsed && <span>{item.title}</span>}
                     </Link>
@@ -179,11 +179,11 @@ export function InstructorSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
-                    className="h-11 px-4 rounded-lg transition-all duration-200 group data-[active=true]:bg-primary/5 data-[active=true]:text-primary"
+                    className="h-11 px-4 group-data-[collapsible=icon]:!p-1.5 group-data-[collapsible=icon]:!justify-center rounded-lg transition-all duration-200 group/navitem data-[active=true]:bg-primary/5 data-[active=true]:text-primary"
                   >
                     <Link to={item.url} className="flex items-center gap-3">
                       <item.icon
-                        className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover:text-slate-700"}`}
+                        className={`h-4.5 w-4.5 transition-colors ${isActive(item.url) ? "text-primary" : "text-slate-500 group-hover/navitem:text-slate-700"}`}
                       />
                       {!collapsed && <span>{item.title}</span>}
                     </Link>

@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Star, Clock, BookOpen, ArrowRight, User, ChevronDown } from 'lucide-react';
+import { Loader2, Star, Clock, BookOpen, ArrowRight, ArrowLeft, User, ChevronDown } from 'lucide-react';
 
 export default function CoursesPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -40,12 +40,13 @@ export default function CoursesPage() {
       fetchCourses(1, selectedCategory, true);
       initialLoadDone.current = true;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load more when category changes
   useEffect(() => {
     fetchCourses(1, selectedCategory, true);
-  }, [selectedCategory]);
+  }, [selectedCategory, fetchCourses]);
 
   // Infinite scroll observer
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -112,8 +113,24 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Hero Section - Taller */}
       <div className="relative bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 py-20 md:py-32">
+        {user && (
+          <div className="absolute top-6 left-4 md:left-8 z-20">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const role = userRole || user?.role;
+                navigate(role === 'admin' ? '/admin' : role === 'instructor' ? '/instructor' : role === 'manager' ? '/manager' : '/student-dashboard');
+              }}
+              className="gap-2 bg-white/50 backdrop-blur-sm border-slate-200 hover:bg-white text-slate-700 transition-all duration-300 rounded-xl font-medium shadow-sm hover:shadow-md"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
+            </Button>
+          </div>
+        )}
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div className="max-w-3xl mx-auto text-center space-y-6 mt-6 md:mt-2">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight">
               Explore Our <span className="text-primary">Courses</span>
             </h1>
@@ -174,7 +191,7 @@ export default function CoursesPage() {
               onEnroll={() => handleEnroll(course)}
               isEnrolling={enrolling === course.id}
               isLoggedIn={isLoggedIn}
-              userRole={user?.role}
+              userRole={userRole || undefined}
             />
           ))}
         </div>
@@ -220,7 +237,7 @@ function CourseCard({
   onEnroll: () => void;
   isEnrolling: boolean;
   isLoggedIn: boolean;
-  userRole?: string;
+  userRole?: string | null;
 }) {
   return (
     <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl h-full">

@@ -60,5 +60,5 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
         );
     }
 
-    return <>{children}</>;
+    return <div className="route-wrapper contents">{children}</div>;
 };

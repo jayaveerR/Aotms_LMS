@@ -388,7 +388,7 @@ function DashboardHome() {
         <div>
           <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none mb-3 tracking-widest uppercase font-bold text-[10px] px-3 py-1">Student Portal</Badge>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-            Welcome back, <span className="text-primary italic">{user?.user_metadata?.full_name?.split(" ")[0] || "Student"}</span>.
+            Welcome back, <span className="text-primary italic">{(user?.full_name || user?.user_metadata?.full_name || "Student").split(" ")[0]}</span>.
           </h1>
           <p className="text-slate-600 font-medium mt-2 text-base md:text-lg">
             Let's continue building your tech career today.

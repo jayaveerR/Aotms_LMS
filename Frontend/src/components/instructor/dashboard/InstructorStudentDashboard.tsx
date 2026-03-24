@@ -158,82 +158,130 @@ function StudentRow({ student, onSendMessage, onViewDetails }: {
   
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col lg:grid lg:grid-cols-12 items-start lg:items-center gap-4 lg:gap-4 p-4 md:p-5 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:shadow-md transition-all duration-300"
     >
-      <Avatar className="h-10 w-10">
-        <AvatarFallback className="bg-primary/10 text-primary text-sm">
-          {student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-        </AvatarFallback>
-      </Avatar>
-      
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-sm truncate">{student.name}</p>
-          <Badge variant="secondary" className={`${status.bg} ${status.text} text-xs`}>
-            {status.label}
-          </Badge>
+      {/* Mobile Header / Desktop Col 1 */}
+      <div className="flex items-center gap-4 w-full lg:col-span-4 xl:col-span-3 min-w-0">
+        <Avatar className="h-12 w-12 border border-slate-100 shadow-sm shrink-0">
+          <AvatarFallback className="bg-primary/5 text-primary font-bold">
+            {student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <div className="flex items-center justify-between lg:justify-start gap-2 mb-1">
+            <p className="font-bold text-slate-900 text-sm md:text-base truncate">{student.name}</p>
+            {/* Show dropdown inline on mobile immediately next to name */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 lg:hidden shrink-0 text-slate-400 hover:text-slate-600">
+                  <MoreHorizontal className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                 <DropdownMenuLabel className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Actions</DropdownMenuLabel>
+                 <DropdownMenuSeparator />
+                 <DropdownMenuItem onClick={() => onViewDetails(student.userId)} className="cursor-pointer font-medium hover:bg-slate-50">
+                   <Eye className="w-4 h-4 mr-2" /> View Profile
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => onSendMessage(student.userId)} className="cursor-pointer font-medium text-primary hover:bg-primary/5">
+                   <Mail className="w-4 h-4 mr-2" /> Message Student
+                 </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-slate-500 font-medium truncate shrink">{student.email}</p>
+            <Badge variant="secondary" className={`${status.bg} ${status.text} text-[10px] uppercase font-black tracking-widest border-none px-2 py-0.5 shrink-0`}>
+              {status.label}
+            </Badge>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground truncate">{student.email}</p>
       </div>
 
-      <div className="hidden md:flex items-center gap-6 text-xs">
-        <div className="text-center">
-          <p className="font-medium">{student.enrolledCourses}</p>
-          <p className="text-muted-foreground">Enrolled</p>
+      {/* Stats - Mobile Grid / Desktop Col 2 */}
+      <div className="grid grid-cols-3 gap-3 w-full lg:col-span-3 xl:col-span-4 bg-slate-50 lg:bg-transparent rounded-xl p-3 lg:p-0 border border-slate-100 lg:border-none">
+        <div className="flex flex-col items-center lg:items-start xl:items-center justify-center space-y-1">
+          <p className="font-black text-slate-800 text-base md:text-lg lg:text-sm">{student.enrolledCourses}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Enrolled</p>
         </div>
-        <div className="text-center">
-          <p className="font-medium">{student.completedCourses}</p>
-          <p className="text-muted-foreground">Completed</p>
+        <div className="flex flex-col items-center lg:items-start xl:items-center justify-center space-y-1 border-x border-slate-200 lg:border-none">
+          <p className="font-black text-slate-800 text-base md:text-lg lg:text-sm">{student.completedCourses}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Graduated</p>
         </div>
-        <div className="text-center">
-          <p className="font-medium">{formatWatchTime(student.totalWatchTimeMinutes)}</p>
-          <p className="text-muted-foreground">Watch Time</p>
+        <div className="flex flex-col items-center lg:items-start xl:items-center justify-center space-y-1">
+          <p className="font-black text-slate-800 text-base md:text-lg lg:text-sm">{formatWatchTime(student.totalWatchTimeMinutes)}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Watch Time</p>
         </div>
       </div>
 
-      <div className="hidden lg:block w-24">
-        <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium">{student.overallProgress}%</span>
+      {/* Progress - Desktop col 3 */}
+      <div className="w-full lg:col-span-2 flex flex-row lg:flex-col items-center lg:items-stretch gap-4 lg:gap-1.5 px-2 lg:px-0 mt-2 lg:mt-0">
+        <div className="flex-1 lg:flex-none">
+          <div className="items-center justify-between text-xs mb-1.5 hidden lg:flex">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completion</span>
+            <span className="font-black text-primary">{student.overallProgress}%</span>
+          </div>
+          <div className="flex items-center gap-3 lg:hidden w-full">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest shrink-0">Progress</span>
+            <Progress 
+              value={student.overallProgress} 
+              className="h-2.5 flex-1 bg-slate-100"
+              indicatorClassName={
+                student.status === 'completed' ? 'bg-blue-500' :
+                student.status === 'at-risk' ? 'bg-amber-500' :
+                student.status === 'inactive' ? 'bg-gray-400' : 'bg-green-500'
+              }
+            />
+            <span className="font-black text-primary text-xs shrink-0">{student.overallProgress}%</span>
+          </div>
+          <Progress 
+            value={student.overallProgress} 
+            className="h-1.5 hidden lg:block bg-slate-100"
+            indicatorClassName={
+              student.status === 'completed' ? 'bg-blue-500' :
+              student.status === 'at-risk' ? 'bg-amber-500' :
+              student.status === 'inactive' ? 'bg-gray-400' : 'bg-green-500'
+            }
+          />
         </div>
-        <Progress 
-          value={student.overallProgress} 
-          className="h-1.5"
-          indicatorClassName={
-            student.status === 'completed' ? 'bg-blue-500' :
-            student.status === 'at-risk' ? 'bg-amber-500' :
-            student.status === 'inactive' ? 'bg-gray-400' : 'bg-green-500'
-          }
-        />
       </div>
 
-      <div className="text-xs text-muted-foreground hidden sm:block">
-        {formatTimeAgo(student.lastActiveAt)}
+      {/* Activity - Desktop col 4 */}
+      <div className="w-full lg:col-span-2 flex items-center justify-between lg:justify-center px-3 py-3 lg:px-0 lg:py-0 border lg:border-none border-slate-100 lg:border-transparent rounded-lg lg:rounded-none bg-slate-50/50 lg:bg-transparent mt-1 lg:mt-0">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest lg:hidden">Last Online</span>
+        <div className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+           <Clock className="h-3.5 w-3.5 text-slate-400" />
+           {formatTimeAgo(student.lastActiveAt)}
+        </div>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onViewDetails(student.userId)}>
-            <Eye className="w-4 h-4 mr-2" /> View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onSendMessage(student.userId)}>
-            <Mail className="w-4 h-4 mr-2" /> Send Message
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">
-            <UserMinus className="w-4 h-4 mr-2" /> Remove Student
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* Actions (Desktop only) */}
+      <div className="hidden lg:flex lg:col-span-1 justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-primary bg-slate-50 hover:bg-primary/5 rounded-lg border border-slate-100 shadow-sm transition-colors">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl min-w-[180px]">
+            <DropdownMenuLabel className="text-[10px] tracking-widest uppercase text-slate-400 font-bold">Management</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onViewDetails(student.userId)} className="cursor-pointer font-medium hover:bg-slate-50 hover:text-primary transition-colors">
+              <Eye className="w-4 h-4 mr-2" /> View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSendMessage(student.userId)} className="cursor-pointer font-medium hover:bg-slate-50 hover:text-primary transition-colors">
+              <Mail className="w-4 h-4 mr-2" /> Send Message
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-rose-600 cursor-pointer font-semibold hover:bg-rose-50 hover:text-rose-700 focus:text-rose-700 focus:bg-rose-50 transition-colors">
+              <UserMinus className="w-4 h-4 mr-2" /> Remove Student
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
     </motion.div>
   );
 }
@@ -245,7 +293,7 @@ function ActivityFeed({ activities, students }: { activities: RecentActivity[]; 
     return lastActive > hourAgo;
   });
 
-  const recentCompletions = students
+  const recentCompletions: RecentActivity[] = students
     .filter(s => s.status === 'completed')
     .slice(0, 3)
     .map(s => ({
@@ -452,45 +500,50 @@ export function InstructorStudentDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <CardTitle className="text-base">All Students ({filteredStudents.length})</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <CardHeader className="pb-4 border-b border-slate-100">
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    Student Directory 
+                    <Badge className="bg-primary/10 text-primary border-none font-bold py-0.5">{filteredStudents.length}</Badge>
+                  </CardTitle>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
-                      placeholder="Search students..."
+                      placeholder="Search students by name or email..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 h-9 w-[200px]"
+                      className="pl-10 h-11 bg-slate-50/50 border-slate-200 rounded-xl w-full focus-visible:ring-primary/20 text-sm font-medium"
                     />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[130px] h-9">
-                      <Filter className="w-4 h-4 mr-2" />
+                    <SelectTrigger className="w-full sm:w-[160px] h-11 bg-slate-50/50 border-slate-200 rounded-xl font-medium text-slate-600 focus:ring-primary/20">
+                      <Filter className="w-4 h-4 mr-2 text-slate-400" />
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="at-risk">At Risk</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                      <SelectItem value="all" className="font-bold cursor-pointer hover:bg-slate-50">All Statuses</SelectItem>
+                      <SelectItem value="active" className="font-bold cursor-pointer text-green-600 focus:text-green-700 focus:bg-green-50">Active</SelectItem>
+                      <SelectItem value="completed" className="font-bold cursor-pointer text-blue-600 focus:text-blue-700 focus:bg-blue-50">Completed</SelectItem>
+                      <SelectItem value="at-risk" className="font-bold cursor-pointer text-amber-600 focus:text-amber-700 focus:bg-amber-50">At Risk</SelectItem>
+                      <SelectItem value="inactive" className="font-bold cursor-pointer text-slate-600 focus:text-slate-700 focus:bg-slate-50">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-xs text-muted-foreground font-medium">
-                <div className="col-span-4">Student</div>
-                <div className="col-span-3 text-center">Courses</div>
-                <div className="col-span-2 text-center">Watch Time</div>
-                <div className="col-span-2 text-center">Progress</div>
-                <div className="col-span-1 text-right">Active</div>
+            <CardContent className="p-0 sm:p-4 bg-slate-50/30">
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50/80 border border-slate-100 text-[10px] text-slate-500 font-black tracking-widest uppercase mb-4 rounded-xl mx-4 lg:mx-0">
+                <div className="col-span-4 xl:col-span-3">Student Focus</div>
+                <div className="col-span-3 xl:col-span-4 text-center">Engagement Stats</div>
+                <div className="col-span-2 text-center">Progress Tracking</div>
+                <div className="col-span-2 text-center">Last Active</div>
+                <div className="col-span-1 text-right">Actions</div>
               </div>
-              <ScrollArea className="h-[400px] pr-2">
-                <div className="space-y-2">
+              <ScrollArea className="h-[500px] px-4 lg:px-0">
+                <div className="space-y-4 lg:space-y-3 pb-4">
                   {loading ? (
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />

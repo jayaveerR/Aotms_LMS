@@ -61,9 +61,8 @@ export function useCourses() {
   const [categories, setCategories] = useState<string[]>([]);
 
   const fetchCourses = useCallback(async (pageNum: number = 1, category: string = 'all', reset: boolean = false) => {
-    // Prevent fetching if we already have data and are just re-rendering, 
-    // BUT allow if we are resetting (e.g. category change) or explicitly loading more
-    if (loading) return;
+    // Allow fetching if we are resetting (e.g. category change), otherwise prevent duplicate loads
+    if (loading && !reset) return;
     
     setLoading(true);
     setError(null);
@@ -113,16 +112,18 @@ export function useCourses() {
       setPage(pageNum);
 
       // Set categories only if empty (prevent re-renders loop)
-      if (categories.length === 0) {
-          const cats = [...new Set(coursesData.map((c: Course) => c.category))];
-          setCategories(cats);
-      }
+      setCategories(prev => {
+          if (prev.length > 0) return prev;
+          const cats = [...new Set(coursesData.map((c: Course) => c.category))].filter(Boolean);
+          return cats;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  }, [loading, categories.length]); // Added dependency to prevent infinite loops if logic relies on it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories.length]); // Removed 'loading' to prevent capture in closure and avoid infinite loop triggers
 
   const fetchCategories = useCallback(async () => {
     if (categories.length > 0) return; // Cache: Don't fetch if we already have them
@@ -166,6 +167,7 @@ export function useCourses() {
     if (userRole === 'admin' || userRole === 'manager') {
       try {
         const rawData = await fetchWithAuth('/courses/enrollments');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enrollmentsData = rawData.map((item: any) => ({
           ...item,
           user_name: item.profile?.full_name || 'Unknown',

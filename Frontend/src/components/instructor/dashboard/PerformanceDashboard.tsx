@@ -24,6 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -73,20 +74,20 @@ const PerformanceDashboard: React.FC = () => {
             Track your course performance and student engagement metrics.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
+        <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3">
+          <Button variant="outline" className="w-full sm:w-auto h-11 px-6 rounded-xl font-bold gap-2">
             <Download className="h-4 w-4" /> Export Report
           </Button>
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[140px] h-9">
-              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectTrigger className="w-full sm:w-[160px] h-11 bg-white border-slate-200 rounded-xl font-semibold">
+              <Calendar className="h-4 w-4 mr-2 text-slate-400" />
               <SelectValue placeholder="Time Range" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-              <SelectItem value="90d">Last 90 Days</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="7d" className="font-medium cursor-pointer">Last 7 Days</SelectItem>
+              <SelectItem value="30d" className="font-medium cursor-pointer">Last 30 Days</SelectItem>
+              <SelectItem value="90d" className="font-medium cursor-pointer">Last 90 Days</SelectItem>
+              <SelectItem value="all" className="font-medium cursor-pointer">All Time</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -149,80 +150,96 @@ const PerformanceDashboard: React.FC = () => {
 
           {/* Course Performance Table */}
           <Card className="border-border/50 shadow-sm">
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <CardTitle className="text-lg">Course Specific Performance</CardTitle>
-                  <CardDescription>Performance breakdown by individual courses</CardDescription>
+            <CardHeader className="border-b border-slate-100 pb-4">
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-slate-900">Course Specific Performance</CardTitle>
                 </div>
-                <div className="relative w-full sm:w-[240px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search courses..."
-                    className="pl-9 h-9 text-sm"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="Search courses by name..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 h-11 bg-slate-50/50 border-slate-200 rounded-xl w-full focus-visible:ring-primary/20 text-sm font-medium"
+                    />
+                  </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="relative overflow-x-auto rounded-lg border border-border/50">
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs uppercase bg-muted/50 text-muted-foreground">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Course Name</th>
-                      <th className="px-4 py-3 font-semibold">Students</th>
-                      <th className="px-4 py-3 font-semibold text-center">Avg. Progress</th>
-                      <th className="px-4 py-3 font-semibold text-right">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50">
-                    {isLoading ? (
-                      Array(3).fill(0).map((_, i) => (
-                        <tr key={i}>
-                          <td className="px-4 py-4"><Skeleton className="h-4 w-40" /></td>
-                          <td className="px-4 py-4"><Skeleton className="h-4 w-12" /></td>
-                          <td className="px-4 py-4"><Skeleton className="h-4 w-24 mx-auto" /></td>
-                          <td className="px-4 py-4 text-right"><Skeleton className="h-4 w-16 ml-auto" /></td>
-                        </tr>
-                      ))
-                    ) : filteredCourses.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground italic">
-                          No courses found matching your search.
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredCourses.map((course) => (
-                        <tr key={course.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-                                <BookOpen className="h-4 w-4 text-primary" />
+            <CardContent className="p-0 sm:p-4 bg-slate-50/30">
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50/80 border border-slate-100 text-[10px] text-slate-500 font-black tracking-widest uppercase mb-4 rounded-xl mx-4 lg:mx-0">
+                <div className="col-span-5">Course Focus</div>
+                <div className="col-span-2 text-center">Engagement</div>
+                <div className="col-span-3 text-center">Avg. Progress</div>
+                <div className="col-span-2 text-right">Status</div>
+              </div>
+              <div className="space-y-4 lg:space-y-3 px-4 lg:px-0 pb-4 h-[400px] overflow-y-auto custom-scrollbar">
+                {isLoading ? (
+                  Array(3).fill(0).map((_, i) => (
+                     <div key={i} className="flex flex-col md:grid md:grid-cols-12 items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white shadow-sm">
+                       <Skeleton className="h-10 w-full md:col-span-5" />
+                       <Skeleton className="h-10 w-full md:col-span-2 hidden md:block" />
+                       <Skeleton className="h-10 w-full md:col-span-3 hidden md:block" />
+                       <Skeleton className="h-10 w-full md:col-span-2 hidden md:block" />
+                     </div>
+                  ))
+                ) : filteredCourses.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl border border-slate-100">
+                    <BookOpen className="h-12 w-12 text-slate-200 mb-3" />
+                    <p className="text-sm font-bold text-slate-600">No courses match your search</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">Try adjusting your filter</p>
+                  </div>
+                ) : (
+                  filteredCourses.map((course) => (
+                    <motion.div 
+                      key={course.id} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col md:grid md:grid-cols-12 items-start md:items-center gap-4 md:gap-4 p-4 md:p-5 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:shadow-md transition-all duration-300"
+                    >
+                      {/* Mobile Header / Desktop Col 1 */}
+                      <div className="flex items-center gap-4 w-full md:col-span-5 min-w-0">
+                        <div className="h-12 w-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <BookOpen className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-slate-900 text-sm md:text-base truncate">{course.title}</p>
+                          <p className="text-xs text-slate-500 font-medium truncate md:hidden mt-0.5">Active enrollments and progress tracking</p>
+                        </div>
+                      </div>
+
+                      {/* Stats Grid */}
+                      <div className="grid grid-cols-2 gap-4 w-full md:col-span-5 md:grid md:grid-cols-5 md:gap-0 bg-slate-50 md:bg-transparent rounded-xl p-3 md:p-0 border border-slate-100 md:border-none">
+                        <div className="flex flex-col items-center justify-center md:col-span-2">
+                           <span className="font-black text-slate-800 text-lg md:text-sm">124</span>
+                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:hidden">Students</span>
+                        </div>
+                        
+                        <div className="flex flex-col items-center justify-center md:col-span-3 border-l border-slate-200 md:border-none">
+                           <div className="flex flex-col items-center w-full px-2 lg:px-6">
+                              <span className="font-black text-primary text-lg md:text-sm md:hidden">65%</span>
+                              <div className="flex items-center justify-between w-full hidden md:flex mb-1">
+                                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Progress</span>
+                                <span className="font-black text-primary text-xs">65%</span>
                               </div>
-                              <span className="font-medium">{course.title}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 font-mono">124</td>
-                          <td className="px-4 py-4">
-                            <div className="flex flex-col gap-1.5 items-center">
-                              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden max-w-[120px]">
-                                <div className="h-full bg-primary" style={{ width: '65%' }} />
-                              </div>
-                              <span className="text-[10px] font-medium text-muted-foreground">65% complete</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="capitalize text-[10px]">
-                              {course.status || 'Active'}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                              <Progress value={65} className="h-2 flex-1 w-full bg-slate-200 hidden md:block" indicatorClassName="bg-primary" />
+                           </div>
+                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:hidden mt-1">Avg Progress</span>
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div className="w-full flex items-center justify-between md:justify-end md:col-span-2 px-2 md:px-0 pt-2 md:pt-0 border-t border-slate-100 md:border-none">
+                         <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest md:hidden">Environment</span>
+                         <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="capitalize text-[10px] font-black tracking-widest px-3 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-none">
+                           {course.status || 'Active'}
+                         </Badge>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

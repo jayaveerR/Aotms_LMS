@@ -1193,11 +1193,13 @@ app.delete('/api/data/:table/:id', authenticateToken, async (req, res) => {
 
 app.get('/api/public/courses', async (req, res) => {
     try {
-        const query = { status: 'published' }; // Assuming 'published' status logic
-        if (req.query.category && req.query.category !== 'All') {
-            query.category = req.query.category;
+        const query = { status: 'published' };
+        if (req.query.category && req.query.category.toLowerCase() !== 'all') {
+            // Use regex for case-insensitive matching if needed, 
+            // but standard equality is safer if DB is normalized.
+            query.category = { $regex: new RegExp(`^${req.query.category}$`, 'i') };
         }
-        const courses = await Course.find(query).limit(50);
+        const courses = await Course.find(query).sort({ created_at: -1 }).limit(50);
         res.json(courses);
     } catch (err) {
         handleError(res, err, 'public-courses');

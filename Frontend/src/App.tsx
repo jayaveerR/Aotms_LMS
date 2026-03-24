@@ -60,7 +60,7 @@ const RoleRedirector = () => {
     } 
     // 2. Handle Initial Load / Wrong Page
     // If user is at root/auth OR if they are an admin on a non-admin page
-    else if (location.pathname === '/' || location.pathname === '/auth') {
+    else if (location.pathname === '/auth') {
        if (target) navigate(target);
     }
     // Force specific redirection for non-students if they wander into the student area

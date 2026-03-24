@@ -11,6 +11,8 @@ interface User {
     [key: string]: unknown;
   };
   approval_status?: string;
+  full_name?: string;
+  avatar_url?: string;
   [key: string]: unknown;
 }
 
@@ -115,7 +117,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const { user: userData } = await profileRes.json();
+      const jsonRes = await profileRes.json();
+      const userData = jsonRes.user;
+      const profileData = jsonRes.profile;
+
+      // Merge profile data (name, avatar) back into the user object since the MongoDB refactor
+      // returns them in a separate 'profile' block.
+      if (profileData) {
+        userData.full_name = profileData.full_name || userData.full_name;
+        userData.avatar_url = profileData.avatar_url || userData.avatar_url;
+      }
 
       // Update local state and storage with fresh profile data
       setUser(userData);

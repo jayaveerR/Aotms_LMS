@@ -232,7 +232,7 @@ export default function InstructorCourses() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -317,7 +317,7 @@ export default function InstructorCourses() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {['all', 'pending', 'approved', 'published', 'rejected', 'draft'].map((status) => (
                 <Button
                   key={status}
@@ -365,9 +365,9 @@ export default function InstructorCourses() {
               {filteredCourses.map((course) => (
                 <div
                   key={course.id}
-                  className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all bg-white"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all bg-white"
                 >
-                  <div className="h-16 w-28 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="w-full h-40 sm:h-16 sm:w-28 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
                     {course.image || course.thumbnail_url ? (
                       <img src={course.image || course.thumbnail_url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -376,11 +376,11 @@ export default function InstructorCourses() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="font-semibold text-slate-900 truncate">{course.title}</h3>
                       {getStatusBadge(course.status)}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
                       {course.instructor_id ? (
                         <div 
                           className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors group"
@@ -426,7 +426,7 @@ export default function InstructorCourses() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center justify-end w-full sm:w-auto gap-2 shrink-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100">
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -583,7 +583,7 @@ export default function InstructorCourses() {
               ) : (
                 <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2">
                   {enrolledStudents.map((student) => (
-                    <div key={student.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-white hover:border-primary/20 hover:shadow-md transition-all group">
+                    <div key={student.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 p-4 rounded-xl border border-slate-100 bg-white hover:border-primary/20 hover:shadow-md transition-all group">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm border border-slate-100">
                           <AvatarImage src={student.avatar_url || ''} />
@@ -597,7 +597,7 @@ export default function InstructorCourses() {
                           <p className="text-[10px] font-bold text-primary mt-1">Mobile: {student.mobile_number}</p>
                         </div>
                       </div>
-                      <div className="text-right flex flex-col items-end gap-1.5">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-0 border-slate-100 gap-1.5">
                         <Badge variant="outline" className="text-[10px] py-0 h-5 border-slate-200 bg-slate-50/50">
                           {(student.role as string)?.toUpperCase()}
                         </Badge>

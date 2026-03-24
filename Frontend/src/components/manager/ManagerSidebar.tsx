@@ -79,7 +79,7 @@ export function ManagerSidebar({
         <SidebarMenuButton
           isActive={activeSection === item.id}
           onClick={() => onSectionChange(item.id)}
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-3 cursor-pointer group-data-[collapsible=icon]:!justify-center"
         >
           <item.icon className="h-4 w-4" />
           {!collapsed && <span>{item.title}</span>}

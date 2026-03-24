@@ -92,31 +92,44 @@ function DoubtCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border rounded-lg bg-card hover:bg-muted/30 transition-colors"
+      className="border border-slate-100 rounded-2xl bg-white hover:border-primary/20 hover:shadow-md transition-all duration-300"
     >
-      <div className="p-4">
-        <div className="flex items-start gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {doubt.student_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S'}
-            </AvatarFallback>
-          </Avatar>
+      <div className="p-4 md:p-6">
+        <div className="flex flex-col md:flex-row items-start gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <Avatar className="h-12 w-12 border border-slate-100 shadow-sm shrink-0">
+              <AvatarFallback className="bg-primary/5 text-primary font-bold">
+                {doubt.student_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="md:hidden flex-1">
+              <p className="font-bold text-slate-900 text-sm">{doubt.student_name || 'Student'}</p>
+              <span className="text-xs text-slate-500">{formatTimeAgo(doubt.created_at)}</span>
+            </div>
+          </div>
           
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-medium text-sm">{doubt.student_name || 'Student'}</p>
-              <span className="text-xs text-muted-foreground">{formatTimeAgo(doubt.created_at)}</span>
-              <Badge variant="secondary" className={`${status.bg} ${status.text} text-xs`}>
+          <div className="flex-1 min-w-0 w-full">
+            <div className="flex flex-wrap items-center justify-between md:justify-start gap-2 mb-1 hidden md:flex">
+              <p className="font-bold text-slate-900 text-sm md:text-base">{doubt.student_name || 'Student'}</p>
+              <span className="text-xs text-slate-400 font-medium">{formatTimeAgo(doubt.created_at)}</span>
+              <Badge variant="secondary" className={`${status.bg} ${status.text} text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border-none ml-2`}>
                 {status.label}
               </Badge>
               {doubt.is_pinned && (
-                <Badge variant="outline" className="gap-1 text-xs">
+                <Badge variant="outline" className="gap-1 text-[10px] uppercase font-bold text-primary border-primary/20">
                   <Pin className="w-3 h-3" /> Pinned
                 </Badge>
               )}
             </div>
             
-            <p className="text-sm text-muted-foreground mt-1">{doubt.student_email}</p>
+            <div className="flex items-center justify-between md:hidden mb-3">
+              <p className="text-xs text-slate-500 font-medium truncate">{doubt.student_email}</p>
+              <Badge variant="secondary" className={`${status.bg} ${status.text} text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border-none shrink-0`}>
+                {status.label}
+              </Badge>
+            </div>
+            
+            <p className="text-xs text-slate-500 font-medium truncate hidden md:block">{doubt.student_email}</p>
             
             <div className="mt-3 p-3 rounded-lg bg-muted/50">
               <p className="text-sm font-medium flex items-center gap-2">
@@ -173,25 +186,23 @@ function DoubtCard({
               </div>
             )}
 
-            <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between sm:justify-start gap-2 flex-wrap sm:flex-nowrap">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => onReply(doubt.id)}
-                className="gap-1"
+                className="gap-2 h-10 w-full sm:w-auto font-bold rounded-xl"
               >
-                <Reply className="w-3 h-3" />
+                <Reply className="w-4 h-4" />
                 Reply
               </Button>
               
               {doubt.status !== 'solved' && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => onMarkSolved(doubt.id)}
-                  className="gap-1"
+                  className="gap-2 h-10 flex-1 sm:w-auto font-bold rounded-xl bg-slate-50 text-slate-600 hover:text-green-600 hover:bg-green-50 border-transparent transition-colors"
                 >
-                  <CheckCircle2 className="w-3 h-3" />
+                  <CheckCircle2 className="w-4 h-4" />
                   Mark Solved
                 </Button>
               )}
@@ -199,29 +210,28 @@ function DoubtCard({
               {doubt.replies && doubt.replies.length > 0 && (
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={() => {
                     const unpinnedReply = doubt.replies?.find(r => !r.is_pinned);
                     if (unpinnedReply) onPinAnswer(doubt.id, unpinnedReply.id);
                   }}
-                  className="gap-1"
+                  className="gap-2 h-10 flex-1 sm:w-auto font-bold rounded-xl hover:text-primary transition-colors"
                 >
-                  <Pin className="w-3 h-3" />
+                  <Pin className="w-4 h-4" />
                   Pin Answer
                 </Button>
               )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 sm:ml-auto p-0 rounded-xl hover:bg-slate-100">
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="rounded-xl">
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    className="text-destructive"
+                    className="text-rose-600 cursor-pointer font-bold hover:bg-rose-50 hover:text-rose-700 focus:text-rose-700 focus:bg-rose-50 rounded-lg transition-colors"
                     onClick={() => onDelete(doubt.id)}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
@@ -350,11 +360,10 @@ export function DoubtManager() {
             Manage student questions and provide answers
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3">
           <Button 
             variant="outline" 
-            size="sm" 
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto h-11 px-6 rounded-xl font-bold"
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
@@ -415,27 +424,32 @@ export function DoubtManager() {
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-base">All Doubts ({filteredDoubts.length})</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <CardHeader className="pb-4 border-b border-slate-100">
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                All Doubts
+                <Badge className="bg-primary/10 text-primary border-none font-bold py-0.5">{filteredDoubts.length}</Badge>
+              </CardTitle>
+            </div>
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Search doubts..."
+                  placeholder="Search doubts by keyword or student..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9 w-[200px]"
+                  className="pl-10 h-11 bg-slate-50/50 border-slate-200 rounded-xl w-full focus-visible:ring-primary/20 text-sm font-medium"
                 />
               </div>
               <Select value={courseFilter} onValueChange={setCourseFilter}>
-                <SelectTrigger className="w-[180px] h-9">
+                <SelectTrigger className="w-full md:w-[220px] h-11 bg-slate-50/50 border-slate-200 rounded-xl font-medium text-slate-600 focus:ring-primary/20">
                   <SelectValue placeholder="All Courses" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Courses</SelectItem>
+                <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                  <SelectItem value="all" className="font-bold cursor-pointer hover:bg-slate-50">All Courses</SelectItem>
                   {playlists?.map((playlist) => (
-                    <SelectItem key={playlist.id} value={playlist.id}>
+                    <SelectItem key={playlist.id} value={playlist.id} className="font-bold cursor-pointer hover:bg-slate-50">
                       {playlist.title}
                     </SelectItem>
                   ))}
@@ -444,7 +458,7 @@ export function DoubtManager() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6 bg-slate-50/30">
           <ScrollArea className="h-[600px] pr-2">
             <div className="space-y-4">
               {isLoading ? (
