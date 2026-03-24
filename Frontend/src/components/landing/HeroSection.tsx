@@ -136,7 +136,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white/90 text-sm font-bold mb-8 tracking-wide uppercase shadow-lg">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-slate-900 text-sm font-bold mb-8 tracking-wide uppercase shadow-lg">
               <span className="w-2 h-2 rounded-full bg-[#FD5A1A] animate-pulse" />
               Vijayawada’s Best Skill Platform
             </span>
@@ -146,18 +146,18 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight mb-6 text-center text-white drop-shadow-2xl px-2 font-extrabold"
+            className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight mb-6 text-center text-slate-900 px-2 font-extrabold"
           >
             SMART LEARNING
             <br className="hidden md:block" />
-            <span className="text-white"> MANAGEMENT SYSTEM</span>
+            <span className="text-slate-900"> MANAGEMENT SYSTEM</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm md:text-lg text-white/90 max-w-2xl mx-auto mb-10 px-4 sm:px-0 leading-relaxed font-medium"
+            className="text-sm md:text-lg text-slate-800 max-w-2xl mx-auto mb-10 px-4 sm:px-0 leading-relaxed font-medium"
           >
             AOTMS is Vijayawada's premier learning management system offering
             online courses, live classes, secure exams, mock tests, and
@@ -173,7 +173,7 @@ const HeroSection = () => {
           >
             <Button
               size="xl"
-              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#0075CF] hover:bg-[#0066B3] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all group gap-2"
+              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#3391D9] hover:bg-[#4DA7E2] text-slate-900 font-bold text-base shadow-2xl hover:scale-105 active:scale-95 transition-all group gap-2"
               onClick={() => navigate("/auth")}
             >
               Get Started
@@ -181,7 +181,7 @@ const HeroSection = () => {
             </Button>
             <Button
               size="xl"
-              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FD5A1A] hover:bg-[#E34D14] text-[#FDFEFE] font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all gap-2 backdrop-blur"
+              className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#FD7A45] hover:bg-[#FD8C5E] text-slate-900 font-bold text-base shadow-2xl hover:scale-105 active:scale-95 transition-all gap-2 backdrop-blur"
               onClick={() => navigate("/student-dashboard")}
             >
               <Play className="w-5 h-5 fill-current shrink-0" />
@@ -203,9 +203,9 @@ const HeroSection = () => {
             ].map((item, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[#FDFEFE]/90 text-sm font-bold tracking-wide"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-slate-900 text-sm font-bold tracking-wide"
               >
-                <item.icon className="w-4 h-4 text-[#FD5A1A]" />
+                <item.icon className="w-4 h-4 text-slate-900" />
                 {item.text}
               </div>
             ))}
@@ -225,10 +225,10 @@ const HeroSection = () => {
               { value: "95%", label: "Success Rate" },
             ].map((stat) => (
               <div key={stat.label} className="text-center w-full md:w-auto">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white drop-shadow">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900">
                   {stat.value}
                 </p>
-                <p className="text-[10px] md:text-sm text-white/60 mt-1 font-semibold tracking-wider uppercase">
+                <p className="text-[10px] md:text-sm text-slate-600 mt-1 font-semibold tracking-wider uppercase">
                   {stat.label}
                 </p>
               </div>
