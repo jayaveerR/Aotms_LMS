@@ -108,6 +108,9 @@
   /* Premium Professional Cards */
   .pro-card {
     @apply bg-white border border-slate-200/60 rounded-xl transition-all duration-300;
+    box-shadow: none;
+  }
+  .pro-card:hover {
     box-shadow: var(--shadow-premium);
   }
 
