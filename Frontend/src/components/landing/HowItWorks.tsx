@@ -169,7 +169,7 @@ const HowItWorks = () => (
                     className={`absolute -inset-0.5 bg-gradient-to-r ${i % 2 === 0 ? "from-[#0075CF] to-[#3391D9]" : "from-[#FD5A1A] to-[#FD8C5E]"} rounded-[2.5rem] opacity-0 group-hover:opacity-100 blur-md transition duration-500`}
                   />
 
-                  <div className="relative bg-white/70 backdrop-blur-2xl border border-slate-900/10 p-6 md:p-8 rounded-[2rem] md:rounded-[2.4rem] shadow-xl shadow-slate-200/50 flex flex-col items-center lg:items-start overflow-hidden">
+                  <div className="relative bg-white/95 backdrop-blur-sm border border-slate-900/10 p-6 md:p-8 rounded-[2rem] md:rounded-[2.4rem] shadow-xl shadow-slate-200/50 flex flex-col items-center lg:items-start overflow-hidden">
                     {/* Background number */}
                     <span className="absolute -bottom-4 -right-2 md:-bottom-8 md:-right-4 text-[6rem] md:text-[10rem] font-black text-slate-50 opacity-10 pointer-events-none group-hover:text-slate-100 group-hover:opacity-20 transition-all duration-500">
                       {step.step}

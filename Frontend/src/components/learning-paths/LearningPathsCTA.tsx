@@ -26,8 +26,9 @@ const LearningPathsCTA = () => {
             Start Your Career Path Today
           </h2>
           <p className="text-primary-foreground/80 text-lg mb-10">
-            Choose a path and begin your journey with AOTMS. Join thousands of students 
-            who are building successful careers with our structured learning programs.
+            Choose a path and begin your journey with AOTMS. Join thousands of
+            students who are building successful careers with our structured
+            learning programs.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -35,7 +36,7 @@ const LearningPathsCTA = () => {
               variant="accent"
               size="xl"
               className="gap-2 group"
-              onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}
+              onClick={() => window.scrollTo({ top: 400, behavior: "smooth" })}
             >
               Explore Learning Paths
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

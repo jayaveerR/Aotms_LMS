@@ -6,7 +6,6 @@ import LearningPathsHero from "@/components/learning-paths/LearningPathsHero";
 import LearningPathCard from "@/components/learning-paths/LearningPathCard";
 import PathDetailsPreview from "@/components/learning-paths/PathDetailsPreview";
 import HowPathsWork from "@/components/learning-paths/HowPathsWork";
-import PerformanceTracking from "@/components/learning-paths/PerformanceTracking";
 import CareerOutcomes from "@/components/learning-paths/CareerOutcomes";
 import LearningPathsCTA from "@/components/learning-paths/LearningPathsCTA";
 import LowPolyBackground from "@/components/landing/LowPolyBackground";
@@ -246,7 +245,6 @@ const LearningPaths = () => {
         </section>
 
         <HowPathsWork />
-        <PerformanceTracking />
         <CareerOutcomes />
         <LearningPathsCTA />
       </main>

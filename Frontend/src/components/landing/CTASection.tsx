@@ -62,14 +62,14 @@ const CTASection = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] md:rounded-tl-[10rem] md:rounded-br-[10rem] min-h-[400px] md:min-h-[500px] flex items-center justify-center shadow-[0_40px_100px_-20px_rgba(0,117,207,0.3)] bg-[#0075CF]/85 backdrop-blur-2xl border border-white/20"
+          className="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] md:rounded-tl-[10rem] md:rounded-br-[10rem] min-h-[400px] md:min-h-[500px] flex items-center justify-center shadow-[0_40px_100px_-20px_rgba(0,117,207,0.3)] bg-[#0075CF]/95 backdrop-blur-sm border border-white/20"
         >
           <CTABackground />
 
           <div className="relative z-10 px-6 sm:px-12 md:px-24 py-12 md:py-24 text-center">
             {/* Pulsing Status Badge */}
             <div className="flex justify-center mb-6">
-              <span className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 rounded-full bg-white/10 border border-white/20 text-[#FDFEFE] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] backdrop-blur-md">
+              <span className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 rounded-full bg-white/20 border border-white/30 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] backdrop-blur-sm">
                 <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white"></span>
@@ -78,19 +78,19 @@ const CTASection = () => {
               </span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#FDFEFE] mb-6 md:mb-8 leading-tight tracking-tight">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 md:mb-8 leading-tight tracking-tight">
               Launch Your <br className="hidden sm:block" />
-              <span className="text-white">Future In Tech</span>
+              <span>Future In Tech</span>
             </h2>
             
-            <p className="text-[#FDFEFE]/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
+            <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-semibold">
               Join the elite circle of graduates in Vijayawada who transformed their careers through our industry-backed learning ecosystem.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <button
                 onClick={() => navigate("/auth")}
-                className="group w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] bg-white text-[#0075CF] font-black text-lg hover:bg-[#FD5A1A] hover:text-white transition-all duration-500 shadow-2xl hover:shadow-[0_0_40px_rgba(253,90,26,0.6)]"
+                className="group w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] bg-white text-[#0075CF] font-black text-lg hover:bg-slate-50 transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
               >
                 Start My Journey
                 <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
@@ -98,25 +98,25 @@ const CTASection = () => {
               
               <button
                 onClick={() => navigate("/auth")}
-                className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] bg-white/10 border border-white/20 text-[#FDFEFE] font-black text-lg hover:bg-white/20 transition-all backdrop-blur-xl"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] bg-white/15 border border-white/30 text-white font-black text-lg hover:bg-white/25 transition-all backdrop-blur-sm"
               >
                 <BookOpen className="w-6 h-6" /> Explore Track
               </button>
             </div>
 
             {/* Support Hotline */}
-            <div className="mt-16 pt-10 border-t border-white/10 flex flex-wrap items-center justify-center gap-8">
-              <a href="tel:+919876543210" className="flex items-center gap-3 text-[#FDFEFE]/70 hover:text-[#FDFEFE] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[#FD5A1A] transition-all">
+            <div className="mt-16 pt-10 border-t border-white/20 flex flex-wrap items-center justify-center gap-6 md:gap-8">
+              <a href="tel:+919876543210" className="flex items-center gap-3 text-white hover:scale-105 transition-all group px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[#0075CF] transition-all">
                   <Phone className="w-4 h-4" />
                 </div>
-                <span className="font-bold tracking-widest text-xs">(+91) 98765-43210</span>
+                <span className="font-bold tracking-widest text-[10px] md:text-xs">(+91) 98765-43210</span>
               </a>
-              <a href="mailto:hello@aotms.com" className="flex items-center gap-3 text-[#FDFEFE]/70 hover:text-[#FDFEFE] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[#FD5A1A] transition-all">
+              <a href="mailto:hello@aotms.com" className="flex items-center gap-3 text-white hover:scale-105 transition-all group px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[#0075CF] transition-all">
                   <Mail className="w-4 h-4" />
                 </div>
-                <span className="font-bold tracking-widest text-xs">hello@aotms.com</span>
+                <span className="font-bold tracking-widest text-[10px] md:text-xs">hello@aotms.com</span>
               </a>
             </div>
           </div>
